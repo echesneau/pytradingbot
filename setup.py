@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='tradingbot',
-    version="2.0.0",
+    name='pytradingbot',
+    version="0.0.1",
     packages=find_packages(),
     include_package_data = True,
     python_requires=">=3.6",

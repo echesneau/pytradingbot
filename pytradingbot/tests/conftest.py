@@ -15,7 +15,7 @@ from importlib import resources
 
 @pytest.fixture()
 def id_config_path():
-    dirname = resources.files("tradingbot")  # return the path of the file id.config of the module tradingbot
+    dirname = resources.files("pytradingbot")  # return the path of the file id.config of the module tradingbot
     return f"{dirname}/id.config"
 
 
