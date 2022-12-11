@@ -4,7 +4,7 @@ setup(
     name='pytradingbot',
     version="0.0.1",
     packages=find_packages(),
-    include_package_data = True,
+    include_package_data=True,
     python_requires=">=3.6",
     # description="",
     #  long_description=open('README.md').read(),
@@ -13,6 +13,7 @@ setup(
         "numpy",
         "pytest",
         "krakenex",
+        "lxml",
         ]
 )
         

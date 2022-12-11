@@ -1,0 +1,11 @@
+<pytradingbot>
+    <trading>
+        <symbol>XXBT</symbol>
+        <pair>XXBTZEUR</pair> <!-- traiding pair -->
+        <refresh>5</refresh> <!-- Time (in seconds) between two market update -->
+    </trading>
+    <market>
+        <clean>300</clean> <!-- Maximum number of rows in memory -->
+        <odir format="pandas">data/outputs/market</odir> <!-- ouptut directory -->
+    </market>
+</pytradingbot>

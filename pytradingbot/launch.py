@@ -8,8 +8,9 @@
 from pytradingbot.iolib.crypto_api import KrakenApi
 # =================
 # Variables
+CONFIG = 'data/inputs/config.xml'
 
-API = KrakenApi()
+API = KrakenApi(inputs=CONFIG)
 API.connect()
 
 if __name__ == '__name__':

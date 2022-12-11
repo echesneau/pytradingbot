@@ -2,8 +2,10 @@
 # Python IMPORTS
 # =================
 import logging
+import os.path
 from abc import ABC, abstractmethod
 from importlib import resources
+from lxml import etree
 
 # =================
 # Internal IMPORTS
@@ -16,8 +18,15 @@ from pytradingbot.utils import read_file
 
 
 class ApiABC(ABC):
+    id_config_path = ""
+    id = {}
+    session = None
+    pair = ""
+    symbol = ""
+    refresh = 60
+
     def __init__(self):
-        self.config_path = f"{resources.files('pytradingbot')}/id.config"
+        self.id_config_path = f"{resources.files('pytradingbot')}/id.config"
         self.id = {}
         self.session = None
         # if not id_config is None and user != "":
@@ -78,15 +87,17 @@ class ApiABC(ABC):
 
 
 class BaseApi(ApiABC):
-    def __init__(self):
+    def __init__(self, inputs=""):
         super().__init__()
+        self.inputs_config_path = inputs
+        self.set_config(self.inputs_config_path)
 
     def _get_user_list(self):
-        id_config = read_file.read_idconfig(self.config_path)
+        id_config = read_file.read_idconfig(self.id_config_path)
         return id_config['user'].values
 
     def _set_id(self, user):
-        id_config = read_file.read_idconfig(self.config_path)
+        id_config = read_file.read_idconfig(self.id_config_path)
         if id_config is None:
             self.id = {}
         else:
@@ -99,6 +110,30 @@ class BaseApi(ApiABC):
                 if len(ids) > 1:
                     logging.warning(f"More than one user found with name {user}. First is selected")
                 self.id = ids[0]
+
+    def set_config(self, path):
+        # Check if path is file
+        if not os.path.isfile(path):
+            logging.warning(f"{path} is not a file, cannot set input config parameters")
+            return
+
+        # XML Parser
+        main = etree.parse(path)
+
+        # Symbol
+        for node in main.xpath("/pytradingbot/trading/symbol"):
+            self.symbol = node.text
+
+        # Pair
+        for node in main.xpath("/pytradingbot/trading/pair"):
+            self.pair = node.text
+
+        # Refresh time
+        for node in main.xpath("/pytradingbot/trading/refresh"):
+            try:
+                self.refresh = float(node.text)
+            except ValueError:
+                logging.warning(f"Refresh time read {node.text} is not a float. Set to default value {self.refresh}")
 
     def connect(self):
         pass

@@ -12,6 +12,7 @@ from pytradingbot.iolib.crypto_api import KrakenApi, KrakenApiDev
 # Variables
 # =================
 
+
 @pytest.mark.order(3)
 def test_connect(kraken_user):
     api = KrakenApi()
@@ -22,4 +23,3 @@ def test_connect(kraken_user):
     api = KrakenApiDev(user=kraken_user)
     api.connect()
     assert type(api.session) is krakenex.api.API
-

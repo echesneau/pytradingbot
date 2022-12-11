@@ -15,8 +15,8 @@ from pytradingbot.iolib.base import BaseApi
 
 
 class KrakenApi(BaseApi):
-    def __int__(self):
-        super().__init__()
+    def __int__(self, inputs=""):
+        super().__init__(inputs=inputs)
 
     def connect(self):
         if len(self.id) == 0:
@@ -40,8 +40,8 @@ class KrakenApi(BaseApi):
 
 
 class KrakenApiDev(KrakenApi):
-    def __init__(self, user=''):
-        super().__init__()
+    def __init__(self, user='', inputs=""):
+        super().__init__(inputs=inputs)
         self._set_id(user)
 
 
