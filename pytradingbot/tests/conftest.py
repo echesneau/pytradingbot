@@ -18,6 +18,9 @@ def id_config_path():
     dirname = resources.files("pytradingbot")  # return the path of the file id.config of the module tradingbot
     return f"{dirname}/id.config"
 
+@pytest.fixture()
+def kraken_user():
+    return 'erwan'
 
 @pytest.fixture()
 def df_market_test():

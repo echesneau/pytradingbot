@@ -30,7 +30,8 @@ def read_idconfig(path: str) -> pd.DataFrame:
     """
     if os.path.isfile(path):
         data = pd.read_csv(path, delimiter=" ")
-        data.columns = ["users", "keys", "private"]
+        data.columns = ["user", "key", "private"]
         return data
     else:
         logging.error(f"{path} is not a file.")
+        return None

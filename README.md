@@ -1,5 +1,6 @@
 # pytradingbot
-A Python Trading bot 
+A Python Trading bot  
+This project is in development : not stable yet
 
 # Installation
 all required packages are listed in the setup file.  
