@@ -19,6 +19,7 @@ def test_connect(kraken_user):
     api.connect()
     assert type(api.session) is krakenex.api.API
 
-    # api = KrakenApiDev(user=kraken_user)
-    # api.connect()
-    # print(api.session)
+    api = KrakenApiDev(user=kraken_user)
+    api.connect()
+    assert type(api.session) is krakenex.api.API
+

@@ -40,11 +40,9 @@ class KrakenApi(BaseApi):
 
 
 class KrakenApiDev(KrakenApi):
-    def __int__(self, user='erwan'):
+    def __init__(self, user=''):
         super().__init__()
-
         self._set_id(user)
-        print(self.id)
 
 
 class CryptoEmptyLoad:
