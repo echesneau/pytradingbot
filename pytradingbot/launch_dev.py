@@ -15,6 +15,8 @@ CONFIG = 'data/inputs/config.xml'
 
 API = KrakenApiDev(user='erwan', inputs=CONFIG)
 API.connect()
+API._get_market()
+
 
 
 if __name__ == '__name__':

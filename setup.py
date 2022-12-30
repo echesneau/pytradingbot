@@ -14,6 +14,7 @@ setup(
         "pytest",
         "krakenex",
         "lxml",
+        "requests",
         ]
 )
         

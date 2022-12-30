@@ -3,6 +3,9 @@
 # =================
 import logging
 import krakenex
+from datetime import datetime
+import requests.exceptions
+from time import sleep
 
 # =================
 # Internal IMPORTS
@@ -37,6 +40,32 @@ class KrakenApi(BaseApi):
                 test = False
             except:
                 pass
+
+    def _query_market(self, timeout=5):
+        query = self.session.query_public('Ticker', {'pair': self.pair}, timeout=timeout)
+        values = {"ask": float(query['result'][self.pair]['a'][0]),
+                  'bid': float(query['result'][self.pair]['b'][0])
+                  }
+        return values
+
+    def _get_market(self):
+        test = True
+        failed = 0
+        while test:
+            if failed > 0 and failed % 5 == 0:
+                self.connect()
+            if failed > 0 and failed % 10 == 0:
+                sleep(10)
+            try:
+                values = self._query_market()
+                test = False
+            except requests.exceptions.ConnectionError:
+                if failed == 0:
+                    logging.warning(f"Connexion problem at {datetime.now()}")
+                failed += 1
+        if failed > 0:
+            logging.warning(f"Problem solved at {datetime.now()} after {failed} test(s)")
+        return values
 
 
 class KrakenApiDev(KrakenApi):
