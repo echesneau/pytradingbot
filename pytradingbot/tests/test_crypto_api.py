@@ -28,7 +28,7 @@ def test_connect(kraken_user):
 def test_get_market(kraken_user, inputs_config_path):
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
     api.connect()
-    values = api._get_market()
+    values = api.get_market()
     for key in ['bid', 'ask']:
         assert key in values.keys()
         assert type(values[key]) == float

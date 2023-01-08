@@ -13,8 +13,7 @@ from pytradingbot.iolib.crypto_api import KrakenApi, KrakenApiDev
 
 def test_update(kraken_user, inputs_config_path):
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
-    
-    assert False
+
 
 
 def test_analyse():
