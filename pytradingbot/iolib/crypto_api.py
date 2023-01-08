@@ -44,11 +44,12 @@ class KrakenApi(BaseApi):
     def _query_market(self, timeout=5):
         query = self.session.query_public('Ticker', {'pair': self.pair}, timeout=timeout)
         values = {"ask": float(query['result'][self.pair]['a'][0]),
-                  'bid': float(query['result'][self.pair]['b'][0])
+                  'bid': float(query['result'][self.pair]['b'][0]),
+                  'time': datetime.now()
                   }
         return values
 
-    def _get_market(self):
+    def get_market(self):
         test = True
         failed = 0
         while test:

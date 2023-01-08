@@ -1,6 +1,6 @@
 pandas
-numpy
+numpy==1.24.1
 pytest
 krakenex
-lxml
+lxml==4.9.2
 requests
