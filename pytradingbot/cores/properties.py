@@ -45,8 +45,8 @@ class Ask(PropertiesABC):
         self.data = self.data.rename(self.name)
 
     def add_value(self, index=None, value=None):
-        row = pd.Series(index=index, data=value)
-        self.data = pd.concat([self.data, row], axis=0)
+        row = pd.Series(index=index, data=value, name=self.name)
+        self.data = pd.concat([self.data, row], axis=0)#, names=[self.name])
 
 
 class Bid(Ask):

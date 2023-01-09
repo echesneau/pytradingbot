@@ -3,14 +3,20 @@
 # =================
 import logging
 import os.path
+import time
+from datetime import datetime
 from abc import ABC, abstractmethod
 from importlib import resources
+
+import numpy as np
 from lxml import etree
 
 # =================
 # Internal IMPORTS
 # =================
 from pytradingbot.utils import read_file
+from pytradingbot.cores import markets
+
 
 # =================
 # Variables
@@ -50,7 +56,7 @@ class ApiABC(ABC):
         pass
 
     @abstractmethod
-    def _get_market(self):
+    def get_market(self):
         pass
 
     @abstractmethod
@@ -87,6 +93,8 @@ class ApiABC(ABC):
 
 
 class BaseApi(ApiABC):
+    market = None
+
     def __init__(self, inputs=""):
         super().__init__()
         self.inputs_config_path = inputs
@@ -138,14 +146,35 @@ class BaseApi(ApiABC):
     def connect(self):
         pass
 
-    def _get_market(self):
+    def set_market(self, obj: markets.Market):
+        self.market = obj
+
+    def run(self, times=np.inf):
+        # Init Market
+        self.set_market(markets.Market(parent=self))
+
+        # Init counter
+        count = 0
+
+        # start run
+        while count < times:
+            t0 = datetime.now()
+            self.update_market()
+            self.analyse()
+            tf = datetime.now()
+            wait = self.refresh - (tf - t0).total_seconds()
+            if wait > 0:
+                time.sleep(self.refresh)
+            count += 1
+
+    def get_market(self):
         pass
 
     def _add_child(self):
         pass
 
     def update_market(self):
-        pass
+        self.market.update()
 
     def _get_all_child(self):
         pass
@@ -164,4 +193,5 @@ class BaseApi(ApiABC):
 
     def mymoney(self):
         return self._get_balance()
+
     pass
