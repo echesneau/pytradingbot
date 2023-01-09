@@ -12,6 +12,7 @@ from pytradingbot.cores import markets
 # Variables
 # =================
 
+
 @pytest.mark.order(5)
 def test_create_market():
     api = KrakenApiDev()
@@ -24,6 +25,7 @@ def test_create_market():
     assert type(api.market.bid.data) == pd.Series
     assert api.market.bid.data.name == 'bid'
 
+
 @pytest.mark.order(6)
 def test_update(kraken_user, inputs_config_path):
     # Init API and Market
@@ -34,10 +36,12 @@ def test_update(kraken_user, inputs_config_path):
     # Check initial state of Market
     assert len(api.market.ask.data) == 0
     assert len(api.market.bid.data) == 0
+    assert len(api.market.volume.data) == 0
     assert api.market.bid.data.name == 'bid'
     assert api.market.ask.data.name == 'ask'
+    assert api.market.volume.data.name == 'volume'
     assert len(api.market.dataframe()) == 0
-    for prop in ['ask', 'bid']:
+    for prop in ['ask', 'bid', 'volume']:
         assert prop in api.market.dataframe().columns
 
     # Check state after updates
@@ -45,15 +49,13 @@ def test_update(kraken_user, inputs_config_path):
         api.update_market()
         assert len(api.market.ask.data) == i+1
         assert len(api.market.bid.data) == i+1
+        assert len(api.market.volume.data) == i+1
         assert api.market.bid.data.name == 'bid'
         assert api.market.ask.data.name == 'ask'
+        assert api.market.volume.data.name == 'volume'
         assert len(api.market.dataframe()) == i+1
-        for prop in ['ask', 'bid']:
+        for prop in ['ask', 'bid', 'volume']:
             assert prop in api.market.dataframe().columns
-
-
-
-
 
 
 def test_analyse():

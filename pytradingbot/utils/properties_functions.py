@@ -12,5 +12,5 @@ import pandas as pd
 # =================
 
 
-def do_nothing(data: dict ) -> pd.Series:
+def do_nothing(data: dict) -> pd.Series:
     return data.values()[0]

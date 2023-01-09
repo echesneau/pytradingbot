@@ -45,6 +45,7 @@ class KrakenApi(BaseApi):
         query = self.session.query_public('Ticker', {'pair': self.pair}, timeout=timeout)
         values = {"ask": float(query['result'][self.pair]['a'][0]),
                   'bid': float(query['result'][self.pair]['b'][0]),
+                  'volume': float(query['result'][self.pair]['v'][0]),
                   'time': datetime.now()
                   }
         return values
