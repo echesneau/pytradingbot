@@ -1,5 +1,6 @@
 # Project files
 */id.config
+*/tests/data/outputs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

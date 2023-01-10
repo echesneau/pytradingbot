@@ -95,8 +95,31 @@ def test_save_market(kraken_user, inputs_config_path):
         assert len(tmp) == i+1
 
 
-def test_clean_market():
-    assert True
+def test_clean_market(kraken_user, inputs_config_path):
+    nsteps = 5
+    # Init API and Market
+    api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
+    # api.set_market(markets.Market(parent=api, odir=f"{api.odir}/{api.pair}", oformat=api.oformat))
+    api.connect()
+
+    # set fast update
+    api.refresh = 1
+
+    # Run n steps
+    api.run(times=nsteps)
+
+    # set maximum number of rows in Market
+    api.market.set_maximum_rows(2)
+    assert api.market.nclean == 2
+
+    # check number of rows before cleaning
+    assert len(api.market.dataframe()) == nsteps
+    last = api.market.dataframe().index[-1]
+
+    # check number of rows after cleaning
+    api.market.clean()
+    assert len(api.market.dataframe()) == 2
+    assert api.market.dataframe().index[-1] == last
 
 
 def test_analyse():

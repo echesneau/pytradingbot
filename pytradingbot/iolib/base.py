@@ -216,7 +216,8 @@ class BaseApi(ApiABC):
             number of iterations
         """
         # Init Market
-        self.set_market(markets.Market(parent=self, odir=f"{self.odir}/{self.pair}"))
+        self.set_market(markets.Market(parent=self, odir=f"{self.odir}/{self.pair}",
+                                       oformat=self.oformat))
 
         # Init counter
         count = 0

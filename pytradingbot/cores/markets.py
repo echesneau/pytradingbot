@@ -23,7 +23,6 @@ class Market:
     """
     parents = {}
     child = []
-    nclean: int = 300  # maximum number of row in dataframe
 
     def __init__(self, parent=None, odir=None, oformat='pandas'):
         """
@@ -44,6 +43,7 @@ class Market:
         self.oformat = oformat
         if self.odir is not None and not os.path.isdir(self.odir):
             os.makedirs(self.odir)
+        self.nclean: int = 300  # maximum number of row in dataframe
 
     def update(self):
         """
@@ -118,8 +118,23 @@ class Market:
             odata.sort_index(inplace=True)
             odata.to_csv(path_or_buf=ofile, sep=" ", index_label="time")
 
+    def set_maximum_rows(self, nrows: int):
+        """
+        set maximum number of rows in the DataFrame (before cleaning)
+
+        Parameters
+        ----------
+        nrows: int
+            number of rows
+        """
+        self.nclean = nrows
+
     def clean(self):
+        """
+        Method to clean the market
+        """
         if len(self.ask.data) > self.nclean:
+            print("Market cleaned")
             # TODO: get maximum K value in properties
             nrows = 1
 

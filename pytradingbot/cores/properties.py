@@ -59,8 +59,15 @@ class PropertiesABC(ABC):
             self.child.append(obj)
 
     def clean(self, nrows: int = 0):
+        """
+        Method to clean data
+        Parameters
+        ----------
+        nrows: int
+            maximum number of rows in the pd.Series
+        """
         if len(self.data) > nrows:
-            self.data = self.data.iloc[-nrows:]
+            self.data = self.data.iloc[-nrows-1:]
 
 
 class Ask(PropertiesABC):
