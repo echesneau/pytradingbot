@@ -24,6 +24,9 @@ from pytradingbot.cores import markets
 
 
 class ApiABC(ABC):
+    """
+    Abstract class of all API
+    """
     id_config_path = ""
     id = {}
     session = None
@@ -35,6 +38,8 @@ class ApiABC(ABC):
         self.id_config_path = f"{resources.files('pytradingbot')}/id.config"
         self.id = {}
         self.session = None
+        self.odir = None
+        self.oformat = 'pandas'
         # if not id_config is None and user != "":
         #     self.user = user
         #     self.id = id_config.loc[id_config['user'] == user]
@@ -93,18 +98,43 @@ class ApiABC(ABC):
 
 
 class BaseApi(ApiABC):
+    """
+    Base API class, without specific method
+    """
     market = None
 
     def __init__(self, inputs=""):
+        """
+        Init method
+
+        Parameters
+        ----------
+        inputs: str
+            path of the input config
+        """
         super().__init__()
         self.inputs_config_path = inputs
         self.set_config(self.inputs_config_path)
 
     def _get_user_list(self):
+        """
+        method to get available user name
+        Returns
+            list: list of users
+        -------
+
+        """
         id_config = read_file.read_idconfig(self.id_config_path)
         return id_config['user'].values
 
-    def _set_id(self, user):
+    def _set_id(self, user: str):
+        """
+        method to set id for the connection
+        Parameters
+        ----------
+        user: str
+            username
+        """
         id_config = read_file.read_idconfig(self.id_config_path)
         if id_config is None:
             self.id = {}
@@ -119,7 +149,14 @@ class BaseApi(ApiABC):
                     logging.warning(f"More than one user found with name {user}. First is selected")
                 self.id = ids[0]
 
-    def set_config(self, path):
+    def set_config(self, path: str):
+        """
+        method to read input config file and to set attributes
+        Parameters
+        ----------
+        path: str
+            path to inputs config file
+        """
         # TODO: add a read function in utils to return a dict
         # Check if path is file
         if not os.path.isfile(path):
@@ -134,8 +171,7 @@ class BaseApi(ApiABC):
         self.oformat = 'pandas'
         for node in main.xpath("/pytradingbot/market/odir"):
             self.odir = node.text
-            if "format" in node.attrib and \
-                node.attrib['format'] in ['pandas']:
+            if "format" in node.attrib and node.attrib['format'] in ['pandas']:
                 self.oformat = node.attrib['format']
             else:
                 logging.warning(f"{node.attrib['format']} is not a good value: set by default to pandas")
@@ -156,12 +192,29 @@ class BaseApi(ApiABC):
                 logging.warning(f"Refresh time read {node.text} is not a float. Set to default value {self.refresh}")
 
     def connect(self):
+        """
+        connection to the API
+        """
         pass
 
     def set_market(self, obj: markets.Market):
+        """
+        method to set a market as attribute
+        Parameters
+        ----------
+        obj: Market Class
+        """
         self.market = obj
 
-    def run(self, times=np.inf):
+    def run(self, times: int = np.inf):
+        """
+        method to run the analysis of market in real time
+
+        Parameters
+        ----------
+        times: int
+            number of iterations
+        """
         # Init Market
         self.set_market(markets.Market(parent=self, odir=self.odir))
 
@@ -186,6 +239,9 @@ class BaseApi(ApiABC):
         pass
 
     def update_market(self):
+        """
+        method to update the market
+        """
         self.market.update()
 
     def _get_all_child(self):
@@ -204,6 +260,7 @@ class BaseApi(ApiABC):
         pass
 
     def mymoney(self):
+        """
+        Method to get your balance
+        """
         return self._get_balance()
-
-    pass

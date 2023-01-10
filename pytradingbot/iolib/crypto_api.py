@@ -18,10 +18,16 @@ from pytradingbot.iolib.base import BaseApi
 
 
 class KrakenApi(BaseApi):
+    """
+    API for Kraken
+    """
     def __int__(self, inputs=""):
         super().__init__(inputs=inputs)
 
     def connect(self):
+        """
+        connection to the API
+        """
         if len(self.id) == 0:
             users = self._get_user_list()
             if users.shape[0] == 0:
@@ -42,6 +48,19 @@ class KrakenApi(BaseApi):
                 pass
 
     def _query_market(self, timeout=5):
+        """
+        Method to query the Kraken market
+
+        Parameters
+        ----------
+        timeout: int
+            maximum time for the query
+
+        Returns
+        -------
+            dict: with market value
+
+        """
         query = self.session.query_public('Ticker', {'pair': self.pair}, timeout=timeout)
         values = {"ask": float(query['result'][self.pair]['a'][0]),
                   'bid': float(query['result'][self.pair]['b'][0]),
@@ -51,6 +70,13 @@ class KrakenApi(BaseApi):
         return values
 
     def get_market(self):
+        """
+        Method to get market value
+
+        Returns
+        -------
+            dict: with market value
+        """
         test = True
         failed = 0
         while test:
@@ -71,7 +97,19 @@ class KrakenApi(BaseApi):
 
 
 class KrakenApiDev(KrakenApi):
+    """
+        API for Kraken in development mode (user defines in argument)
+    """
     def __init__(self, user='', inputs=""):
+        """
+
+        Parameters
+        ----------
+        user: str
+            username
+        inputs: str
+            input config path
+        """
         super().__init__(inputs=inputs)
         self._set_id(user)
 
