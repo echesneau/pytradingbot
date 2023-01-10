@@ -1,13 +1,18 @@
 # =================
 # Python IMPORTS
 # =================
+import os
+import shutil
 import pandas as pd
 import pytest
+from datetime import datetime
+
 # =================
 # Internal IMPORTS
 # =================
 from pytradingbot.iolib.crypto_api import KrakenApi, KrakenApiDev
 from pytradingbot.cores import markets
+
 # =================
 # Variables
 # =================
@@ -30,7 +35,7 @@ def test_create_market():
 def test_update(kraken_user, inputs_config_path):
     # Init API and Market
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
-    api.set_market(markets.Market(parent=api, odir=api.odir, oformat=api.oformat))
+    api.set_market(markets.Market(parent=api, odir=f"{api.odir}/{api.pair}", oformat=api.oformat))
     api.connect()
 
     # Check initial state of Market
@@ -59,16 +64,39 @@ def test_update(kraken_user, inputs_config_path):
 
 
 def test_save_market(kraken_user, inputs_config_path):
-    # Check if odir is dir
     # Init API and Market
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
-    api.set_market(markets.Market(parent=api, odir=api.odir, oformat=api.oformat))
+
+    # remove output if exists
+    if os.path.isdir(f"{api.odir}/{api.pair}"):
+        shutil.rmtree(f"{api.odir}/{api.pair}")
+
+    # Set market
+    api.set_market(markets.Market(parent=api, odir=f"{api.odir}/{api.pair}", oformat=api.oformat))
     api.connect()
 
     # Check if odir and oformat are correctly set
-    assert api.market.odir == 'data/outputs/market'
+    assert api.market.odir == f'data/outputs/market/{api.pair}'
     assert api.market.oformat == "pandas"
 
+    # check 3 times
+    now = datetime.now().date()
+    for i in range(3):
+        # Generate file
+        api.update_market()
+        api.market.save()
+
+        # Check if file exists
+        assert os.path.isdir(f"{api.odir}/{api.pair}")
+        assert os.path.isfile(f"{api.odir}/{api.pair}/{now}.dat")
+
+        # check length of file
+        tmp = pd.read_csv(f"{api.odir}/{api.pair}/{now}.dat", index_col=0, sep=" ")
+        assert len(tmp) == i+1
+
+
+def test_clean_market():
+    assert True
 
 
 def test_analyse():

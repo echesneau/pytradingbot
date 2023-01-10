@@ -2,6 +2,8 @@
 # Python IMPORTS
 # =================
 import os
+
+import numpy as np
 import pandas as pd
 import logging
 
@@ -21,6 +23,7 @@ class Market:
     """
     parents = {}
     child = []
+    nclean: int = 300  # maximum number of row in dataframe
 
     def __init__(self, parent=None, odir=None, oformat='pandas'):
         """
@@ -98,4 +101,31 @@ class Market:
         """
         Method to save market in a file
         """
-        pass
+        data = self.dataframe()
+        days = data.index.normalize()
+        # TODO: stop writing the first day when nothing is done
+        for day in days.unique():
+            ofile = f"{self.odir}/{str(day.date())}.dat"
+            if not os.path.isfile(ofile):
+                odata = data[data.index.date == day.date()]
+            else:
+                odata = pd.read_csv(ofile, index_col=0, sep=" ")
+                odata.index = pd.to_datetime(odata.index)
+
+                mask = np.logical_and(~np.isin(data.index, odata.index),
+                                      data.index.date == day.date())
+                odata = pd.concat([odata, data[mask]], axis=0)
+            odata.sort_index(inplace=True)
+            odata.to_csv(path_or_buf=ofile, sep=" ", index_label="time")
+
+    def clean(self):
+        if len(self.ask.data) > self.nclean:
+            # TODO: get maximum K value in properties
+            nrows = 1
+
+            # clean all properties
+            self.ask.clean(nrows=nrows)
+            self.bid.clean(nrows=nrows)
+            self.volume.clean(nrows=nrows)
+            for prop in self.child:
+                prop.clean(nrows=nrows)

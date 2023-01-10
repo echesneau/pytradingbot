@@ -3,6 +3,7 @@
 # =================
 from typing import Dict, Any
 import pandas as pd
+from abc import ABC, abstractmethod
 
 # =================
 # Internal IMPORTS
@@ -13,7 +14,7 @@ import pandas as pd
 # =================
 
 
-class PropertiesABC:
+class PropertiesABC(ABC):
     """
     Abstract class for properties
     """
@@ -57,6 +58,10 @@ class PropertiesABC:
         if obj not in self.child:
             self.child.append(obj)
 
+    def clean(self, nrows: int = 0):
+        if len(self.data) > nrows:
+            self.data = self.data.iloc[-nrows:]
+
 
 class Ask(PropertiesABC):
     """
@@ -80,8 +85,10 @@ class Ask(PropertiesABC):
         Add value to the pd.Series
         Parameters
         ----------
-        index: pd.Index
-        value: float
+        index: list
+            list of index for pd.Series
+        value: list
+            list of float for pd.Series values
         """
         row = pd.Series(index=index, data=value, name=self.name)
         self.data = pd.concat([self.data, row], axis=0)
