@@ -227,6 +227,8 @@ class BaseApi(ApiABC):
             t0 = datetime.now()
             self.update_market()
             self.analyse()
+            self.market.save()
+            self.market.clean()
             tf = datetime.now()
             wait = self.refresh - (tf - t0).total_seconds()
             if wait > 0:
