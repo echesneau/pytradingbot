@@ -120,6 +120,7 @@ class BaseApi(ApiABC):
                 self.id = ids[0]
 
     def set_config(self, path):
+        # TODO: add a read function in utils to return a dict
         # Check if path is file
         if not os.path.isfile(path):
             logging.warning(f"{path} is not a file, cannot set input config parameters")
@@ -128,6 +129,17 @@ class BaseApi(ApiABC):
         # XML Parser
         main = etree.parse(path)
 
+        # Output directory
+        self.odir = None
+        self.oformat = 'pandas'
+        for node in main.xpath("/pytradingbot/market/odir"):
+            self.odir = node.text
+            if "format" in node.attrib and \
+                node.attrib['format'] in ['pandas']:
+                self.oformat = node.attrib['format']
+            else:
+                logging.warning(f"{node.attrib['format']} is not a good value: set by default to pandas")
+                self.oformat = 'pandas'
         # Symbol
         for node in main.xpath("/pytradingbot/trading/symbol"):
             self.symbol = node.text
@@ -151,7 +163,7 @@ class BaseApi(ApiABC):
 
     def run(self, times=np.inf):
         # Init Market
-        self.set_market(markets.Market(parent=self))
+        self.set_market(markets.Market(parent=self, odir=self.odir))
 
         # Init counter
         count = 0

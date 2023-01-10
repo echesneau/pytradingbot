@@ -1,6 +1,7 @@
 # =================
 # Python IMPORTS
 # =================
+import os
 import pandas as pd
 import logging
 
@@ -18,11 +19,15 @@ class Market:
     parents = {}
     child = []
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, odir=None, oformat='pandas'):
         self.add_parent('api', parent)
         self.ask = properties.Ask(parent=self)
         self.bid = properties.Bid(parent=self)
         self.volume = properties.Volume(parent=self)
+        self.odir = odir
+        self.oformat = oformat
+        if self.odir is not None and not os.path.isdir(self.odir):
+            os.makedirs(self.odir)
 
     def update(self):
         if 'api' in self.parents.keys():

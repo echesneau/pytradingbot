@@ -30,7 +30,7 @@ def test_create_market():
 def test_update(kraken_user, inputs_config_path):
     # Init API and Market
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
-    api.set_market(markets.Market(parent=api))
+    api.set_market(markets.Market(parent=api, odir=api.odir, oformat=api.oformat))
     api.connect()
 
     # Check initial state of Market
@@ -56,6 +56,19 @@ def test_update(kraken_user, inputs_config_path):
         assert len(api.market.dataframe()) == i+1
         for prop in ['ask', 'bid', 'volume']:
             assert prop in api.market.dataframe().columns
+
+
+def test_save_market(kraken_user, inputs_config_path):
+    # Check if odir is dir
+    # Init API and Market
+    api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
+    api.set_market(markets.Market(parent=api, odir=api.odir, oformat=api.oformat))
+    api.connect()
+
+    # Check if odir and oformat are correctly set
+    assert api.market.odir == 'data/outputs/market'
+    assert api.market.oformat == "pandas"
+
 
 
 def test_analyse():

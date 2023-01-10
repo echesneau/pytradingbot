@@ -42,3 +42,9 @@ def test_base_api(id_config_path, kraken_user, inputs_config_path):
 
     assert hasattr(api, 'refresh')
     assert api.refresh == 5
+
+    assert hasattr(api, 'odir')
+    assert api.odir == 'data/outputs/market'
+
+    assert hasattr(api, 'oformat')
+    assert api.oformat == 'pandas'
