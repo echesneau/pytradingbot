@@ -4,3 +4,5 @@ pytest
 krakenex
 lxml==4.9.2
 requests
+importlib
+sphinx
