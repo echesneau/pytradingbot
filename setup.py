@@ -15,7 +15,6 @@ setup(
         "krakenex",
         "lxml",
         "requests",
-        "importlib",
         "sphynx",
         ]
 )

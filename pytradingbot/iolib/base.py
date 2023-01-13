@@ -6,7 +6,6 @@ import os.path
 import time
 from datetime import datetime
 from abc import ABC, abstractmethod
-from importlib import resources
 
 import numpy as np
 from lxml import etree
@@ -35,7 +34,8 @@ class ApiABC(ABC):
     refresh = 60
 
     def __init__(self):
-        self.id_config_path = f"{resources.files('pytradingbot')}/id.config"
+        root_dir = os.path.dirname(__file__)
+        self.id_config_path = f"{root_dir}/../id.config"
         self.id = {}
         self.session = None
         self.odir = None

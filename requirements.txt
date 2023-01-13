@@ -3,6 +3,5 @@ numpy==1.24.1
 pytest
 krakenex
 lxml==4.9.2
-requests
-importlib
+requests==2.28.2
 sphinx
