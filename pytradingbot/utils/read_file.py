@@ -1,10 +1,9 @@
 # =================
 # Python IMPORTS
 # =================
-import os
+import os.path
 import logging
 import pandas as pd
-
 
 # =================
 # Internal IMPORTS
@@ -34,4 +33,4 @@ def read_idconfig(path: str) -> pd.DataFrame:
         return data
     else:
         logging.error(f"{path} is not a file.")
-        return None
+        return pd.DataFrame(columns=["user", "key", "private"])

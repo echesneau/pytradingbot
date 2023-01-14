@@ -2,7 +2,7 @@
 # Python IMPORTS
 # =================
 import pytest
-from importlib import resources
+import os.path
 
 # =================
 # Internal IMPORTS
@@ -15,8 +15,8 @@ from importlib import resources
 
 @pytest.fixture()
 def id_config_path():
-    dirname = resources.files("pytradingbot")  # return the path of the file id.config of the module tradingbot
-    return f"{dirname}/id.config"
+    root_dir = os.path.dirname(__file__)
+    return f"{root_dir}/../id.config"
 
 
 @pytest.fixture()
@@ -31,5 +31,5 @@ def inputs_config_path():
 
 @pytest.fixture()
 def df_market_test():
-    # lire un fichier pkl market
+    # TODO: read a pkl market file
     pass
