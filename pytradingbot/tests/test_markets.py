@@ -12,6 +12,7 @@ from datetime import datetime
 # =================
 from pytradingbot.iolib.crypto_api import KrakenApi, KrakenApiDev
 from pytradingbot.cores import markets
+from pytradingbot.utils.read_file import read_csv_market
 
 # =================
 # Variables
@@ -121,6 +122,11 @@ def test_clean_market(kraken_user, inputs_config_path):
     assert len(api.market.dataframe()) == 2
     assert api.market.dataframe().index[-1] == last
 
+
+def test_load_data(market_one_day_path):
+    df = read_csv_market(market_one_day_path)
+    print(df.dtypes)
+    assert True
 
 def test_analyse():
     assert True

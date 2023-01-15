@@ -30,6 +30,21 @@ def inputs_config_path():
 
 
 @pytest.fixture()
+def market_one_day_path():
+    return 'data/XXBTZEUR_1day.dat'
+
+
+@pytest.fixture()
+def market_two_days_path():
+    return 'data/XXBTZEUR_2days.dat'
+
+
+@pytest.fixture()
+def market_two_days_missingdata_path():
+    return 'data/XXBTZEUR_2days_datamissing.dat'
+
+
+@pytest.fixture()
 def df_market_test():
     # TODO: read a pkl market file
     pass
