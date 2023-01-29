@@ -13,6 +13,7 @@ from datetime import datetime
 from pytradingbot.iolib.crypto_api import KrakenApi, KrakenApiDev
 from pytradingbot.cores import markets
 from pytradingbot.utils.read_file import read_csv_market
+from pytradingbot.utils.market_tools import market_from_file
 
 # =================
 # Variables
@@ -123,10 +124,25 @@ def test_clean_market(kraken_user, inputs_config_path):
     assert api.market.dataframe().index[-1] == last
 
 
-def test_load_data(market_one_day_path):
-    df = read_csv_market(market_one_day_path)
-    print(df.dtypes)
-    assert True
-
+def test_load_data_df(market_one_day_path):
+    #df = read_csv_market(market_one_day_path)
+    df = market_from_file(market_one_day_path, format="csv")
+    #print(df.dtypes)
+    # check len of list
+    
+    # check last value and first are different
+    
+    # check type
+    
+def test_load_data_list(market_one_day_path):
+    pass
+    
 def test_analyse():
     assert True
+
+if __name__ == "__main__":
+    market_one_day_path = 'data/XXBTZEUR_1day.dat'
+    market_two_days_missingdata_path = 'data/XXBTZEUR_2days_datamissing.dat'
+    #test_load_data(market_one_day_path)
+    #print("end of first")
+    test_load_data_df(market_two_days_missingdata_path)
