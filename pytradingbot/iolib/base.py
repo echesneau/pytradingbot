@@ -15,6 +15,7 @@ from lxml import etree
 # =================
 from pytradingbot.utils import read_file
 from pytradingbot.cores import markets
+from pytradingbot.utils.market_tools import market_from_file
 
 
 # =================
@@ -267,3 +268,11 @@ class BaseApi(ApiABC):
         Method to get your balance
         """
         return self._get_balance()
+
+
+class APILoadData(BaseApi):
+    def __init__(self, data_file: str = None, fmt: str = 'csv'):
+        super().__init__()
+        self.market = market_from_file(data_file, fmt=fmt)
+        for market in self.market:
+            market.add_parent('api', self)

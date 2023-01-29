@@ -6,7 +6,7 @@ import numpy as np
 # =================
 # Internal IMPORTS
 # =================
-from pytradingbot.iolib.base import BaseApi
+from pytradingbot.iolib.base import BaseApi, APILoadData
 
 # =================
 # Variables
@@ -48,3 +48,9 @@ def test_base_api(id_config_path, kraken_user, inputs_config_path):
 
     assert hasattr(api, 'oformat')
     assert api.oformat == 'pandas'
+
+
+def test_APILoadData(market_one_day_path):
+    api = APILoadData(market_one_day_path, fmt='csv')
+    assert len(api.market) == 1
+    assert api.market[0].parents['api'] == api
