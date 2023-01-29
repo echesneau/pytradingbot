@@ -10,9 +10,8 @@ from datetime import datetime
 # =================
 # Internal IMPORTS
 # =================
-from pytradingbot.iolib.crypto_api import KrakenApi, KrakenApiDev
+from pytradingbot.iolib.crypto_api import KrakenApiDev
 from pytradingbot.cores import markets
-from pytradingbot.utils.read_file import read_csv_market
 from pytradingbot.utils.market_tools import market_from_file
 
 # =================
@@ -124,25 +123,40 @@ def test_clean_market(kraken_user, inputs_config_path):
     assert api.market.dataframe().index[-1] == last
 
 
-def test_load_data_df(market_one_day_path):
-    #df = read_csv_market(market_one_day_path)
-    df = market_from_file(market_one_day_path, format="csv")
-    #print(df.dtypes)
-    # check len of list
-    
+def test_load_data(market_one_day_path, market_two_days_list):
+    # check read from csv
+    df_market = market_from_file(market_one_day_path, fmt="csv")
+    assert len(df_market) == 1
+    market = df_market[0]
+    assert type(market) == markets.MarketLoad
+    for prop in ['ask', 'bid', 'volume']:
+        assert hasattr(market, prop)
+    assert len(market.dataframe()) > 0
+    assert (len(market.ask.data) == len(market.bid.data)) & (len(market.ask.data) == len(market.volume.data))
+    assert len(market.ask.data) > 0
+
+    # check read from list
+    df_market = market_from_file(market_two_days_list, fmt="list")
+    assert len(df_market) == 1
+    market = df_market[0]
+    assert type(market) == markets.MarketLoad
+    for prop in ['ask', 'bid', 'volume']:
+        assert hasattr(market, prop)
+    assert len(market.dataframe()) > 0
+    assert (len(market.ask.data) == len(market.bid.data)) & (len(market.ask.data) == len(market.volume.data))
+    assert len(market.ask.data) > 0
+
+
+def test_split_data(market_two_days_missingdata_path):
+    df_market = market_from_file(market_two_days_missingdata_path, fmt="csv")
     # check last value and first are different
-    
-    # check type
-    
-def test_load_data_list(market_one_day_path):
-    pass
-    
+
 def test_analyse():
     assert True
+
 
 if __name__ == "__main__":
     market_one_day_path = 'data/XXBTZEUR_1day.dat'
     market_two_days_missingdata_path = 'data/XXBTZEUR_2days_datamissing.dat'
-    #test_load_data(market_one_day_path)
-    #print("end of first")
-    test_load_data_df(market_two_days_missingdata_path)
+
+    test_load_data(market_two_days_missingdata_path)

@@ -144,3 +144,14 @@ class Market:
             self.volume.clean(nrows=nrows)
             for prop in self.child:
                 prop.clean(nrows=nrows)
+
+
+class MarketLoad(Market):
+    """
+    Class Market where initial data is not empty
+    """
+    def __init__(self, ask: pd.Series, bid: pd.Series, volume: pd.Series):
+        super().__init__()
+        self.ask = properties.AskLoad(data=ask, parent=self)
+        self.bid = properties.BidLoad(data=bid, parent=self)
+        self.volume = properties.VolumeLoad(data=volume, parent=self)

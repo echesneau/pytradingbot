@@ -57,6 +57,7 @@ def read_csv_market(path: str):
 
     return df_market
 
+
 def read_list_market(path: str):
     if not os.path.isfile(path):
         logging.warning(f"{path} is not a file, market is not loaded")
@@ -64,11 +65,10 @@ def read_list_market(path: str):
     
     df = pd.DataFrame()
     for file in open(path):
-        if not os.path.isfile(file):
+        if len(file) > 0 and os.path.isfile(file):
+            df = pd.concat([df, read_csv_market(file)], axis=0)
+        elif len(file) > 0:
             logging.warning(f"{file} is not a file, file skipped")
-        else:
-            df = pd.concat([df, read_csv_market(file)],
-            axis=0)
     df.sort_index(axis=0)
     return df
     

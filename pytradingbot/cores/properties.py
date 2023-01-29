@@ -3,7 +3,7 @@
 # =================
 from typing import Dict, Any
 import pandas as pd
-from abc import ABC, abstractmethod
+from abc import ABC
 
 # =================
 # Internal IMPORTS
@@ -109,6 +109,23 @@ class Bid(Ask):
 
 
 class Volume(Ask):
+    """
+    volume value of the market
+    """
+    name = 'volume'
+
+
+class AskLoad(Ask):
+    def __init__(self, parent=None, data: pd.Series = pd.Series()):
+        super().__init__(parent=parent)
+        self.data = data
+
+
+class BidLoad(AskLoad):
+    name = 'bid'
+
+
+class VolumeLoad(AskLoad):
     """
     volume value of the market
     """
