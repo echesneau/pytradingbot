@@ -8,6 +8,7 @@ from abc import ABC
 # =================
 # Internal IMPORTS
 # =================
+from pytradingbot.properties_functions import functions
 
 # =================
 # Variables
@@ -18,22 +19,33 @@ class PropertiesABC(ABC):
     """
     Abstract class for properties
     """
-    parents: Dict[Any, Any] = {}
-    child = []
-    function: callable = None
-    data = pd.Series()
-    param: Dict[Any, Any] = {}
-
     def __init__(self):
+        self.parents: Dict[Any, Any] = {}
+        self.child = []
+        self.data = pd.Series()
+        self.param: Dict[Any, Any] = {}
+
+    def __call__(self, *args, **kwargs):
+        return self.data
+
+    def _function(self):
         pass
 
     def update(self):
         """
         Update values of the properties in function of parent values
         """
-        if self.function is not None and len(self.parents) > 0 and \
-                len(self.parents.values()[0]) != len(self.data):
-            self.data = self.function(self.parents, self.param)
+        # Check if an update is needed
+        update = False
+        if len(self.parents) > 0:
+            if 'data' in self.parents and len(self.parents['data'].data) > len(self.data):
+                update = True
+            elif 'market' in self.parents and len(self.parents['market'].ask.data) > len(self.data):
+                update = True
+
+        # update data
+        if update:
+            self.data = self._function()
 
     def add_parent(self, name, obj):
         """
@@ -130,3 +142,20 @@ class VolumeLoad(AskLoad):
     volume value of the market
     """
     name = 'volume'
+
+
+class Derivative(PropertiesABC):
+    # function = functions.derivative
+    name = '_deriv'
+
+    def __init__(self, market=None, parent=None):
+        super().__init__()
+        if parent is not None:
+            self.add_parent('data', parent)
+            self.name = f"{self.parents['data'].name}{self.name}"
+        if market is not None:
+            self.add_parent('market', market)
+        self.data = self.data.rename(self.name)
+
+    def _function(self):
+        return functions.derivative(self.parents['data'].data)

@@ -64,6 +64,7 @@ def test_update(kraken_user, inputs_config_path):
             assert prop in api.market.dataframe().columns
 
 
+@pytest.mark.order(7)
 def test_save_market(kraken_user, inputs_config_path):
     # Init API and Market
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
@@ -96,6 +97,7 @@ def test_save_market(kraken_user, inputs_config_path):
         assert len(tmp) == i+1
 
 
+@pytest.mark.order(8)
 def test_clean_market(kraken_user, inputs_config_path):
     nsteps = 5
     # Init API and Market
@@ -123,6 +125,7 @@ def test_clean_market(kraken_user, inputs_config_path):
     assert api.market.dataframe().index[-1] == last
 
 
+@pytest.mark.order(9)
 def test_load_data(market_one_day_path, market_two_days_list):
     # check read from csv
     df_market = market_from_file(market_one_day_path, fmt="csv")
@@ -147,6 +150,7 @@ def test_load_data(market_one_day_path, market_two_days_list):
     assert len(market.ask.data) > 0
 
 
+@pytest.mark.order(10)
 def test_split_data(market_two_days_missingdata_path):
     df_market = market_from_file(market_two_days_missingdata_path, fmt="csv")
     assert len(df_market) == 2

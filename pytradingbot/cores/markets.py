@@ -21,8 +21,6 @@ class Market:
     """
     Class containing value of market
     """
-    parents = {}
-    child = []
 
     def __init__(self, parent=None, odir=None, oformat='pandas'):
         """
@@ -35,6 +33,8 @@ class Market:
         oformat: str
             output format
         """
+        self.parents = {}
+        self.child = []
         self.add_parent('api', parent)
         self.ask = properties.Ask(parent=self)
         self.bid = properties.Bid(parent=self)
@@ -44,6 +44,9 @@ class Market:
         if self.odir is not None and not os.path.isdir(self.odir):
             os.makedirs(self.odir)
         self.nclean: int = 300  # maximum number of row in dataframe
+
+    def __call__(self, *args, **kwargs):
+        return self.dataframe()
 
     def update(self):
         """

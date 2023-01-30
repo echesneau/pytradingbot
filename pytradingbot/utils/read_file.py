@@ -71,4 +71,6 @@ def read_list_market(path: str):
             logging.warning(f"{file} is not a file, file skipped")
     df.sort_index(axis=0)
     return df
-    
+
+def read_input_config():
+    pass
