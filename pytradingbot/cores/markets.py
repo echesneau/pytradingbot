@@ -36,9 +36,9 @@ class Market:
         self.parents = {}
         self.child = []
         self.add_parent('api', parent)
-        self.ask = properties.Ask(parent=self)
-        self.bid = properties.Bid(parent=self)
-        self.volume = properties.Volume(parent=self)
+        self.ask = properties.Ask(market=self)
+        self.bid = properties.Bid(market=self)
+        self.volume = properties.Volume(market=self)
         self.odir = odir
         self.oformat = oformat
         if self.odir is not None and not os.path.isdir(self.odir):
@@ -155,6 +155,6 @@ class MarketLoad(Market):
     """
     def __init__(self, ask: pd.Series, bid: pd.Series, volume: pd.Series):
         super().__init__()
-        self.ask = properties.AskLoad(data=ask, parent=self)
-        self.bid = properties.BidLoad(data=bid, parent=self)
-        self.volume = properties.VolumeLoad(data=volume, parent=self)
+        self.ask = properties.AskLoad(data=ask, market=self)
+        self.bid = properties.BidLoad(data=bid, market=self)
+        self.volume = properties.VolumeLoad(data=volume, market=self)

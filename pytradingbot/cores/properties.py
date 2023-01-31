@@ -1,6 +1,7 @@
 # =================
 # Python IMPORTS
 # =================
+import logging
 from typing import Dict, Any
 import pandas as pd
 from abc import ABC
@@ -19,11 +20,35 @@ class PropertiesABC(ABC):
     """
     Abstract class for properties
     """
-    def __init__(self):
-        self.parents: Dict[Any, Any] = {}
+    type = ""
+
+    def __init__(self, parent=None,
+                 market: object = None,
+                 param: Dict[str, Any] = None):
+
         self.child = []
         self.data = pd.Series()
-        self.param: Dict[Any, Any] = {}
+
+        self.parents: Dict[str, object] = {}
+        if type(parent) == dict:
+            self.parents = parent
+        # elif parent is not None and type(type(parent)) == type:  # Check is parent is an object created from a class
+        if parent is not None:
+            self.add_parent('data', parent)
+        # elif parent is not None:
+        #     logging.warning(f"type of {parent} is unexpected, skipped")
+
+        if market is not None:  # TODO: check is market is an object with upper class Market
+            self.add_parent('market', market)
+
+        self.param: Dict[str, Any] = {}
+        if type(param) is dict:
+            self.param = param
+        elif param is not None:
+            logging.warning(f"type of {param} is unexpected, skipped")
+
+        self.name = f"{self.type}"
+        self.data = self.data.rename(self.name)
 
     def __call__(self, *args, **kwargs):
         return self.data
@@ -86,17 +111,18 @@ class Ask(PropertiesABC):
     """
     Ask value of the market
     """
-    name = 'ask'
+    type = "market"
 
-    def __init__(self, parent=None):
+    def __init__(self, market=None):
         """
 
         Parameters
         ----------
-        parent: parent object
+        market: parent object
         """
-        super().__init__()
-        self.add_parent('market', parent)
+        super().__init__(market=market)
+        self.add_parent('market', market)
+        self.name = "ask"
         self.data = self.data.rename(self.name)
 
     def add_value(self, index=None, value=None):
@@ -117,94 +143,104 @@ class Bid(Ask):
     """
     Bid value of the market
     """
-    name = 'bid'
+    def __init__(self, market=None):
+        """
+
+        Parameters
+        ----------
+        market: market object
+        """
+        super().__init__(market=market)
+        self.name = "bid"
+        self.data = self.data.rename(self.name)
 
 
 class Volume(Ask):
     """
     volume value of the market
     """
-    name = 'volume'
+    def __init__(self, market=None):
+        """
+
+        Parameters
+        ----------
+        market: parent object
+        """
+        super().__init__(market=market)
+        self.name = "volume"
+        self.data = self.data.rename(self.name)
 
 
 class AskLoad(Ask):
-    def __init__(self, parent=None, data: pd.Series = pd.Series()):
-        super().__init__(parent=parent)
+    def __init__(self, market=None, data: pd.Series = pd.Series()):
+        super().__init__(market=market)
         self.data = data
 
 
-class BidLoad(AskLoad):
-    name = 'bid'
+class BidLoad(Bid):
+    def __init__(self, market=None, data: pd.Series = pd.Series()):
+        super().__init__(market=market)
+        self.data = data
 
 
-class VolumeLoad(AskLoad):
+class VolumeLoad(Volume):
     """
     volume value of the market
     """
-    name = 'volume'
+    def __init__(self, market=None, data: pd.Series = pd.Series()):
+        super().__init__(market=market)
+        self.data = data
 
 
 class Derivative(PropertiesABC):
     # function = functions.derivative
-    name = '_deriv'
+    type = 'deriv'
 
     def __init__(self, market=None, parent=None):
-        super().__init__()
-        if parent is not None:
-            self.add_parent('data', parent)
-            self.name = f"{self.parents['data'].name}{self.name}"
-        if market is not None:
-            self.add_parent('market', market)
+        super().__init__(market=market, parent=parent)
+        if 'data' in self.parents.keys():
+            self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
+
 
     def _function(self):
         return functions.derivative(self.parents['data'].data)
 
 
 class MovingAverage(PropertiesABC):
-    def __init__(self, market=None, parent=None, param: dict = {}):
-        super().__init__()
-        self.name = "_MA"
-        if parent is not None:
-            self.add_parent('data', parent)
-            self.name = f"{self.parents['data'].name}{self.name}"
-        if market is not None:
-            self.add_parent('market', market)
+    type = 'MA'
+
+    def __init__(self, market=None, parent=None):
+        super().__init__(market=market, parent=parent)
+        if 'data' in self.parents.keys():
+            self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
-        self.param = param
 
     def _function(self):
         return functions.MA(self.parents['data'].data, k=self.param["k"])
 
 
 class ExponentialMovingAverage(PropertiesABC):
-    def __init__(self, market=None, parent=None, param: dict = {}):
-        super().__init__()
-        self.name = "_EMA"
-        if parent is not None:
-            self.add_parent('data', parent)
-            self.name = f"{self.parents['data'].name}{self.name}"
-        if market is not None:
-            self.add_parent('market', market)
+    type = "EMA"
+
+    def __init__(self, market=None, parent=None):
+        super().__init__(market=market, parent=parent)
+        if 'data' in self.parents.keys():
+            self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
-        self.param = param
 
     def _function(self):
         return functions.EMA(self.parents['data'].data, k=self.param['k'])
 
 
 class StandardDeviation(PropertiesABC):
-    def __init__(self, market=None, parent=None, param: dict = {}):
-        super().__init__()
-        self.name = "_std"
-        if parent is not None:
-            self.add_parent('data', parent)
-            self.name = f"{self.parents['data'].name}{self.name}"
-        if market is not None:
-            self.add_parent('market', market)
+    type = "std"
+
+    def __init__(self, market=None, parent=None):
+        super().__init__(market=market, parent=parent)
+        if 'data' in self.parents.keys():
+            self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
-        self.param = param
 
     def _function(self):
         return functions.standard_deviation(self.parents['data'].data, k=self.param['k'])
-

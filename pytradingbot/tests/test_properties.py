@@ -26,11 +26,15 @@ def test_derivative(market_one_day_path):
     assert type(market.child[0]) == properties.Derivative
     assert market.child[0].parents['data'] == market.ask
     assert market.child[0].parents['market'] == market
+    assert market.child[0].name == "ask_deriv"
 
     # Update properties
     market.child[0].update()
     data = market.child[0].data
+    assert market.child[0].name == "ask_deriv"
     assert pd.notnull(data).sum() == len(market.dataframe()) - 1
+    assert pd.isnull(data).values[0]
+    assert pd.notnull(data).values[-1]
     assert (data < -100).sum() == 0  # value should be higher than -100
     assert (data > 100).sum() == 0  # value should be smaller than 100
 
