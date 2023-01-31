@@ -168,11 +168,3 @@ def test_split_data(market_two_days_missingdata_path):
 
 def test_analyse():
     assert True
-
-
-if __name__ == "__main__":
-    market_one_day_path = 'data/XXBTZEUR_1day.dat'
-    market_two_days_missingdata_path = 'data/XXBTZEUR_2days_datamissing.dat'
-    market_two_days_list = 'data/XXBTZEUR_2days.list'
-
-    test_load_data(market_two_days_missingdata_path, market_two_days_list)

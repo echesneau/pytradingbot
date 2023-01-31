@@ -202,7 +202,6 @@ class Derivative(PropertiesABC):
             self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
 
-
     def _function(self):
         return functions.derivative(self.parents['data'].data)
 

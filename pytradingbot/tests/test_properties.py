@@ -1,14 +1,13 @@
 # =================
 # Python IMPORTS
 # =================
-import os
 import pandas as pd
 import pytest
 
 # =================
 # Internal IMPORTS
 # =================
-from pytradingbot.cores import markets, properties
+from pytradingbot.cores import properties
 from pytradingbot.utils.market_tools import market_from_file
 
 # =================

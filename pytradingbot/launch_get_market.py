@@ -6,12 +6,12 @@ import sys.exit
 
 from pytradingbot.iolib.crypto_api import KrakenApiDev
 
-#============================
-#arguments
-#============================
-parser = argparse.ArgumentParser(prog="launch_get_market.py", \
-                                     description= "\n"\
-                                     "Written by E. CHESNEAU")
+# ============================
+# arguments
+# ============================
+parser = argparse.ArgumentParser(prog="launch_get_market.py",
+                                 description="\n"
+                                             "Written by E. CHESNEAU")
 parser.add_argument('--ifile', '-i', help='input xml file')
 
 args = parser.parse_args()

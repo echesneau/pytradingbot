@@ -43,17 +43,7 @@ def read_csv_market(path: str):
         return None
 
     # Read the file
-    df_market = pd.read_csv(path, sep=" ",index_col=0 , parse_dates=True)
-
-    # Split
-    #df_market.sort_index(axis=0)
-    #print(df_market)
-    #list_market_df = split_time_df(df_market, delta=120)
-    #print(list_market_df)
-
-    # Create market class
-
-    # Create all properties
+    df_market = pd.read_csv(path, sep=" ", index_col=0, parse_dates=True)
 
     return df_market
 
@@ -71,6 +61,7 @@ def read_list_market(path: str):
             logging.warning(f"{file} is not a file, file skipped")
     df.sort_index(axis=0)
     return df
+
 
 def read_input_config():
     pass

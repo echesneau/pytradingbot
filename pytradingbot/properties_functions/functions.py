@@ -63,10 +63,10 @@ def EMA(data: pd.Series, k: int) -> pd.Series:
     """
     def exp_data(value):
         size = value.shape[0]
-        A = 2 / (np.arange(1, size+1)+1)
-        A = np.flipud(A)
-        exp_val = value * A
-        mean = np.sum(exp_val) / np.sum(A)
+        a = 2 / (np.arange(1, size+1)+1)
+        a = np.flipud(a)
+        exp_val = value * a
+        mean = np.sum(exp_val) / np.sum(a)
         return mean
 
     odata = rolling_apply(exp_data, k, data.values)
@@ -76,4 +76,3 @@ def EMA(data: pd.Series, k: int) -> pd.Series:
 def standard_deviation(data: pd.Series, k: int) -> pd.Series:
     odata = rolling_apply(np.std, k, data.values)
     return pd.Series(index=data.index, data=odata, name=data.name)
-
