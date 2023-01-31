@@ -159,3 +159,52 @@ class Derivative(PropertiesABC):
 
     def _function(self):
         return functions.derivative(self.parents['data'].data)
+
+
+class MovingAverage(PropertiesABC):
+    def __init__(self, market=None, parent=None, param: dict = {}):
+        super().__init__()
+        self.name = "_MA"
+        if parent is not None:
+            self.add_parent('data', parent)
+            self.name = f"{self.parents['data'].name}{self.name}"
+        if market is not None:
+            self.add_parent('market', market)
+        self.data = self.data.rename(self.name)
+        self.param = param
+
+    def _function(self):
+        return functions.MA(self.parents['data'].data, k=self.param["k"])
+
+
+class ExponentialMovingAverage(PropertiesABC):
+    def __init__(self, market=None, parent=None, param: dict = {}):
+        super().__init__()
+        self.name = "_EMA"
+        if parent is not None:
+            self.add_parent('data', parent)
+            self.name = f"{self.parents['data'].name}{self.name}"
+        if market is not None:
+            self.add_parent('market', market)
+        self.data = self.data.rename(self.name)
+        self.param = param
+
+    def _function(self):
+        return functions.EMA(self.parents['data'].data, k=self.param['k'])
+
+
+class StandardDeviation(PropertiesABC):
+    def __init__(self, market=None, parent=None, param: dict = {}):
+        super().__init__()
+        self.name = "_std"
+        if parent is not None:
+            self.add_parent('data', parent)
+            self.name = f"{self.parents['data'].name}{self.name}"
+        if market is not None:
+            self.add_parent('market', market)
+        self.data = self.data.rename(self.name)
+        self.param = param
+
+    def _function(self):
+        return functions.standard_deviation(self.parents['data'].data, k=self.param['k'])
+

@@ -11,6 +11,7 @@ setup(
     install_requires=[
         "pandas",
         "numpy",
+        "numpy_ext",
         "pytest",
         "krakenex",
         "lxml",
