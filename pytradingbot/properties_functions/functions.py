@@ -76,3 +76,27 @@ def EMA(data: pd.Series, k: int) -> pd.Series:
 def standard_deviation(data: pd.Series, k: int) -> pd.Series:
     odata = rolling_apply(np.std, k, data.values)
     return pd.Series(index=data.index, data=odata, name=data.name)
+
+
+def variation(data: pd.Series, k: int):
+    def var(values):
+        max_prct = (values[1:].max() - values[0]) * 100 / values[0]
+        min_prct = (values[1:].min() - values[0]) * 100 / values[0]
+        if np.abs(max_prct) > np.abs(min_prct):
+            return max_prct
+        else:
+            return min_prct
+    odata = rolling_apply(var, k, data.values)
+    return pd.Series(index=data.index, data=odata, name=data.name)
+
+
+def rsi():  # TODO
+    pass
+
+
+def macd(data: pd.Series):  # TODO
+    pass
+
+
+def bollinger():  # TODO
+    pass
