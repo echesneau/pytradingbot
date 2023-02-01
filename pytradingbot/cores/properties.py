@@ -209,11 +209,18 @@ class Derivative(PropertiesABC):
 class MovingAverage(PropertiesABC):
     type = 'MA'
 
-    def __init__(self, market=None, parent=None):
-        super().__init__(market=market, parent=parent)
+    def __init__(self, market=None, parent=None, param=None):
+        super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
             self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
+        if 'k' not in self.param:
+            logging.warning(f"k is not defined in parameters: {param=}")
+            if 'data' in self.parents.keys():
+                self.name = f"{self.parents['data'].name}_{self.type}"
+        else:
+            if 'data' in self.parents.keys():
+                self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
 
     def _function(self):
         return functions.MA(self.parents['data'].data, k=self.param["k"])
@@ -222,11 +229,18 @@ class MovingAverage(PropertiesABC):
 class ExponentialMovingAverage(PropertiesABC):
     type = "EMA"
 
-    def __init__(self, market=None, parent=None):
-        super().__init__(market=market, parent=parent)
+    def __init__(self, market=None, parent=None, param=None):
+        super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
             self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
+        if 'k' not in self.param:
+            logging.warning(f"k is not defined in parameters: {param=}")
+            if 'data' in self.parents.keys():
+                self.name = f"{self.parents['data'].name}_{self.type}"
+        else:
+            if 'data' in self.parents.keys():
+                self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
 
     def _function(self):
         return functions.EMA(self.parents['data'].data, k=self.param['k'])
@@ -235,11 +249,18 @@ class ExponentialMovingAverage(PropertiesABC):
 class StandardDeviation(PropertiesABC):
     type = "std"
 
-    def __init__(self, market=None, parent=None):
-        super().__init__(market=market, parent=parent)
+    def __init__(self, market=None, parent=None, param=None):
+        super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
             self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
+        if 'k' not in self.param:
+            logging.warning(f"k is not defined in parameters: {param=}")
+            if 'data' in self.parents.keys():
+                self.name = f"{self.parents['data'].name}_{self.type}"
+        else:
+            if 'data' in self.parents.keys():
+                self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
 
     def _function(self):
         return functions.standard_deviation(self.parents['data'].data, k=self.param['k'])
