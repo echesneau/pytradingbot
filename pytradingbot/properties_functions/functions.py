@@ -90,8 +90,27 @@ def variation(data: pd.Series, k: int):
     return pd.Series(index=data.index, data=odata, name=data.name)
 
 
-def rsi():  # TODO
-    pass
+def rsi(data: pd.Series, k: int):  # TODO
+    def func(values):
+        shift = np.roll(values, 1)
+        diff = values - shift
+        diff[0] = np.NaN
+        lower = diff[diff < 0]
+        higher = diff[diff > 0]
+        if len(lower) == 0:
+            lower = 0
+        else:
+            lower = np.mean(lower)
+        if len(higher) == 0:
+            higher = 0
+        else:
+            higher = np.mean(higher)
+        if lower == higher:
+            return 100
+        else:
+            return 100*higher/(higher-lower)
+    odata = rolling_apply(func, k, data.values)
+    return pd.Series(index=data.index, data=odata, name=data.name)
 
 
 def macd(data: pd.Series):  # TODO

@@ -284,3 +284,24 @@ class Variation(PropertiesABC):
 
     def _function(self):
         return functions.variation(self.parents['data'].data, k=self.param['k'])
+
+
+class RSI(PropertiesABC):
+    type = 'rsi'
+
+    def __init__(self, market=None, parent=None, param=None):
+        super().__init__(market=market, parent=parent, param=param)
+        if 'data' in self.parents.keys():
+            self.name = f"{self.parents['data'].name}_{self.type}"
+        if 'k' not in self.param:
+            logging.warning(f"k is not defined in parameters: {param=}")
+            if 'data' in self.parents.keys():
+                self.name = f"{self.parents['data'].name}_{self.type}"
+        else:
+            if 'data' in self.parents.keys():
+                self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
+        self.data = self.data.rename(self.name)
+
+    def _function(self):
+        return functions.rsi(self.parents['data'].data, k=self.param['k'])
+
