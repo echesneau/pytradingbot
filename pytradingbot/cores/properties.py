@@ -305,3 +305,38 @@ class RSI(PropertiesABC):
     def _function(self):
         return functions.rsi(self.parents['data'].data, k=self.param['k'])
 
+
+class MACD(PropertiesABC):
+    type = 'macd'
+
+    def __init__(self, market=None, parent=None, param=None):
+        super().__init__(market=market, parent=parent, param=param)
+        if 'short' in self.parents.keys() and 'long' in self.parents.keys():
+            if 'k' in self.parents['short'].param.keys():
+                kshort = self.parents['short'].param['k']
+            else:
+                kshort = 0
+            if 'k' in self.parents['long'].param.keys():
+                klong = self.parents['long'].param['k']
+            else:
+                klong = 0
+            if 'k' in self.param:
+                self.name = f"{self.type}_{kshort}-{klong}-{param['k']}"
+        if 'k' not in self.param:
+            logging.warning(f"k is not defined in parameters: {param=}")
+        self.data = self.data.rename(self.name)
+
+    def _function(self):
+        return functions.macd(self.parents['short'].data, self.parents['long'].data, k=self.param['k'])
+
+    def update(self):
+        update = False
+        if len(self.parents) > 0:
+            if 'short' in self.parents and 'long' in self.parents and len(self.parents['short'].data) > len(self.data):
+                update = True
+            elif 'market' in self.parents and len(self.parents['market'].ask.data) > len(self.data):
+                update = True
+
+        # update data
+        if update:
+            self.data = self._function()

@@ -113,8 +113,10 @@ def rsi(data: pd.Series, k: int):  # TODO
     return pd.Series(index=data.index, data=odata, name=data.name)
 
 
-def macd(data: pd.Series):  # TODO
-    pass
+def macd(short: pd.Series, long: pd.Series, k: int):
+    diff = (short - long) / short * 100
+    odata = rolling_apply(np.mean, k, diff.values)
+    return pd.Series(index=short.index, data=odata)
 
 
 def bollinger():  # TODO
