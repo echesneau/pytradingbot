@@ -50,7 +50,7 @@ def MA(data: pd.Series, k: int) -> pd.Series:
         odata = rolling_apply(np.mean, k, data.values)
         return pd.Series(index=data.index, data=odata, name=data.name)
     else:
-        pass
+        return data.rolling(window=k).mean()
 
 
 def EMA(data: pd.Series, k: int) -> pd.Series:
@@ -79,15 +79,15 @@ def EMA(data: pd.Series, k: int) -> pd.Series:
         odata = rolling_apply(exp_data, k, data.values)
         return pd.Series(index=data.index, data=odata, name=data.name)
     else:
-        pass
+        return data.rolling(window=k).apply(exp_data)
 
 
 def standard_deviation(data: pd.Series, k: int) -> pd.Series:
     if NP_ROLL:
-        odata = rolling_apply(np.std, k, data.values)
+        odata = rolling_apply(np.std, k, data.values, ddof=1)
         return pd.Series(index=data.index, data=odata, name=data.name)
     else:
-        pass
+        return data.rolling(window=k).std()
 
 
 def variation(data: pd.Series, k: int):
@@ -102,7 +102,7 @@ def variation(data: pd.Series, k: int):
         odata = rolling_apply(var, k, data.values)
         return pd.Series(index=data.index, data=odata, name=data.name)
     else:
-        pass
+        return data.rolling(window=k).apply(var)
 
 
 def rsi(data: pd.Series, k: int):  # TODO
@@ -128,7 +128,7 @@ def rsi(data: pd.Series, k: int):  # TODO
         odata = rolling_apply(func, k, data.values)
         return pd.Series(index=data.index, data=odata, name=data.name)
     else:
-        pass
+        return data.rolling(window=k).apply(func)
 
 
 def macd(short: pd.Series, long: pd.Series, k: int):
@@ -137,8 +137,8 @@ def macd(short: pd.Series, long: pd.Series, k: int):
         odata = rolling_apply(np.mean, k, diff.values)
         return pd.Series(index=short.index, data=odata)
     else:
-        pass
+        return diff.rolling(window=k).mean()
 
 
-def bollinger():  # TODO
-    pass
+def bollinger(value: pd.Series, mean: pd.Series, std: pd.Series, k:int):
+    return (value - mean) / (2*k*std)

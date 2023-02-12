@@ -33,7 +33,7 @@ class PropertiesABC(ABC):
         if type(parent) == dict:
             self.parents = parent
         # elif parent is not None and type(type(parent)) == type:  # Check is parent is an object created from a class
-        if parent is not None:
+        elif parent is not None:
             self.add_parent('data', parent)
         # elif parent is not None:
         #     logging.warning(f"type of {parent} is unexpected, skipped")
@@ -53,7 +53,7 @@ class PropertiesABC(ABC):
     def __call__(self, *args, **kwargs):
         return self.data
 
-    def _function(self):
+    def _function(self) -> pd.Series:
         pass
 
     def update(self):
@@ -71,6 +71,7 @@ class PropertiesABC(ABC):
         # update data
         if update:
             self.data = self._function()
+            self.data = self.data.rename(self.name)
 
     def add_parent(self, name, obj):
         """
@@ -340,3 +341,28 @@ class MACD(PropertiesABC):
         # update data
         if update:
             self.data = self._function()
+            self.data = self.data.rename(self.name)
+
+
+class Bollinger(PropertiesABC):
+    type = 'bollinger'
+
+    def __init__(self, market=None, parent=None, param=None):
+        super().__init__(market=market, parent=parent, param=param)
+        if 'data' in self.parents.keys() and 'mean' in self.parents.keys() and 'std' in self.parents.keys():
+            if 'k' not in param:
+                logging.warning(f"k is not defined in param, set to 2")
+                param['k'] = 2
+            # print(parent['data'])
+            # print(parent['mean'])
+            # print(parent['std'])
+
+            self.name = f"{self.type}_{self.parents['data'].name}-{self.parents['mean'].param['k']}_{param['k']}"
+        else:
+            logging.warning(f"Missing parent values")
+            self.name = self.type
+        self.data = self.data.rename(self.name)
+
+    def _function(self):
+        return functions.bollinger(self.parents['data'].data, self.parents['mean'].data,
+                                   self.parents['std'].data, self.param['k'])
