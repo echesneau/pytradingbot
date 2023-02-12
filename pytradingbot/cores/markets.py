@@ -1,11 +1,13 @@
+"""
+Module containing all market objects
+"""
 # =================
 # Python IMPORTS
 # =================
 import os
-
+import logging
 import numpy as np
 import pandas as pd
-import logging
 
 # =================
 # Internal IMPORTS
@@ -58,7 +60,8 @@ class Market:
             self.bid.add_value(index=[values['time']], value=[values['bid']])
             self.volume.add_value(index=[values['time']], value=[values['volume']])
         else:
-            logging.warning(f"api is not defined in parents: available parents: {self.parents.keys()}")
+            logging.warning("api is not defined in parents: available parents: "
+                            f"{self.parents.keys()}")
 
     def analyse(self):
         """
@@ -98,7 +101,8 @@ class Market:
         -------
             pd.DataFrame
         """
-        return pd.concat([self.ask.data, self.bid.data, self.volume.data]+[prop.data for prop in self.child], axis=1)
+        return pd.concat([self.ask.data, self.bid.data, self.volume.data]
+                         + [prop.data for prop in self.child], axis=1)
 
     def save(self):
         """

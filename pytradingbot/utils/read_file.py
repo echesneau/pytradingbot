@@ -1,3 +1,6 @@
+"""
+Module containing function to read file
+"""
 # =================
 # Python IMPORTS
 # =================
@@ -38,6 +41,18 @@ def read_idconfig(path: str) -> pd.DataFrame:
 
 
 def read_csv_market(path: str):
+    """
+    function to read market from csv file
+    Parameters
+    ----------
+    path: str
+        path of input file
+
+    Returns
+    -------
+    pd.Dataframe
+
+    """
     if not os.path.isfile(path):
         logging.warning(f"{path} is not a file, market is not loaded")
         return None
@@ -49,19 +64,33 @@ def read_csv_market(path: str):
 
 
 def read_list_market(path: str):
+    """
+    function to read market from a list of file
+    Parameters
+    ----------
+    path: str
+        path of input file
+
+    Returns
+    -------
+    pd.DataFrame
+
+    """
     if not os.path.isfile(path):
         logging.warning(f"{path} is not a file, market is not loaded")
         return None
-    
-    df = pd.DataFrame()
-    for file in open(path):
-        if len(file) > 0 and os.path.isfile(file):
-            df = pd.concat([df, read_csv_market(file)], axis=0)
-        elif len(file) > 0:
-            logging.warning(f"{file} is not a file, file skipped")
-    df.sort_index(axis=0)
-    return df
+
+    data_df = pd.DataFrame()
+    with open(path) as files:
+        for file in files:
+            if len(file) > 0 and os.path.isfile(file):
+                data_df = pd.concat([data_df, read_csv_market(file)], axis=0)
+            elif len(file) > 0:
+                logging.warning(f"{file} is not a file, file skipped")
+    data_df.sort_index(axis=0)
+    return data_df
 
 
 def read_input_config():
+    """Not ready"""
     pass
