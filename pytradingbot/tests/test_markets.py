@@ -165,6 +165,21 @@ def test_split_data(market_two_days_missingdata_path):
         delta = market.dataframe().index.to_series().diff().dt.total_seconds().fillna(0)
         assert delta.max() < 120
 
-
+@pytest.mark.order(20)
 def test_analyse():
     assert True
+    
+
+@pytest.mark.order(21)
+def test_get_all_child():
+    pass
+    
+    
+@pytest.mark.order(21)
+def test_find_by_name():
+    pass
+    
+ 
+@pytest.mark.order(22)
+def test_is_property_by_name():
+    pass
