@@ -1,11 +1,14 @@
+"""
+Module containing API for crypto trading
+"""
 # =================
 # Python IMPORTS
 # =================
 import logging
-import krakenex
 from datetime import datetime
-import requests.exceptions
 from time import sleep
+import requests.exceptions
+import krakenex
 
 # =================
 # Internal IMPORTS
@@ -31,10 +34,10 @@ class KrakenApi(BaseApi):
         if len(self.id) == 0:
             users = self._get_user_list()
             if users.shape[0] == 0:
-                logging.error(f"No user read in the id.config")
+                logging.error("No user read in the id.config")
             myuser = ""
             while myuser not in users:
-                myuser = input(f"User: ")
+                myuser = input("User: ")
                 if myuser not in users:
                     print(f"{myuser} is not in the id.config")
             self._set_id(myuser)
@@ -115,4 +118,7 @@ class KrakenApiDev(KrakenApi):
 
 
 class CryptoEmptyLoad:
+    """
+    to be defined
+    """
     pass
