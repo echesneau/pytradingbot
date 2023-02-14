@@ -41,6 +41,8 @@ class Market:
         self.ask = properties.Ask(market=self)
         self.bid = properties.Bid(market=self)
         self.volume = properties.Volume(market=self)
+        for prop in [self.ask, self.bid, self.volume]:
+            self.add_child(prop)
         self.odir = odir
         self.oformat = oformat
         if self.odir is not None and not os.path.isdir(self.odir):
@@ -67,8 +69,7 @@ class Market:
         """
         Method to analyse market value
         """
-        for prop in self.child:
-            prop.update()
+        pass
 
     def add_parent(self, name, obj):
         """
@@ -151,6 +152,14 @@ class Market:
             self.volume.clean(nrows=nrows)
             for prop in self.child:
                 prop.clean(nrows=nrows)
+                
+    def _get_all_child(self):
+        child = self.child
+        tmp = child
+        while len(tmp) != 0:
+            tmp = [prop for c in tmp for prop in c.child if prop not in child]
+            child += tmp
+        return child
 
 
 class MarketLoad(Market):
@@ -159,6 +168,9 @@ class MarketLoad(Market):
     """
     def __init__(self, ask: pd.Series, bid: pd.Series, volume: pd.Series):
         super().__init__()
+        self.child = []
         self.ask = properties.AskLoad(data=ask, market=self)
         self.bid = properties.BidLoad(data=bid, market=self)
         self.volume = properties.VolumeLoad(data=volume, market=self)
+        for prop in [self.ask, self.bid, self.volume]:
+            self.add_child(prop)

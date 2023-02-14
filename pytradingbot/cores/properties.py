@@ -87,6 +87,7 @@ class PropertiesABC(ABC):
         obj: parent object
         """
         self.parents[name] = obj
+        obj.add_child(self)
 
     def add_child(self, obj):
         """

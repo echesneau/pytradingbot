@@ -13,6 +13,7 @@ from datetime import datetime
 from pytradingbot.iolib.crypto_api import KrakenApiDev
 from pytradingbot.cores import markets
 from pytradingbot.utils.market_tools import market_from_file
+from pytradingbot.cores import properties
 
 # =================
 # Variables
@@ -171,15 +172,28 @@ def test_analyse():
     
 
 @pytest.mark.order(21)
-def test_get_all_child():
-    pass
+def test_get_all_child(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop_1 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 7})
+    prop_2 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 13})
+    prop_3 = properties.Derivative(market=market, parent=prop_1)
+    child = market._get_all_child()
     
+    assert len(child) == 6
+    assert isinstance(child[0], properties.AskLoad)
+    assert isinstance(child[1], properties.BidLoad)
+    assert isinstance(child[2], properties.VolumeLoad)
     
 @pytest.mark.order(21)
-def test_find_by_name():
+def test_find_by_name(market_one_day_path):
     pass
     
  
 @pytest.mark.order(22)
-def test_is_property_by_name():
+def test_is_property_by_name(market_one_day_path):
     pass
+    
+    
+if __name__ == "__main__":
+    market_one_day_path = 'data/XXBTZEUR_1day.dat'
+    test_get_all_child(market_one_day_path)
