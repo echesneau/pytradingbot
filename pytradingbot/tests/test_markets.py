@@ -194,6 +194,22 @@ def test_is_property_by_name(market_one_day_path):
     pass
     
     
+@pytest.mark.order(23)
+def test_analyse(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    size = len(market.ask.data)
+    prop_1 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 7})
+    prop_2 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 13})
+    prop_3 = properties.Derivative(market=market, parent=prop_1)
+    market.analyse()
+    
+    for prop in market._get_all_child():
+        assert len(prop.data) == size
+        
+     
+    
+    
+    
 if __name__ == "__main__":
     market_one_day_path = 'data/XXBTZEUR_1day.dat'
-    test_get_all_child(market_one_day_path)
+    test_analyse(market_one_day_path)

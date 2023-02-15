@@ -69,7 +69,9 @@ class Market:
         """
         Method to analyse market value
         """
-        pass
+        update_func = [prop.update for prop in self._get_all_child()]
+        for update in update_func:
+            update()
 
     def add_parent(self, name, obj):
         """
