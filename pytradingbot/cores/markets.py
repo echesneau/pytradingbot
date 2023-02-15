@@ -104,9 +104,9 @@ class Market:
         -------
             pd.DataFrame
         """
-        return pd.concat([self.ask.data, self.bid.data, self.volume.data]
-                         + [prop.data for prop in self.child], axis=1)
-
+        # return pd.concat([self.ask.data, self.bid.data, self.volume.data]
+        #                  + [prop.data for prop in self.child], axis=1)
+        return pd.concat([prop.data for prop in self._get_all_child()], axis=1)
     def save(self):
         """
         Method to save market in a file
