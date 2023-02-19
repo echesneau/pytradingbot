@@ -178,7 +178,7 @@ class Market:
         return name in self._get_all_child_name()
 
     def find_properties_by_type(self, ptype):
-        return [c.type for c in self._get_all_child()]
+        return [c for c in self._get_all_child() if c.type == ptype]
 
     def find_property_by_type(self, ptype):
         return self.find_properties_by_type(ptype)[0]
