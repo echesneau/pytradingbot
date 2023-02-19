@@ -107,6 +107,7 @@ class Market:
         # return pd.concat([self.ask.data, self.bid.data, self.volume.data]
         #                  + [prop.data for prop in self.child], axis=1)
         return pd.concat([prop.data for prop in self._get_all_child()], axis=1)
+
     def save(self):
         """
         Method to save market in a file
@@ -162,6 +163,25 @@ class Market:
             tmp = [prop for c in tmp for prop in c.child if prop not in child]
             child += tmp
         return child
+
+    def _get_all_child_name(self):
+        child = self._get_all_child()
+        return [c.name for c in child]
+
+    def find_property_by_name(self, name):
+        return [c for c in self._get_all_child() if c.name == name][0]
+
+    def is_property(self, property):
+        return property in self._get_all_child()
+
+    def is_property_by_name(self, name):
+        return name in self._get_all_child_name()
+
+    def find_properties_by_type(self, ptype):
+        return [c.type for c in self._get_all_child()]
+
+    def find_property_by_type(self, ptype):
+        return self.find_properties_by_type(ptype)[0]
 
 
 class MarketLoad(Market):
