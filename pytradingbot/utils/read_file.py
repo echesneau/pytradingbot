@@ -7,6 +7,7 @@ Module containing function to read file
 import os.path
 import logging
 import pandas as pd
+from lxml import etree
 
 # =================
 # Internal IMPORTS
@@ -76,6 +77,7 @@ def read_list_market(path: str):
     pd.DataFrame
 
     """
+    root_dir = os.path.dirname(__file__)
     if not os.path.isfile(path):
         logging.warning(f"{path} is not a file, market is not loaded")
         return None
@@ -83,12 +85,49 @@ def read_list_market(path: str):
     data_df = pd.DataFrame()
     with open(path) as files:
         for file in files:
-            if len(file) > 0 and os.path.isfile(file):
-                data_df = pd.concat([data_df, read_csv_market(file)], axis=0)
-            elif len(file) > 0:
-                logging.warning(f"{file} is not a file, file skipped")
+            if len(file) > 0:
+                if os.path.isfile(file):
+                    data_df = pd.concat([data_df, read_csv_market(file)], axis=0)
+                elif os.path.isfile(f"{root_dir}/..tests/{file}"):
+                    print(f"{root_dir}/../tests/{file}")
+                    data_df = pd.concat([data_df, read_csv_market(f"{root_dir}/../tests/{file}")], axis=0)
+                else:
+                    print(f"{root_dir}/../tests/{file}")
+                    logging.warning(f"{file} is not a file, file skipped")
+
+            # if len(file) > 0 and os.path.isfile(file):
+            #     data_df = pd.concat([data_df, read_csv_market(file)], axis=0)
+            # elif len(file) > 0:
+            #     logging.warning(f"{file} is not a file, file skipped")
     data_df.sort_index(axis=0)
     return data_df
+
+
+def read_input_analysis_config(path: str) -> list:
+    """function to read the analysis part of input xml file
+
+    Parameters
+    ----------
+    path: str
+        path if the xml file
+
+    Returns
+    -------
+    list of properties: properties are stored in a dict
+    """
+    properties = []
+    if not os.path.isfile(path):
+        logging.warning(f"{path} is not a file, cannot set input config parameters")
+        return properties
+
+    # XML Parser
+    main = etree.parse(path)
+
+    # Read properties
+    for prop in main.xpath("/pytradingbot/analysis/properties"):
+        pass
+
+    return properties
 
 
 def read_input_config():

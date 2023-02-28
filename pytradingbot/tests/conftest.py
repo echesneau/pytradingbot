@@ -3,6 +3,7 @@
 # =================
 import pytest
 import os.path
+import os
 
 # =================
 # Internal IMPORTS
@@ -26,27 +27,32 @@ def kraken_user():
 
 @pytest.fixture()
 def inputs_config_path():
-    return 'data/config.xml'
+    root_dir = os.path.dirname(__file__)
+    return f'{root_dir}/data/config.xml'
 
 
 @pytest.fixture()
 def market_one_day_path():
-    return 'data/XXBTZEUR_1day.dat'
+    root_dir = os.path.dirname(__file__)
+    return f'{root_dir}/data/XXBTZEUR_1day.dat'
 
 
 @pytest.fixture()
 def market_two_days_path():
-    return 'data/XXBTZEUR_2days.dat'
+    root_dir = os.path.dirname(__file__)
+    return f'{root_dir}/data/XXBTZEUR_2days.dat'
 
 
 @pytest.fixture()
 def market_two_days_list():
-    return 'data/XXBTZEUR_2days.list'
+    root_dir = os.path.dirname(__file__)
+    return f'{root_dir}/data/XXBTZEUR_2days.list'
 
 
 @pytest.fixture()
 def market_two_days_missingdata_path():
-    return 'data/XXBTZEUR_2days_datamissing.dat'
+    root_dir = os.path.dirname(__file__)
+    return f'{root_dir}/data/XXBTZEUR_2days_datamissing.dat'
 
 
 @pytest.fixture()

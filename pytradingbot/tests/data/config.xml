@@ -8,4 +8,26 @@
         <clean>300</clean> <!-- Maximum number of rows in memory -->
         <odir format="pandas">data/outputs/market</odir> <!-- ouptut directory -->
     </market>
+    <analysis>
+        <properties type="deriv"> <!-- derivative of data -->
+            <parent type="market">ask</parent>
+        </properties>
+        <properties type="MA"> <!-- moving average -->
+            <parent type="deriv">ask_deriv</parent>
+            <param name="k">7</param>
+        </properties>
+        <properties type="EMA"> <!-- exponential moving average -->
+            <parent type="deriv">ask_deriv</parent>
+            <param name="k">7</param>
+        </properties>
+        <properties type="MACD">
+            <parent name="short" type="EMA">ask_k-7</parent>
+            <parent name="long" type="EMA">ask_k-13</parent>
+            <param name="k">9</param>
+        </properties>
+        <properties type="RSI">
+            <parent type="market">ask</parent>
+            <param name="k">5</param>
+        </properties>
+    </analysis>
 </pytradingbot>
