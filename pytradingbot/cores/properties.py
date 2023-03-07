@@ -213,7 +213,8 @@ class Derivative(PropertiesABC):
     def __init__(self, market=None, parent=None):
         super().__init__(market=market, parent=parent)
         if 'data' in self.parents.keys():
-            self.name = f"{self.parents['data'].name}_{self.type}"
+            self.name = f"{self.type}_{self.parents['data']}"
+            # self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
 
     def _function(self):
@@ -229,15 +230,18 @@ class MovingAverage(PropertiesABC):
     def __init__(self, market=None, parent=None, param=None):
         super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
-            self.name = f"{self.parents['data'].name}_{self.type}"
+            self.name = f"{self.type}_{self.parents['data'].name}"
+            # self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
         if 'k' not in self.param:
             logging.warning(f"k is not defined in parameters: {param=}")
             if 'data' in self.parents.keys():
-                self.name = f"{self.parents['data'].name}_{self.type}"
+                self.name = f"{self.type}_{self.parents['data'].name}"
+                # self.name = f"{self.parents['data'].name}_{self.type}"
         else:
             if 'data' in self.parents.keys():
-                self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
+                self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
+                # self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
 
     def _function(self):
         return functions.MA(self.parents['data'].data, k=self.param["k"])
@@ -252,15 +256,18 @@ class ExponentialMovingAverage(PropertiesABC):
     def __init__(self, market=None, parent=None, param=None):
         super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
-            self.name = f"{self.parents['data'].name}_{self.type}"
+            self.name = f"{self.type}_{self.parents['data'].name}"
+            #self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
         if 'k' not in self.param:
             logging.warning(f"k is not defined in parameters: {param=}")
             if 'data' in self.parents.keys():
-                self.name = f"{self.parents['data'].name}_{self.type}"
+                self.name = f"{self.type}_{self.parents['data'].name}"
+                # self.name = f"{self.parents['data'].name}_{self.type}"
         else:
             if 'data' in self.parents.keys():
-                self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
+                self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
+                # self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
 
     def _function(self):
         return functions.EMA(self.parents['data'].data, k=self.param['k'])
@@ -275,15 +282,18 @@ class StandardDeviation(PropertiesABC):
     def __init__(self, market=None, parent=None, param=None):
         super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
-            self.name = f"{self.parents['data'].name}_{self.type}"
+            self.name = f"{self.type}_{self.parents['data'].name}"
+            # self.name = f"{self.parents['data'].name}_{self.type}"
         self.data = self.data.rename(self.name)
         if 'k' not in self.param:
             logging.warning(f"k is not defined in parameters: {param=}")
             if 'data' in self.parents.keys():
-                self.name = f"{self.parents['data'].name}_{self.type}"
+                self.name = f"{self.type}_{self.parents['data'].name}"
+                # self.name = f"{self.parents['data'].name}_{self.type}"
         else:
             if 'data' in self.parents.keys():
-                self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
+                self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
+                # self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
 
     def _function(self):
         return functions.standard_deviation(self.parents['data'].data, k=self.param['k'])
@@ -298,15 +308,15 @@ class Variation(PropertiesABC):
     def __init__(self, market=None, parent=None, param=None):
         super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
-            self.name = f"{self.parents['data'].name}_{self.type}"
+            self.name = f"{self.type}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
         if 'k' not in self.param:
             logging.warning(f"k is not defined in parameters: {param=}")
             if 'data' in self.parents.keys():
-                self.name = f"{self.parents['data'].name}_{self.type}"
+                self.name = f"{self.type}_{self.parents['data'].name}"
         else:
             if 'data' in self.parents.keys():
-                self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
+                self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
 
     def _function(self):
         return functions.variation(self.parents['data'].data, k=self.param['k'])
@@ -321,14 +331,14 @@ class RSI(PropertiesABC):
     def __init__(self, market=None, parent=None, param=None):
         super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
-            self.name = f"{self.parents['data'].name}_{self.type}"
+            self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
         if 'k' not in self.param:
             logging.warning(f"k is not defined in parameters: {param=}")
             if 'data' in self.parents.keys():
-                self.name = f"{self.parents['data'].name}_{self.type}"
+                self.name = f"{self.type}_{self.parents['data'].name}"
         else:
             if 'data' in self.parents.keys():
-                self.name = f"{self.parents['data'].name}_{self.type}_k-{param['k']}"
+                self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
 
     def _function(self):
@@ -404,3 +414,54 @@ class Bollinger(PropertiesABC):
     def _function(self):
         return functions.bollinger(self.parents['data'].data, self.parents['mean'].data,
                                    self.parents['std'].data, self.param['k'])
+
+def generate_property_by_name(name: str, market) -> PropertiesABC:
+    if market.is_property_by_name(name):
+        return market.find_property_by_name(name)
+        
+    words = name.split("_")
+    param = {}
+    if len(words) > 1:
+        if  words[0] == "deriv":
+            prop_type = "deriv"
+            parent_str = "_".join(words[1:])
+            parent_prop = generate_property_by_name(parent_str, market)
+            return Derivative(market=market, parent=parent_prop)
+        elif words[0] == "MA":
+            type = "MA"
+            if words[1].startswith("k-"):
+                param["k"] = int(words[1].split("-")[-1])
+            parent_str = "_".join(words[2:])
+            parent_prop = generate_property_by_name(parent_str, market)
+            return MovingAverage(market=market, parent=parent_prop, param=param)
+        elif words[0] == "EMA":
+            type = "EMA"
+            if words[1].startswith("k-"):
+                param["k"] = int(words[1].split("-")[-1])
+            parent_str = "_".join(words[2:])
+            parent_prop = generate_property_by_name(parent_str, market)
+            return ExponentialMovingAverage(market=market, parent=parent_prop, param=param)
+        elif words[0] == "std":
+            type = "std"
+            if words[1].startswith("k-"):
+                param["k"] = int(words[1].split("-")[-1])
+            parent_str = "_".join(words[2:])
+            parent_prop = generate_property_by_name(parent_str, market)
+            return StandardDeviation(market=market, parent=parent_prop, param=param)
+        elif words[0] == "variation":
+            type = "variation"
+            if words[1].startswith("k-"):
+                param["k"] = int(words[1].split("-")[-1])
+            parent_str = "_".join(words[2:])
+            parent_prop = generate_property_by_name(parent_str, market)
+            return Variation(market=market, parent=parent_prop, param=param)
+        elif words[0] == "rsi":
+            type = "rsi"
+            if words[1].startswith("k-"):
+                param["k"] = int(words[1].split("-")[-1])
+            parent_str = "_".join(words[2:])
+            parent_prop = generate_property_by_name(parent_str, market)
+            return RSI(market=market, parent=parent_prop, param=param)
+            
+            
+            
