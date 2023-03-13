@@ -5,8 +5,10 @@ Module containing function to read file
 # Python IMPORTS
 # =================
 import os.path
+from os import getcwd
 import logging
 import pandas as pd
+
 
 # =================
 # Internal IMPORTS
@@ -79,14 +81,28 @@ def read_list_market(path: str):
     if not os.path.isfile(path):
         logging.warning(f"{path} is not a file, market is not loaded")
         return None
-
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # get the directory of the module
     data_df = pd.DataFrame()
     with open(path) as files:
-        for file in files:
-            if len(file) > 0 and os.path.isfile(file):
-                data_df = pd.concat([data_df, read_csv_market(file)], axis=0)
-            elif len(file) > 0:
-                logging.warning(f"{file} is not a file, file skipped")
+        directory = root_dir
+        for line in files:
+            if line.startswith("DIR"):
+                words = line.split()
+                if len(words) == 3:
+                    if os.path.isdir(words[2]):
+                        directory = words[2]
+                    elif os.path.isdir(f"{root_dir}/{words[2]}"):
+                        directory = f"{root_dir}/{words[2]}"
+                    else:
+                        logging.warning(f"{words[2]} is not a directory: {directory} is used")
+                else:
+                    logging.warning("Uncorrected format for directory, please use format: DIR = your/path/")
+            elif len(line) > 0:
+                file = f"{directory}/{line.rstrip()}"
+                if os.path.isfile(file):
+                    data_df = pd.concat([data_df, read_csv_market(file)], axis=0)
+                else:
+                    logging.warning(f"{file} is not a file, file skipped")
     data_df.sort_index(axis=0)
     return data_df
 

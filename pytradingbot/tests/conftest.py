@@ -45,6 +45,15 @@ def market_two_days_list():
 
 
 @pytest.fixture()
+def market_two_days_list_with_dir():
+    return 'data/XXBTZEUR_2days_dir.list'
+
+
+@pytest.fixture()
+def market_two_days_list_with_wrong_dir():
+    return 'data/XXBTZEUR_2days_wrong-dir.list'
+
+@pytest.fixture()
 def market_two_days_missingdata_path():
     return 'data/XXBTZEUR_2days_datamissing.dat'
 
