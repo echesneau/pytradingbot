@@ -12,6 +12,7 @@ import os.path
 # Variables
 # =================
 
+ROOT_DIR = os.path.dirname(__file__)
 
 @pytest.fixture()
 def id_config_path():
@@ -26,36 +27,37 @@ def kraken_user():
 
 @pytest.fixture()
 def inputs_config_path():
-    return 'data/config.xml'
+    return f'{ROOT_DIR}/data/config.xml'
 
 
 @pytest.fixture()
 def market_one_day_path():
-    return 'data/XXBTZEUR_1day.dat'
+    return f'{ROOT_DIR}/data/XXBTZEUR_1day.dat'
 
 
 @pytest.fixture()
 def market_two_days_path():
-    return 'data/XXBTZEUR_2days.dat'
+    return f'{ROOT_DIR}/data/XXBTZEUR_2days.dat'
 
 
 @pytest.fixture()
 def market_two_days_list():
-    return 'data/XXBTZEUR_2days.list'
+    return f'{ROOT_DIR}/data/XXBTZEUR_2days.list'
 
 
 @pytest.fixture()
 def market_two_days_list_with_dir():
-    return 'data/XXBTZEUR_2days_dir.list'
+    return f'{ROOT_DIR}/data/XXBTZEUR_2days_dir.list'
 
 
 @pytest.fixture()
 def market_two_days_list_with_wrong_dir():
-    return 'data/XXBTZEUR_2days_wrong-dir.list'
+    return f'{ROOT_DIR}/data/XXBTZEUR_2days_wrong-dir.list'
+
 
 @pytest.fixture()
 def market_two_days_missingdata_path():
-    return 'data/XXBTZEUR_2days_datamissing.dat'
+    return f'{ROOT_DIR}/data/XXBTZEUR_2days_datamissing.dat'
 
 
 @pytest.fixture()
