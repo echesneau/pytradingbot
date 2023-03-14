@@ -15,7 +15,7 @@ from pytradingbot.iolib.crypto_api import KrakenApi, KrakenApiDev
 # =================
 
 
-@pytest.mark.order(3)
+@pytest.mark.run(order=5)
 def test_connect(kraken_user):
     api = KrakenApi()
     api._set_id(kraken_user)
@@ -27,7 +27,7 @@ def test_connect(kraken_user):
     assert type(api.session) is krakenex.api.API
 
 
-@pytest.mark.order(4)
+@pytest.mark.run(order=6)
 def test_get_market(kraken_user, inputs_config_path):
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
     api.connect()
@@ -37,7 +37,7 @@ def test_get_market(kraken_user, inputs_config_path):
         assert type(values[key]) == float
 
 
-@pytest.mark.order(7)
+@pytest.mark.run(order=13)
 def test_run_api(kraken_user, inputs_config_path):
     ntest = 5
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)

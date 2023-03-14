@@ -36,6 +36,11 @@ def market_one_day_path():
 
 
 @pytest.fixture()
+def market_one_day_missing_volume_col_path():
+    return f'{ROOT_DIR}/data/XXBTZEUR_1day_missing_volume_col.dat'
+
+
+@pytest.fixture()
 def market_two_days_path():
     return f'{ROOT_DIR}/data/XXBTZEUR_2days.dat'
 

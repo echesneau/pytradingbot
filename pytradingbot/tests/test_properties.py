@@ -3,6 +3,7 @@
 # =================
 import pandas as pd
 import pytest
+from numpy.testing import assert_approx_equal
 
 # =================
 # Internal IMPORTS
@@ -17,7 +18,7 @@ from pytradingbot.utils.market_tools import market_from_file
 # =================
 
 
-@pytest.mark.order(11)
+@pytest.mark.run(order=14)
 def test_derivative(market_one_day_path):
     # Init properties
     market = market_from_file(market_one_day_path, fmt='csv')[0]
@@ -47,7 +48,7 @@ def test_derivative(market_one_day_path):
     assert len(data.data) == 0
 
 
-@pytest.mark.order(12)
+@pytest.mark.run(order=15)
 def test_moving_average(market_one_day_path):
     # Init
     k = 7
@@ -86,7 +87,7 @@ def test_moving_average(market_one_day_path):
     assert pd.isnull(data.iloc[:k - 1]).all()
     assert (data[pd.notnull(data)] > market.ask.data.max()).sum() == 0  # value should be higher than -100
     assert (data[pd.notnull(data)] < market.ask.data.min()).sum() == 0  # value should be smaller than 100
-    pd.testing.assert_series_equal(data_np, data, check_less_precise=True)
+    pd.testing.assert_series_equal(data_np, data, atol=1e-3)
 
     # Check what's happened if parents and market is None
     market = market_from_file(market_one_day_path, fmt='csv')[0]
@@ -96,7 +97,7 @@ def test_moving_average(market_one_day_path):
     assert len(data.data) == 0
 
 
-@pytest.mark.order(13)
+@pytest.mark.run(order=16)
 def test_exponential_moving_average(market_one_day_path):
     # Init
     k = 7
@@ -135,7 +136,7 @@ def test_exponential_moving_average(market_one_day_path):
     assert pd.isnull(data.iloc[:k - 1]).all()
     assert (data[pd.notnull(data)] > market.ask.data.max()).sum() == 0  # value should be higher than -100
     assert (data[pd.notnull(data)] < market.ask.data.min()).sum() == 0  # value should be smaller than 100
-    pd.testing.assert_series_equal(data_np, data, check_less_precise=True)
+    pd.testing.assert_series_equal(data_np, data, atol=1e-3)
 
     # Check what's happened if parents and market is None
     market = market_from_file(market_one_day_path, fmt='csv')[0]
@@ -145,7 +146,7 @@ def test_exponential_moving_average(market_one_day_path):
     assert len(data.data) == 0
 
 
-@pytest.mark.order(14)
+@pytest.mark.run(order=17)
 def test_standard_deviation(market_one_day_path):
     # Init
     k = 7
@@ -180,7 +181,7 @@ def test_standard_deviation(market_one_day_path):
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
     assert pd.isnull(data.iloc[:k - 1]).all()
-    pd.testing.assert_series_equal(data_np, data, check_less_precise=True)
+    pd.testing.assert_series_equal(data_np, data, atol=1e-3)
 
     # Check what's happened if parents and market is None
     market = market_from_file(market_one_day_path, fmt='csv')[0]
@@ -190,7 +191,7 @@ def test_standard_deviation(market_one_day_path):
     assert len(data.data) == 0
 
 
-@pytest.mark.order(15)
+@pytest.mark.run(order=18)
 def test_variation(market_one_day_path):
     # Init
     k = 7
@@ -229,7 +230,7 @@ def test_variation(market_one_day_path):
     assert pd.isnull(data.iloc[:k - 1]).all()
     assert (data < -100).sum() == 0  # value should be higher than -100
     assert (data > 100).sum() == 0  # value should be smaller than 100
-    pd.testing.assert_series_equal(data_np, data, check_less_precise=True)
+    pd.testing.assert_series_equal(data_np, data, atol=1e-3)
 
     # Check what's happened if parents and market is None
     market = market_from_file(market_one_day_path, fmt='csv')[0]
@@ -239,7 +240,7 @@ def test_variation(market_one_day_path):
     assert len(data.data) == 0
 
 
-@pytest.mark.order(16)
+@pytest.mark.run(order=19)
 def test_rsi(market_one_day_path):
     # Init
     k = 7
@@ -278,7 +279,7 @@ def test_rsi(market_one_day_path):
     assert pd.isnull(data.iloc[:k - 1]).all()
     assert (data < 0).sum() == 0  # value should be higher than -100
     assert (data > 100.1).sum() == 0  # value should be smaller than 100
-    pd.testing.assert_series_equal(data_np, data, check_less_precise=True)
+    pd.testing.assert_series_equal(data_np, data, atol=1e-3)
 
     # Check what's happened if parents and market is None
     market = market_from_file(market_one_day_path, fmt='csv')[0]
@@ -288,7 +289,7 @@ def test_rsi(market_one_day_path):
     assert len(data.data) == 0
 
 
-@pytest.mark.order(17)
+@pytest.mark.run(order=20)
 def test_macd(market_one_day_path):
     # Init
     k = 5
@@ -339,7 +340,7 @@ def test_macd(market_one_day_path):
     assert pd.isnull(data.iloc[:k - 1]).all()
     assert (data < -100).sum() == 0  # value should be higher than -100
     assert (data > 100).sum() == 0  # value should be smaller than 100
-    pd.testing.assert_series_equal(data_np, data, check_less_precise=True)
+    pd.testing.assert_series_equal(data_np, data, atol=1e-3)
 
     # Check what's happened if parents and market is None
     market = market_from_file(market_one_day_path, fmt='csv')[0]
@@ -349,7 +350,7 @@ def test_macd(market_one_day_path):
     assert len(data.data) == 0
 
 
-@pytest.mark.order(18)
+@pytest.mark.run(order=21)
 def test_bollinger(market_one_day_path):
     # Init
     k = 7

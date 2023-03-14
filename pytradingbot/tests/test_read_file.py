@@ -16,14 +16,32 @@ from pytradingbot.utils import read_file
 # =================
 
 
-@pytest.mark.order(1)
-def test_read_idconfig(id_config_path):
+@pytest.mark.run(order=1)
+def test_read_idconfig(id_config_path, caplog):
+    # Check wrong path
+    df_id = read_file.read_idconfig('toto')
+    assert len(df_id) == 0
+    assert "is not a file" in caplog.text
+    caplog.clear()
+
     assert os.path.isfile(id_config_path)
     assert type(read_file.read_idconfig(id_config_path)) == pd.DataFrame
     assert len(read_file.read_idconfig(id_config_path)) > 0
 
 
-@pytest.mark.order(2)
+@pytest.mark.run(order=2)
+def test_read_csv_market(market_one_day_path, caplog):
+    df = read_file.read_csv_market(market_one_day_path)
+    assert type(df) == pd.DataFrame
+    assert len(df) > 0
+
+    # test wrong path
+    df = read_file.read_csv_market('toto')
+    assert df is None
+    assert "is not a file" in caplog.text
+
+
+@pytest.mark.run(order=3)
 def test_read_list_market(market_two_days_list, market_two_days_list_with_dir,
                           market_two_days_list_with_wrong_dir, caplog):
     LOGGER = logging.getLogger(__name__)
