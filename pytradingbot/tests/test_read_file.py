@@ -44,7 +44,6 @@ def test_read_csv_market(market_one_day_path, caplog):
 @pytest.mark.run(order=3)
 def test_read_list_market(market_two_days_list, market_two_days_list_with_dir,
                           market_two_days_list_with_wrong_dir, caplog):
-    LOGGER = logging.getLogger(__name__)
     df = read_file.read_list_market(market_two_days_list)
     assert len(df) > 0
     delta = df.index[-1] - df.index[0]

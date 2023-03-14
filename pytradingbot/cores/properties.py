@@ -206,7 +206,6 @@ class Derivative(PropertiesABC):
     """
     Derivative
     """
-    # function = functions.derivative
     type = 'deriv'
 
     def __init__(self, market=None, parent=None):
@@ -389,9 +388,6 @@ class Bollinger(PropertiesABC):
             if 'k' not in param:
                 logging.warning("k is not defined in param, set to 2")
                 param['k'] = 2
-            # print(parent['data'])
-            # print(parent['mean'])
-            # print(parent['std'])
 
             self.name = f"{self.type}_{self.parents['data'].name}-" \
                         f"{self.parents['mean'].param['k']}_{param['k']}"
