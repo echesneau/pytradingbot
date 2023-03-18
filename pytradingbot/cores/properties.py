@@ -363,7 +363,8 @@ class MACD(PropertiesABC):
             else:
                 klong = 0
             if 'k' in self.param:
-                self.name = f"{self.type}_{kshort}-{klong}-{param['k']}"
+                self.name = f"{self.type}_k-{param['k']}_long_{self.parents['long'].name}_short_{self.parents['short'].name}"
+                # self.name = f"{self.type}_{kshort}-{klong}-{param['k']}"
         if 'k' not in self.param:
             logging.warning(f"k is not defined in parameters: {param=}")
         self.data = self.data.rename(self.name)
@@ -403,9 +404,9 @@ class Bollinger(PropertiesABC):
             # print(parent['data'])
             # print(parent['mean'])
             # print(parent['std'])
-
-            self.name = f"{self.type}_{self.parents['data'].name}-" \
-                        f"{self.parents['mean'].param['k']}_{param['k']}"
+            self.name = f"{self.type}_k-{param['k']}_data_{self.parents['data'].name}_mean_{self.parents['mean'].name}_std_{self.parents['std''].name}"
+            # self.name = f"{self.type}_{self.parents['data'].name}-" \
+             #           f"{self.parents['mean'].param['k']}_{param['k']}"
         else:
             logging.warning("Missing parent values")
             self.name = self.type
@@ -462,6 +463,23 @@ def generate_property_by_name(name: str, market) -> PropertiesABC:
             parent_str = "_".join(words[2:])
             parent_prop = generate_property_by_name(parent_str, market)
             return RSI(market=market, parent=parent_prop, param=param)
+        elif words[0] == "macd":
+            if words[1].startswith("k-"):
+                param["k"] = int(words[1].split("-")[-1])
+            ishort = words.index("short")
+            ilong = words.index("long")
+            parent_long_str = "_".join(words[ilong+1:ishort])
+            parent_short_str = "_".join(words[ishort+1:])
+            parent_long = generate_property_by_name(parent_long_str, market)
+            parent_short = generate_property_by_name(parent_short_str, market)
+            return MACD(market=market, param=param, parent={"short":parent_short, "long":parent_long})
+            
+        else:
+            logging.warning(f"unknow property type {name}")
+            return None
+            
+    else:
+            logging.warning(f"unknown property format name : {name}")
             
             
             

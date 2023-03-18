@@ -417,6 +417,22 @@ def test_generate_properties_by_name(market_one_day_path):
     assert prop.param["k"] == 7
     assert prop.parents["data"].type == "market" 
     prop = properties.generate_property_by_name("rsi_k-7_ask", market)
+    assert prop.type == "rsi"
+    assert prop.param["k"] == 7
+    assert prop.parents["data"].type == "market" 
+    prop = properties.generate_property_by_name("macd_k-7_long_EMA_k-21_ask_short_EMA_k-7_ask", market)
+    assert prop.type == "macd"
+    assert prop.param["k"] == 7
+    #assert prop.parents["data"].type == "market" 
+    prop = properties.generate_property_by_name("bollinger_k-2_data_ask_mean_MA_k-7_ask_std_std_k-7_ask", market)
+    assert prop.type == "macd"
+    assert prop.param["k"] == 7
+    prop = properties.generate_property_by_name("toto", market)
+    assert prop is None
+    prop = properties.generate_property_by_name("toto_k-7_ask", market)
+    assert prop is None
+    
+    
     
     
     
