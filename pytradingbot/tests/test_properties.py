@@ -389,43 +389,74 @@ def test_bollinger(market_one_day_path):
     assert len(data.data) == 0
 
 
+def test_generate_derivative_by_name(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop = properties.generate_property_by_name("deriv_ask", market)
+    assert prop.type == "deriv"
+    assert prop.parents["data"].type == "market"
+
+
+def test_generate_moving_average_by_name(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop = properties.generate_property_by_name("MA_k-7_ask", market)
+    assert prop.type == "MA"
+    assert prop.param["k"] == 7
+    assert prop.parents["data"].type == "market"
+
+
+def test_generate_exponential_moving_average_by_name(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop = properties.generate_property_by_name("EMA_k-7_ask", market)
+    assert prop.type == "EMA"
+    assert prop.param["k"] == 7
+    assert prop.parents["data"].type == "market"
+
+
+def test_generate_standard_deviation_by_name(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop = properties.generate_property_by_name("std_k-7_ask", market)
+    assert prop.type == "std"
+    assert prop.param["k"] == 7
+    assert prop.parents["data"].type == "market"
+
+
+def test_generate_variation_by_name(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop = properties.generate_property_by_name("variation_k-7_ask", market)
+    assert prop.type == "variation"
+    assert prop.param["k"] == 7
+    assert prop.parents["data"].type == "market"
+
+
+def test_generate_rsi_by_name(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop = properties.generate_property_by_name("rsi_k-7_ask", market)
+    assert prop.type == "rsi"
+    assert prop.param["k"] == 7
+    assert prop.parents["data"].type == "market"
+
+
+def test_generate_macd_by_name(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop = properties.generate_property_by_name("macd_k-7_long_EMA_k-21_ask_short_EMA_k-7_ask", market)
+    assert prop.type == "macd"
+    assert prop.param["k"] == 7
+
+
+def test_generate_bollinger_by_name(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop = properties.generate_property_by_name("bollinger_k-2_data_ask_mean_MA_k-7_ask_std_std_k-7_ask", market)
+    assert prop.type == "bollinger"
+    assert prop.param["k"] == 2
+
+
 @pytest.mark.order(19)
 def test_generate_properties_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop = properties.generate_property_by_name("ask", market)
     assert prop.name == "ask"
-    prop = properties.generate_property_by_name("deriv_ask", market)
-    assert prop.type == "deriv"
-    assert prop.parents["data"].type == "market"
-    prop = properties.generate_property_by_name("MA_k-7_ask", market)
-    assert prop.type == "MA"
-    assert prop.param["k"] == 7
-    assert prop.parents["data"].type == "market"
     prop = properties.generate_property_by_name("deriv_MA_k-7_ask", market)
     assert prop.type == "deriv"
-    prop = properties.generate_property_by_name("EMA_k-7_ask", market)
-    assert prop.type == "EMA"
-    assert prop.param["k"] == 7
-    assert prop.parents["data"].type == "market"
-    prop = properties.generate_property_by_name("std_k-7_ask", market)
-    assert prop.type == "std"
-    assert prop.param["k"] == 7
-    assert prop.parents["data"].type == "market" 
-    prop = properties.generate_property_by_name("variation_k-7_ask", market)
-    assert prop.type == "variation"
-    assert prop.param["k"] == 7
-    assert prop.parents["data"].type == "market" 
-    prop = properties.generate_property_by_name("rsi_k-7_ask", market)
-    assert prop.type == "rsi"
-    assert prop.param["k"] == 7
-    assert prop.parents["data"].type == "market" 
-    prop = properties.generate_property_by_name("macd_k-7_long_EMA_k-21_ask_short_EMA_k-7_ask", market)
-    assert prop.type == "macd"
-    assert prop.param["k"] == 7
-    prop = properties.generate_property_by_name("bollinger_k-2_data_ask_mean_MA_k-7_ask_std_std_k-7_ask", market)
-    assert prop.type == "bollinger"
-    assert prop.param["k"] == 2
-    print(prop.parents)
     prop = properties.generate_property_by_name("toto", market)
     assert prop is None
     prop = properties.generate_property_by_name("toto_k-7_ask", market)

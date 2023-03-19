@@ -394,71 +394,115 @@ class Bollinger(PropertiesABC):
                                    self.parents['std'].data, self.param['k'])
 
 
+def generate_derivative_by_name(name: str, market):
+    words = name.split("_")
+    parent_str = "_".join(words[1:])
+    parent_prop = generate_property_by_name(parent_str, market)
+    return Derivative(market=market, parent=parent_prop)
+
+
+def generate_moving_average_by_name(name: str, market):
+    words = name.split("_")
+    param = {}
+    if words[1].startswith("k-"):
+        param["k"] = int(words[1].split("-")[-1])
+    parent_str = "_".join(words[2:])
+    parent_prop = generate_property_by_name(parent_str, market)
+    return MovingAverage(market=market, parent=parent_prop, param=param)
+
+
+def generate_exponential_moving_average_by_name(name: str, market):
+    words = name.split("_")
+    param = {}
+    if words[1].startswith("k-"):
+        param["k"] = int(words[1].split("-")[-1])
+    parent_str = "_".join(words[2:])
+    parent_prop = generate_property_by_name(parent_str, market)
+    return ExponentialMovingAverage(market=market, parent=parent_prop, param=param)
+
+
+def generate_standard_deviation_by_name(name: str, market):
+    words = name.split("_")
+    param = {}
+    if words[1].startswith("k-"):
+        param["k"] = int(words[1].split("-")[-1])
+    parent_str = "_".join(words[2:])
+    parent_prop = generate_property_by_name(parent_str, market)
+    return StandardDeviation(market=market, parent=parent_prop, param=param)
+
+
+def generate_variation_by_name(name: str, market):
+    words = name.split("_")
+    param = {}
+    if words[1].startswith("k-"):
+        param["k"] = int(words[1].split("-")[-1])
+    parent_str = "_".join(words[2:])
+    parent_prop = generate_property_by_name(parent_str, market)
+    return Variation(market=market, parent=parent_prop, param=param)
+
+
+def generate_rsi_by_name(name: str, market):
+    words = name.split("_")
+    param = {}
+    if words[1].startswith("k-"):
+        param["k"] = int(words[1].split("-")[-1])
+    parent_str = "_".join(words[2:])
+    parent_prop = generate_property_by_name(parent_str, market)
+    return RSI(market=market, parent=parent_prop, param=param)
+
+def generate_macd_by_name(name: str, market):
+    words = name.split("_")
+    param = {}
+    if words[1].startswith("k-"):
+        param["k"] = int(words[1].split("-")[-1])
+    ishort = words.index("short")
+    ilong = words.index("long")
+    parent_long_str = "_".join(words[ilong + 1:ishort])
+    parent_short_str = "_".join(words[ishort + 1:])
+    parent_long = generate_property_by_name(parent_long_str, market)
+    parent_short = generate_property_by_name(parent_short_str, market)
+    return MACD(market=market, param=param, parent={"short": parent_short, "long": parent_long})
+
+def generate_bollinger_by_name(name: str, market):
+    words = name.split("_")
+    param = {}
+    if words[1].startswith("k-"):
+        param["k"] = int(words[1].split("-")[-1])
+    idata = words.index("data")
+    imean = words.index("mean")
+    istd = words.index("std")
+    parent_data_str = "_".join(words[idata + 1:imean])
+    parent_mean_str = '_'.join(words[imean + 1:istd])
+    parent_std_str = "_".join(words[istd + 1:])
+    parent_data = generate_property_by_name(parent_data_str, market)
+    parent_mean = generate_property_by_name(parent_mean_str, market)
+    parent_std = generate_property_by_name(parent_std_str, market)
+    return Bollinger(market=market, param=param,
+                     parent={'data': parent_data, "mean": parent_mean, "std": parent_std})
+
+
 def generate_property_by_name(name: str, market) -> [PropertiesABC, None]:
     if market.is_property_by_name(name):
         return market.find_property_by_name(name)
-        
     words = name.split("_")
     param = {}
     if len(words) > 1:
         if words[0] == "deriv":
-            parent_str = "_".join(words[1:])
-            parent_prop = generate_property_by_name(parent_str, market)
-            return Derivative(market=market, parent=parent_prop)
+            return generate_derivative_by_name(name, market)
         elif words[0] == "MA":
-            if words[1].startswith("k-"):
-                param["k"] = int(words[1].split("-")[-1])
-            parent_str = "_".join(words[2:])
-            parent_prop = generate_property_by_name(parent_str, market)
-            return MovingAverage(market=market, parent=parent_prop, param=param)
+            return generate_moving_average_by_name(name, market)
         elif words[0] == "EMA":
-            if words[1].startswith("k-"):
-                param["k"] = int(words[1].split("-")[-1])
-            parent_str = "_".join(words[2:])
-            parent_prop = generate_property_by_name(parent_str, market)
-            return ExponentialMovingAverage(market=market, parent=parent_prop, param=param)
+            return generate_exponential_moving_average_by_name(name, market)
         elif words[0] == "std":
-            if words[1].startswith("k-"):
-                param["k"] = int(words[1].split("-")[-1])
-            parent_str = "_".join(words[2:])
-            parent_prop = generate_property_by_name(parent_str, market)
-            return StandardDeviation(market=market, parent=parent_prop, param=param)
+            return generate_standard_deviation_by_name(name, market)
         elif words[0] == "variation":
-            if words[1].startswith("k-"):
-                param["k"] = int(words[1].split("-")[-1])
-            parent_str = "_".join(words[2:])
-            parent_prop = generate_property_by_name(parent_str, market)
-            return Variation(market=market, parent=parent_prop, param=param)
+            return generate_variation_by_name(name, market)
         elif words[0] == "rsi":
-            if words[1].startswith("k-"):
-                param["k"] = int(words[1].split("-")[-1])
-            parent_str = "_".join(words[2:])
-            parent_prop = generate_property_by_name(parent_str, market)
-            return RSI(market=market, parent=parent_prop, param=param)
+            return generate_rsi_by_name(name, market)
         elif words[0] == "macd":
-            if words[1].startswith("k-"):
-                param["k"] = int(words[1].split("-")[-1])
-            ishort = words.index("short")
-            ilong = words.index("long")
-            parent_long_str = "_".join(words[ilong+1:ishort])
-            parent_short_str = "_".join(words[ishort+1:])
-            parent_long = generate_property_by_name(parent_long_str, market)
-            parent_short = generate_property_by_name(parent_short_str, market)
-            return MACD(market=market, param=param, parent={"short": parent_short, "long": parent_long})
+            return generate_macd_by_name(name, market)
         elif words[0] == "bollinger":
-            if words[1].startswith("k-"):
-                param["k"] = int(words[1].split("-")[-1])
-            idata = words.index("data")
-            imean = words.index("mean")
-            istd = words.index("std")
-            parent_data_str = "_".join(words[idata+1:imean])
-            parent_mean_str = '_'.join(words[imean+1:istd])
-            parent_std_str = "_".join(words[istd+1:])
-            parent_data = generate_property_by_name(parent_data_str, market)
-            parent_mean = generate_property_by_name(parent_mean_str, market)
-            parent_std = generate_property_by_name(parent_std_str, market)
-            return Bollinger(market=market, param=param,
-                             parent={'data': parent_data, "mean": parent_mean, "std": parent_std})
+            return generate_bollinger_by_name(name, market)
         else:
             logging.warning(f"unknow property type {name}")
             return None
