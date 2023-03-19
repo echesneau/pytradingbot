@@ -2,7 +2,6 @@
 # Python IMPORTS
 # =================
 import pandas as pd
-import os
 import pytest
 
 # =================
@@ -28,12 +27,12 @@ def test_derivative(market_one_day_path):
     assert type(market.child[3]) == properties.Derivative
     assert market.child[3].parents['data'] == market.ask
     assert market.child[3].parents['market'] == market
-    assert market.child[3].name == "ask_deriv"
+    assert market.child[3].name == "deriv_ask"
 
     # Update properties
     market.child[3].update()
     data = market.child[3].data
-    assert market.child[3].name == "ask_deriv"
+    assert market.child[3].name == "deriv_ask"
     assert pd.notnull(data).sum() == len(market.dataframe()) - 1
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -59,13 +58,13 @@ def test_moving_average(market_one_day_path):
     assert type(market.child[3]) == properties.MovingAverage
     assert market.child[3].parents['data'] == market.ask
     assert market.child[3].parents['market'] == market
-    assert market.child[3].name == f"ask_MA_k-{k}"
+    assert market.child[3].name == f"MA_k-{k}_ask"
 
     # Update properties with np_ext rolling
     functions.NP_ROLL = True
     market.child[3].update()
     data = market.child[3].data
-    assert market.child[3].name == f"ask_MA_k-{k}"
+    assert market.child[3].name == f"MA_k-{k}_ask"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k + 1
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -80,7 +79,7 @@ def test_moving_average(market_one_day_path):
     market.add_child(properties.MovingAverage(market=market, parent=market.ask, param={'k': k}))
     market.child[3].update()
     data = market.child[3].data
-    assert market.child[3].name == f"ask_MA_k-{k}"
+    assert market.child[3].name == f"MA_k-{k}_ask"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k + 1
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -108,13 +107,13 @@ def test_exponential_moving_average(market_one_day_path):
     assert type(market.child[3]) == properties.ExponentialMovingAverage
     assert market.child[3].parents['data'] == market.ask
     assert market.child[3].parents['market'] == market
-    assert market.child[3].name == f"ask_EMA_k-{k}"
+    assert market.child[3].name == f"EMA_k-{k}_ask"
 
     # Update properties
     functions.NP_ROLL = True
     market.child[3].update()
     data = market.child[3].data
-    assert market.child[3].name == f"ask_EMA_k-{k}"
+    assert market.child[3].name == f"EMA_k-{k}_ask"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k + 1
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -129,7 +128,7 @@ def test_exponential_moving_average(market_one_day_path):
     market.add_child(properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': k}))
     market.child[3].update()
     data = market.child[3].data
-    assert market.child[3].name == f"ask_EMA_k-{k}"
+    assert market.child[3].name == f"EMA_k-{k}_ask"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k + 1
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -157,13 +156,13 @@ def test_standard_deviation(market_one_day_path):
     assert type(market.child[3]) == properties.StandardDeviation
     assert market.child[3].parents['data'] == market.ask
     assert market.child[3].parents['market'] == market
-    assert market.child[3].name == f"ask_std_k-{k}"
+    assert market.child[3].name == f"std_k-{k}_ask"
 
     # Update properties
     functions.NP_ROLL = True
     market.child[3].update()
     data = market.child[3].data
-    assert market.child[3].name == f"ask_std_k-{k}"
+    assert market.child[3].name == f"std_k-{k}_ask"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k + 1
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -176,7 +175,7 @@ def test_standard_deviation(market_one_day_path):
     market.add_child(properties.StandardDeviation(market=market, parent=market.ask, param={'k': k}))
     market.child[3].update()
     data = market.child[3].data
-    assert market.child[3].name == f"ask_std_k-{k}"
+    assert market.child[3].name == f"std_k-{k}_ask"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k + 1
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -202,13 +201,13 @@ def test_variation(market_one_day_path):
     assert type(market.child[3]) == properties.Variation
     assert market.child[3].parents['data'] == market.ask
     assert market.child[3].parents['market'] == market
-    assert market.child[3].name == f"ask_variation_k-{k}"
+    assert market.child[3].name == f"variation_k-{k}_ask"
 
     # Update properties
     functions.NP_ROLL = True
     market.child[3].update()
     data = market.child[3].data
-    assert market.child[3].name == f"ask_variation_k-{k}"
+    assert market.child[3].name == f"variation_k-{k}_ask"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k + 1
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -223,7 +222,7 @@ def test_variation(market_one_day_path):
     market.add_child(properties.Variation(market=market, parent=market.ask, param={'k': k}))
     market.child[3].update()
     data = market.child[3].data
-    assert market.child[3].name == f"ask_variation_k-{k}"
+    assert market.child[3].name == f"variation_k-{k}_ask"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k + 1
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -251,13 +250,13 @@ def test_rsi(market_one_day_path):
     assert type(market.child[3]) == properties.RSI
     assert market.child[3].parents['data'] == market.ask
     assert market.child[3].parents['market'] == market
-    assert market.child[3].name == f"ask_rsi_k-{k}"
+    assert market.child[3].name == f"rsi_k-{k}_ask"
 
     # Update properties
     functions.NP_ROLL = True
     market.child[3].update()
     data = market.child[3].data
-    assert market.child[3].name == f"ask_rsi_k-{k}"
+    assert market.child[3].name == f"rsi_k-{k}_ask"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k + 1
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -272,7 +271,7 @@ def test_rsi(market_one_day_path):
     market.add_child(properties.RSI(market=market, parent=market.ask, param={'k': k}))
     market.child[3].update()
     data = market.child[3].data
-    assert market.child[3].name == f"ask_rsi_k-{k}"
+    assert market.child[3].name == f"rsi_k-{k}_ask"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k + 1
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -308,13 +307,13 @@ def test_macd(market_one_day_path):
     assert market.child[-1].parents['short'] == short
     assert market.child[-1].parents['long'] == long
     assert market.child[-1].parents['market'] == market
-    assert market.child[-1].name == f"macd_{kshort}-{klong}-{k}"
+    assert market.child[-1].name == f"macd_k-{k}_long_{long.name}_short_{short.name}"
 
     # Update properties
     functions.NP_ROLL = True
     market.child[-1].update()
     data = market.child[-1].data
-    assert market.child[-1].name == f"macd_{kshort}-{klong}-{k}"
+    assert market.child[-1].name == f"macd_k-{k}_long_{long.name}_short_{short.name}"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k - klong + 2
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -333,7 +332,7 @@ def test_macd(market_one_day_path):
     market.add_child(properties.MACD(market=market, parent={'short': short, 'long': long}, param={'k': k}))
     market.child[-1].update()
     data = market.child[-1].data
-    assert market.child[-1].name == f"macd_{kshort}-{klong}-{k}"
+    assert market.child[-1].name == f"macd_k-{k}_long_{long.name}_short_{short.name}"
     assert pd.notnull(data).sum() == len(market.dataframe()) - k - klong + 2
     assert pd.isnull(data).values[0]
     assert pd.notnull(data).values[-1]
@@ -368,12 +367,12 @@ def test_bollinger(market_one_day_path):
     assert market.child[-1].parents['data'] == market.ask
     assert market.child[-1].parents['mean'] == mean
     assert market.child[-1].parents['std'] == std
-    assert market.child[-1].name == f"bollinger_ask-{k}_{2}"
+    assert market.child[-1].name == f"bollinger_k-2_data_ask_mean_{mean.name}_std_{std.name}"
 
     # Update properties
     market.child[-1].update()
     data = market.child[-1].data
-    assert market.child[-1].name == f"bollinger_ask-{k}_{2}"
+    assert market.child[-1].name == f"bollinger_k-2_data_ask_mean_{mean.name}_std_{std.name}"
     n0 = len(std.data[std.data == 0])
     assert pd.notnull(data).sum() == len(market.dataframe()) - k - n0 + 1
     assert pd.isnull(data).values[0]
@@ -423,20 +422,11 @@ def test_generate_properties_by_name(market_one_day_path):
     prop = properties.generate_property_by_name("macd_k-7_long_EMA_k-21_ask_short_EMA_k-7_ask", market)
     assert prop.type == "macd"
     assert prop.param["k"] == 7
-    #assert prop.parents["data"].type == "market" 
     prop = properties.generate_property_by_name("bollinger_k-2_data_ask_mean_MA_k-7_ask_std_std_k-7_ask", market)
-    assert prop.type == "macd"
-    assert prop.param["k"] == 7
+    assert prop.type == "bollinger"
+    assert prop.param["k"] == 2
+    print(prop.parents)
     prop = properties.generate_property_by_name("toto", market)
     assert prop is None
     prop = properties.generate_property_by_name("toto_k-7_ask", market)
     assert prop is None
-    
-    
-    
-    
-    
-if __name__ == "__main__":
-    root_dir = os.path.dirname(__file__)
-    market_one_day_path = f'{root_dir}/data/XXBTZEUR_1day.dat'
-    test_generate_properties_by_name(market_one_day_path)

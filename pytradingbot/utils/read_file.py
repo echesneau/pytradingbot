@@ -94,11 +94,6 @@ def read_list_market(path: str):
                 else:
                     print(f"{root_dir}/../tests/{file}")
                     logging.warning(f"{file} is not a file, file skipped")
-
-            # if len(file) > 0 and os.path.isfile(file):
-            #     data_df = pd.concat([data_df, read_csv_market(file)], axis=0)
-            # elif len(file) > 0:
-            #     logging.warning(f"{file} is not a file, file skipped")
     data_df.sort_index(axis=0)
     return data_df
 

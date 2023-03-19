@@ -204,10 +204,11 @@ def test_find_property_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop_1 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 7})
     prop_2 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 13})
-    assert market.find_property_by_name("ask_EMA_k-7") == prop_1
-    assert market.find_property_by_name("ask_EMA_k-7") != prop_2
-    assert market.find_property_by_name("ask_EMA_k-13") == prop_2
-    assert market.find_property_by_name("ask_EMA_k-13") != prop_1
+    assert market.find_property_by_name("EMA_k-7_ask") == prop_1
+    assert market.find_property_by_name("EMA_k-7_ask") != prop_2
+    assert market.find_property_by_name("EMA_k-13_ask") == prop_2
+    assert market.find_property_by_name("EMA_k-13_ask") != prop_1
+
 
 @pytest.mark.order(23)
 def test_is_property(market_one_day_path):
@@ -223,9 +224,9 @@ def test_is_property_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop_1 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 7})
     prop_2 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 13})
-    assert market.is_property_by_name("ask_EMA_k-7")
-    assert market.is_property_by_name("ask_EMA_k-13")
-    assert not market.is_property_by_name("ask_EMA_k-20")
+    assert market.is_property_by_name("EMA_k-7_ask")
+    assert market.is_property_by_name("EMA_k-13_ask")
+    assert not market.is_property_by_name("EMA_k-20_ask")
 
 
 @pytest.mark.order(25)
@@ -246,7 +247,3 @@ def test_find_properties_by_type(market_one_day_path):
     assert len(market.find_properties_by_type('MA')) == 0
     assert len(market.find_properties_by_type('market')) == 3
 
-#
-# if __name__ == "__main__":
-#     market_one_day_path = 'data/XXBTZEUR_1day.dat'
-#     test_analyse(market_one_day_path)
