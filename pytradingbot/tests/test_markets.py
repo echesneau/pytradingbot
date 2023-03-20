@@ -247,3 +247,10 @@ def test_find_properties_by_type(market_one_day_path):
     assert len(market.find_properties_by_type('MA')) == 0
     assert len(market.find_properties_by_type('market')) == 3
 
+def test_generate_properties_from_inputs_file(inputs_config_path, market_one_day_path, caplog):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market.generate_property_from_xml_config(inputs_config_path)
+    assert len(market._get_all_child()) > 3
+    for property in ["deriv_EMA_k-20_ask", "macd_k-5_long_MA_k-13_ask_short_MA_k-7_ask",
+                     "bollinger_k-2_data_ask_mean_MA_k-10_ask_std_std_k-10_ask"]:
+        assert market.is_property_by_name(property)

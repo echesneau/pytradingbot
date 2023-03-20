@@ -120,8 +120,14 @@ def read_input_analysis_config(path: str) -> list:
 
     # Read properties
     for prop in main.xpath("/pytradingbot/analysis/properties"):
-        pass
-
+        if "format" in prop.attrib:
+            fmt = prop.attrib['format']
+        else:
+            fmt = "name"
+        if fmt in ['name']:
+            properties.append({"format": fmt, "value": prop.text})
+        else:
+            logging.warning(f"Unknown property format: {fmt}: {prop.text} skipped")
     return properties
 
 

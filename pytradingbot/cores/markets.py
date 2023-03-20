@@ -13,6 +13,7 @@ import pandas as pd
 # Internal IMPORTS
 # =================
 from pytradingbot.cores import properties
+from pytradingbot.utils.read_file import read_input_analysis_config
 
 # =================
 # Variables
@@ -104,8 +105,6 @@ class Market:
         -------
             pd.DataFrame
         """
-        # return pd.concat([self.ask.data, self.bid.data, self.volume.data]
-        #                  + [prop.data for prop in self.child], axis=1)
         return pd.concat([prop.data for prop in self._get_all_child()], axis=1)
 
     def save(self):
@@ -182,6 +181,13 @@ class Market:
 
     def find_property_by_type(self, ptype):
         return self.find_properties_by_type(ptype)[0]
+
+    def generate_property_from_xml_config(self, path: str):
+        property_list = read_input_analysis_config(path)
+        for property in property_list:
+            if property['format'] == "name":
+                properties.generate_property_by_name(property['value'], self)
+
 
 
 class MarketLoad(Market):
