@@ -94,6 +94,10 @@ class KrakenApi(BaseApi):
                 if failed == 0:
                     logging.warning(f"Connexion problem at {datetime.now()}")
                 failed += 1
+            except requests.exceptions.ReadTimeout:
+                if failed == 0:
+                    logging.warning(f"Timeout error at {datetime.now()}")
+                failed += 1
         if failed > 0:
             logging.warning(f"Problem solved at {datetime.now()} after {failed} test(s)")
         return values
