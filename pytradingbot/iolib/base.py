@@ -258,7 +258,7 @@ class BaseApi(ApiABC):
             self.market.save()
             self.market.clean()
             final_time = datetime.now()
-            print(f"{count=}: {final_time-init_time}s, (mean={(final_time-tstart)/count})", end="\r")
+            print(f"count={count}: {final_time-init_time}s, (mean={(final_time-tstart)/count})", end="\r")
             wait = self.refresh - (final_time - init_time).total_seconds()
             if wait > 0:
                 time.sleep(self.refresh)

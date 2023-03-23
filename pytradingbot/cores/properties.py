@@ -231,7 +231,7 @@ class MovingAverage(PropertiesABC):
             self.name = f"{self.type}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
         if 'k' not in self.param:
-            logging.warning(f"k is not defined in parameters: {param=}")
+            logging.warning(f"k is not defined in parameters: {param}")
             if 'data' in self.parents.keys():
                 self.name = f"{self.type}_{self.parents['data'].name}"
         else:
@@ -254,7 +254,7 @@ class ExponentialMovingAverage(PropertiesABC):
             self.name = f"{self.type}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
         if 'k' not in self.param:
-            logging.warning(f"k is not defined in parameters: {param=}")
+            logging.warning(f"k is not defined in parameters: {param}")
             if 'data' in self.parents.keys():
                 self.name = f"{self.type}_{self.parents['data'].name}"
         else:
@@ -277,7 +277,7 @@ class StandardDeviation(PropertiesABC):
             self.name = f"{self.type}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
         if 'k' not in self.param:
-            logging.warning(f"k is not defined in parameters: {param=}")
+            logging.warning(f"k is not defined in parameters: {param}")
             if 'data' in self.parents.keys():
                 self.name = f"{self.type}_{self.parents['data'].name}"
         else:
@@ -300,7 +300,7 @@ class Variation(PropertiesABC):
             self.name = f"{self.type}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
         if 'k' not in self.param:
-            logging.warning(f"k is not defined in parameters: {param=}")
+            logging.warning(f"k is not defined in parameters: {param}")
             if 'data' in self.parents.keys():
                 self.name = f"{self.type}_{self.parents['data'].name}"
         else:
@@ -322,7 +322,7 @@ class RSI(PropertiesABC):
         if 'data' in self.parents.keys():
             self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
         if 'k' not in self.param:
-            logging.warning(f"k is not defined in parameters: {param=}")
+            logging.warning(f"k is not defined in parameters: {param}")
             if 'data' in self.parents.keys():
                 self.name = f"{self.type}_{self.parents['data'].name}"
         else:
@@ -347,7 +347,7 @@ class MACD(PropertiesABC):
                 self.name = f"{self.type}_k-{param['k']}_long_{self.parents['long'].name}_" \
                             f"short_{self.parents['short'].name}"
         if 'k' not in self.param:
-            logging.warning(f"k is not defined in parameters: {param=}")
+            logging.warning(f"k is not defined in parameters: {param}")
         self.data = self.data.rename(self.name)
 
     def _function(self):
