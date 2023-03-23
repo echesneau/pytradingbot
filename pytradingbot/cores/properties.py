@@ -30,7 +30,7 @@ class PropertiesABC(ABC):
                  param: Dict[str, Any] = None):
 
         self.child = []
-        self.data = pd.Series()
+        self.data = pd.Series(dtype=float)
 
         self.parents: Dict[str, object] = {}
         if isinstance(parent, dict):
@@ -180,7 +180,7 @@ class AskLoad(Ask):
     """
     Ask value loaded
     """
-    def __init__(self, market=None, data: pd.Series = pd.Series()):
+    def __init__(self, market=None, data: pd.Series = pd.Series(dtype=float)):
         super().__init__(market=market)
         self.data = data
 
@@ -189,7 +189,7 @@ class BidLoad(Bid):
     """
     Bid value loaded
     """
-    def __init__(self, market=None, data: pd.Series = pd.Series()):
+    def __init__(self, market=None, data: pd.Series = pd.Series(dtype=float)):
         super().__init__(market=market)
         self.data = data
 
@@ -198,7 +198,7 @@ class VolumeLoad(Volume):
     """
     volume value of the market
     """
-    def __init__(self, market=None, data: pd.Series = pd.Series()):
+    def __init__(self, market=None, data: pd.Series = pd.Series(dtype=float)):
         super().__init__(market=market)
         self.data = data
 
@@ -507,9 +507,8 @@ def generate_property_by_name(name: str, market) -> [PropertiesABC, None]:
         else:
             logging.warning(f"unknow property type {name}")
             return None
-            
+
     else:
         logging.warning(f"unknown property format name : {name}")
-            
-            
-            
+
+

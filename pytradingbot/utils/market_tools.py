@@ -111,8 +111,9 @@ def market_from_file(ifile: str, fmt="csv"):
     # Create market class
     list_market = []
     for i, data in enumerate(list_df):
-        if 'ask' in data.columns and 'bid' in data.columns and "volume" in data.columns:
-            list_market.append(df2market(data))
+        df_tmp = df2market(data)
+        if df_tmp is not None:
+            list_market.append(df_tmp)
         else:
             logging.warning(f"ask and/or bid property missing in dataframe {i}, skipped")
 

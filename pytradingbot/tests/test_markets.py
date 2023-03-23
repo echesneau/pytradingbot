@@ -20,7 +20,7 @@ from pytradingbot.cores import properties
 # =================
 
 
-@pytest.mark.order(5)
+@pytest.mark.run(order=7)
 def test_create_market():
     api = KrakenApiDev()
     api.set_market(markets.Market(parent=api))
@@ -33,7 +33,7 @@ def test_create_market():
     assert api.market.bid.data.name == 'bid'
 
 
-@pytest.mark.order(6)
+@pytest.mark.run(order=8)
 def test_update(kraken_user, inputs_config_path):
     # Init API and Market
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
@@ -65,7 +65,7 @@ def test_update(kraken_user, inputs_config_path):
             assert prop in api.market.dataframe().columns
 
 
-@pytest.mark.order(7)
+@pytest.mark.run(order=9)
 def test_save_market(kraken_user, inputs_config_path):
     # Init API and Market
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
@@ -98,7 +98,7 @@ def test_save_market(kraken_user, inputs_config_path):
         assert len(tmp) == i+1
 
 
-@pytest.mark.order(8)
+@pytest.mark.run(order=10)
 def test_clean_market(kraken_user, inputs_config_path):
     nsteps = 5
     # Init API and Market
@@ -126,8 +126,19 @@ def test_clean_market(kraken_user, inputs_config_path):
     assert api.market.dataframe().index[-1] == last
 
 
-@pytest.mark.order(9)
-def test_load_data(market_one_day_path, market_two_days_list):
+@pytest.mark.run(order=11)
+def test_load_data(market_one_day_path, market_two_days_list, market_one_day_missing_volume_col_path, caplog):
+    # Check wrong file path
+    df_market = market_from_file('toto')
+    assert df_market is None
+    assert "market is not loaded" in caplog.text
+    caplog.clear()
+
+    # test wrong format
+    df_market = market_from_file(market_one_day_path, fmt='wrong')
+    assert df_market is None
+    assert "is not an accepted format" in caplog.text
+
     # check read from csv
     df_market = market_from_file(market_one_day_path, fmt="csv")
     assert len(df_market) == 1
@@ -138,6 +149,12 @@ def test_load_data(market_one_day_path, market_two_days_list):
     assert len(market.dataframe()) > 0
     assert (len(market.ask.data) == len(market.bid.data)) & (len(market.ask.data) == len(market.volume.data))
     assert len(market.ask.data) > 0
+
+    # check read from csv with missing column
+    df_market = market_from_file(market_one_day_missing_volume_col_path, fmt="csv")
+    assert len(df_market) == 0
+    assert "property missing in dataframe" in caplog.text
+    caplog.clear()
 
     # check read from list
     df_market = market_from_file(market_two_days_list, fmt="list")
@@ -151,7 +168,7 @@ def test_load_data(market_one_day_path, market_two_days_list):
     assert len(market.ask.data) > 0
 
 
-@pytest.mark.order(10)
+@pytest.mark.run(order=12)
 def test_split_data(market_two_days_missingdata_path):
     df_market = market_from_file(market_two_days_missingdata_path, fmt="csv")
     assert len(df_market) == 2

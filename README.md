@@ -22,7 +22,12 @@ To generate the file use:
 Few tests are creating to check the normal comportment of the code.  
 Please run all of them before using pytradingbot.  
 To run tests, you should modify the conftest.py file to specify your username for the connection.  
-You should also give a id.config file in the project directory. More informations about this file are available in the id.config section.  
+You should also give a id.config file in the project directory. More informations about this file are available in the id.config section.
+
+## Activate warnings
+> -p no:logging -s  
+
+in the configuration
 
 # id.config
 This file contains users and password to use in order to connect to the trading service.
