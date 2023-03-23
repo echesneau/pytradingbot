@@ -57,19 +57,19 @@ class PropertiesABC(ABC):
         return self.data
 
     def _function(self) -> pd.Series:
-        return pd.Series()
+        return self.data
 
     def update(self):
         """
         Update values of the properties in function of parent values
         """
-        # Check if an update is needed
+        # Update parents and check if update is needed
         update = False
-        if len(self.parents) > 0:
-            if 'data' in self.parents and len(self.parents['data'].data) > len(self.data):
-                update = True
-            elif 'market' in self.parents and len(self.parents['market'].ask.data) > len(self.data):
-                update = True
+        for key, value in self.parents.items():
+            if key != "market":
+                value.update()
+                if len(value.data) > len(self.data):
+                    update = True
 
         # update data
         if update:
@@ -450,6 +450,7 @@ def generate_rsi_by_name(name: str, market):
     parent_prop = generate_property_by_name(parent_str, market)
     return RSI(market=market, parent=parent_prop, param=param)
 
+
 def generate_macd_by_name(name: str, market):
     words = name.split("_")
     param = {}
@@ -462,6 +463,7 @@ def generate_macd_by_name(name: str, market):
     parent_long = generate_property_by_name(parent_long_str, market)
     parent_short = generate_property_by_name(parent_short_str, market)
     return MACD(market=market, param=param, parent={"short": parent_short, "long": parent_long})
+
 
 def generate_bollinger_by_name(name: str, market):
     words = name.split("_")
@@ -485,7 +487,6 @@ def generate_property_by_name(name: str, market) -> [PropertiesABC, None]:
     if market.is_property_by_name(name):
         return market.find_property_by_name(name)
     words = name.split("_")
-    param = {}
     if len(words) > 1:
         if words[0] == "deriv":
             return generate_derivative_by_name(name, market)

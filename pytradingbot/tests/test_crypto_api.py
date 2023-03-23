@@ -39,7 +39,7 @@ def test_get_market(kraken_user, inputs_config_path):
 
 @pytest.mark.order(7)
 def test_run_api(kraken_user, inputs_config_path):
-    ntest = 5
+    ntest = 10
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
     api.connect()
     t0 = datetime.now()

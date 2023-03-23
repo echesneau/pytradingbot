@@ -244,22 +244,24 @@ class BaseApi(ApiABC):
         # Init Market
         self.set_market(markets.Market(parent=self, odir=f"{self.odir}/{self.pair}",
                                        oformat=self.oformat))
+        self.market.generate_property_from_xml_config(self.inputs_config_path)
 
         # Init counter
         count = 0
-
+        tstart = datetime.now()
         # start run
         while count < times:
+            count += 1
             init_time = datetime.now()
             self.update_market()
             self.analyse()
             self.market.save()
             self.market.clean()
             final_time = datetime.now()
+            print(f"{count=}: {final_time-init_time}s, (mean={(final_time-tstart)/count})", end="\r")
             wait = self.refresh - (final_time - init_time).total_seconds()
             if wait > 0:
                 time.sleep(self.refresh)
-            count += 1
 
     def get_market(self):
         pass
@@ -277,7 +279,7 @@ class BaseApi(ApiABC):
         pass
 
     def analyse(self):
-        pass
+        self.market.analyse()
 
     def buy(self):
         pass

@@ -29,5 +29,5 @@ def test_read_analysis_properties(inputs_config_path, caplog):
     assert "is not a file" in caplog.text
     caplog.clear()
     properties = read_file.read_input_analysis_config(inputs_config_path)
-    assert len(properties) == 3
+    assert len(properties) == 4
     assert "Unknown property format" in caplog.text

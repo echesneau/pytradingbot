@@ -20,7 +20,10 @@ except ImportError:
 
 def derivative(data: pd.Series) -> pd.Series:
     # Difference
-    odata = data.diff()
+    if pd.notnull(data).sum() > 0:
+        odata = data.diff()
+    else:
+        odata = pd.Series(index=data.index, data=[None]*len(data))
 
     # normalize to minute
     time = data.index.to_series().diff().dt.total_seconds()/60
@@ -46,11 +49,15 @@ def MA(data: pd.Series, k: int) -> pd.Series:
     pd.Series
 
     """
-    if NP_ROLL:
-        odata = rolling_apply(np.mean, k, data.values)
-        return pd.Series(index=data.index, data=odata, name=data.name)
+    if len(data) >= k:
+        if NP_ROLL:
+            odata = rolling_apply(np.mean, k, data.values)
+            return pd.Series(index=data.index, data=odata, name=data.name)
+        else:
+            return data.rolling(window=k).mean()
     else:
-        return data.rolling(window=k).mean()
+        odata = [None]*len(data)
+        return pd.Series(index=data.index, data=odata, name=data.name)
 
 
 def EMA(data: pd.Series, k: int) -> pd.Series:
@@ -75,19 +82,27 @@ def EMA(data: pd.Series, k: int) -> pd.Series:
         exp_val = value * a
         mean = np.sum(exp_val) / np.sum(a)
         return mean
-    if NP_ROLL:
-        odata = rolling_apply(exp_data, k, data.values)
-        return pd.Series(index=data.index, data=odata, name=data.name)
+    if len(data) >= k:
+        if NP_ROLL:
+            odata = rolling_apply(exp_data, k, data.values)
+            return pd.Series(index=data.index, data=odata, name=data.name)
+        else:
+            return data.rolling(window=k).apply(exp_data)
     else:
-        return data.rolling(window=k).apply(exp_data)
+        odata = [None] * len(data)
+        return pd.Series(index=data.index, data=odata, name=data.name)
 
 
 def standard_deviation(data: pd.Series, k: int) -> pd.Series:
-    if NP_ROLL:
-        odata = rolling_apply(np.std, k, data.values, ddof=1)
-        return pd.Series(index=data.index, data=odata, name=data.name)
+    if len(data) >= k:
+        if NP_ROLL:
+            odata = rolling_apply(np.std, k, data.values, ddof=1)
+            return pd.Series(index=data.index, data=odata, name=data.name)
+        else:
+            return data.rolling(window=k).std()
     else:
-        return data.rolling(window=k).std()
+        odata = [None] * len(data)
+        return pd.Series(index=data.index, data=odata, name=data.name)
 
 
 def variation(data: pd.Series, k: int):
@@ -98,11 +113,15 @@ def variation(data: pd.Series, k: int):
             return max_prct
         else:
             return min_prct
-    if NP_ROLL:
-        odata = rolling_apply(var, k, data.values)
-        return pd.Series(index=data.index, data=odata, name=data.name)
+    if len(data) >= k:
+        if NP_ROLL:
+            odata = rolling_apply(var, k, data.values)
+            return pd.Series(index=data.index, data=odata, name=data.name)
+        else:
+            return data.rolling(window=k).apply(var)
     else:
-        return data.rolling(window=k).apply(var)
+        odata = [None] * len(data)
+        return pd.Series(index=data.index, data=odata, name=data.name)
 
 
 def rsi(data: pd.Series, k: int):  # TODO
@@ -124,21 +143,29 @@ def rsi(data: pd.Series, k: int):  # TODO
             return 100
         else:
             return 100*higher/(higher-lower)
-    if NP_ROLL:
-        odata = rolling_apply(func, k, data.values)
-        return pd.Series(index=data.index, data=odata, name=data.name)
+    if len(data) >= k:
+        if NP_ROLL:
+            odata = rolling_apply(func, k, data.values)
+            return pd.Series(index=data.index, data=odata, name=data.name)
+        else:
+            return data.rolling(window=k).apply(func)
     else:
-        return data.rolling(window=k).apply(func)
+        odata = [None] * len(data)
+        return pd.Series(index=data.index, data=odata, name=data.name)
 
 
 def macd(short: pd.Series, long: pd.Series, k: int):
-    diff = (short - long) / short * 100
-    if NP_ROLL:
-        odata = rolling_apply(np.mean, k, diff.values)
-        return pd.Series(index=short.index, data=odata)
+    if len(long) >= k:
+        diff = (short - long) / short * 100
+        if NP_ROLL:
+            odata = rolling_apply(np.mean, k, diff.values)
+            return pd.Series(index=short.index, data=odata)
+        else:
+            return diff.rolling(window=k).mean()
     else:
-        return diff.rolling(window=k).mean()
+        odata = [None] * len(short)
+        return pd.Series(index=short.index, data=odata)
 
 
-def bollinger(value: pd.Series, mean: pd.Series, std: pd.Series, k:int):
+def bollinger(value: pd.Series, mean: pd.Series, std: pd.Series, k: int):
     return (value - mean) / (2*k*std)

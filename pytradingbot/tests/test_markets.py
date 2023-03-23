@@ -167,11 +167,6 @@ def test_split_data(market_two_days_missingdata_path):
         assert delta.max() < 120
 
 
-@pytest.mark.order(20)
-def test_analyse():
-    assert True
-    
-
 @pytest.mark.order(21)
 def test_get_all_child(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]

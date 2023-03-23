@@ -105,7 +105,11 @@ class Market:
         -------
             pd.DataFrame
         """
-        return pd.concat([prop.data for prop in self._get_all_child()], axis=1)
+        df = pd.concat([prop.data for prop in self._get_all_child()], axis=1)
+        if not isinstance(df.index, pd.DatetimeIndex):
+            df.index = pd.to_datetime(df.index)
+            df.index = df.index.rename('time')
+        return df
 
     def save(self):
         """
@@ -125,6 +129,7 @@ class Market:
                 mask = np.logical_and(~np.isin(data.index, odata.index),
                                       data.index.date == day.date())
                 odata = pd.concat([odata, data[mask]], axis=0)
+
             odata.sort_index(inplace=True)
             odata.to_csv(path_or_buf=ofile, sep=" ", index_label="time")
 
@@ -170,8 +175,8 @@ class Market:
     def find_property_by_name(self, name):
         return [c for c in self._get_all_child() if c.name == name][0]
 
-    def is_property(self, property):
-        return property in self._get_all_child()
+    def is_property(self, prop):
+        return prop in self._get_all_child()
 
     def is_property_by_name(self, name):
         return name in self._get_all_child_name()
@@ -183,11 +188,10 @@ class Market:
         return self.find_properties_by_type(ptype)[0]
 
     def generate_property_from_xml_config(self, path: str):
-        property_list = read_input_analysis_config(path)
-        for property in property_list:
-            if property['format'] == "name":
-                properties.generate_property_by_name(property['value'], self)
-
+        properties_list = read_input_analysis_config(path)
+        for prop in properties_list:
+            if prop['format'] == "name":
+                properties.generate_property_by_name(prop['value'], self)
 
 
 class MarketLoad(Market):
