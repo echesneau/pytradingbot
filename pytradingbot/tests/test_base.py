@@ -13,7 +13,7 @@ from pytradingbot.iolib.base import BaseApi, APILoadData
 # =================
 
 
-@pytest.mark.run(order=3)
+@pytest.mark.run(order=6)
 def test_base_api(id_config_path, kraken_user, inputs_config_path):
     api = BaseApi(inputs=inputs_config_path)
 
@@ -50,7 +50,7 @@ def test_base_api(id_config_path, kraken_user, inputs_config_path):
     assert api.oformat == 'pandas'
 
 
-@pytest.mark.run(order=4)
+@pytest.mark.run(order=6)
 def test_APILoadData(market_one_day_path):
     api = APILoadData(market_one_day_path, fmt='csv')
     assert len(api.market) == 1

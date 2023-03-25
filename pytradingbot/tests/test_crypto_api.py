@@ -37,7 +37,7 @@ def test_get_market(kraken_user, inputs_config_path):
         assert type(values[key]) == float
 
 
-@pytest.mark.run(order=13)
+@pytest.mark.run(order=-1)
 def test_run_api(kraken_user, inputs_config_path):
     ntest = 10
     api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
