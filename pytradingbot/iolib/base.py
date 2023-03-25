@@ -57,13 +57,12 @@ class ApiABC(ABC):
         # self.session = None
 
     @abstractmethod
-    def _set_id(self, user):
+    def _set_id(self, user: str):
         """
         set user as id
         Parameters
         ----------
         user: str
-
         """
         pass
 
@@ -127,17 +126,17 @@ class BaseApi(ApiABC):
     """
     market = None
 
-    def __init__(self, inputs=""):
+    def __init__(self, input_path: str = ""):
         """
         Init method
 
         Parameters
         ----------
-        inputs: str
+        input_path: str
             path of the input config
         """
         super().__init__()
-        self.inputs_config_path = inputs
+        self.inputs_config_path = input_path
         self.set_config(self.inputs_config_path)
 
     def _get_user_list(self):
@@ -279,6 +278,7 @@ class BaseApi(ApiABC):
         pass
 
     def analyse(self):
+        """Method to analyse the market"""
         self.market.analyse()
 
     def buy(self):

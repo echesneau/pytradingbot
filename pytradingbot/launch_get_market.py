@@ -20,6 +20,6 @@ if args.ifile is None or not os.path.isfile(args.ifile):
     print(f"STOP: {args.ifile} is not a file")
     sys.exit()
 
-api = KrakenApiDev(user="erwan", inputs=args.ifile)
+api = KrakenApiDev(user="erwan", input_path=args.ifile)
 api.connect()
 api.run()

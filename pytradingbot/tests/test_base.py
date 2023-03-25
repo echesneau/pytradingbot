@@ -15,7 +15,7 @@ from pytradingbot.iolib.base import BaseApi, APILoadData
 
 @pytest.mark.run(order=6)
 def test_base_api(id_config_path, kraken_user, inputs_config_path):
-    api = BaseApi(inputs=inputs_config_path)
+    api = BaseApi(input_path=inputs_config_path)
 
     # get users list
     assert type(api._get_user_list()) is np.ndarray

@@ -25,7 +25,7 @@ class Market:
     Class containing value of market
     """
 
-    def __init__(self, parent=None, odir=None, oformat='pandas'):
+    def __init__(self, parent=None, odir: str = None, oformat: str = 'pandas'):
         """
 
         Parameters
@@ -55,7 +55,7 @@ class Market:
 
     def update(self):
         """
-        method to update market values
+        method to update market values from the api
         """
         if 'api' in self.parents.keys():
             values = self.parents['api'].get_market()
@@ -74,7 +74,7 @@ class Market:
         for update in update_func:
             update()
 
-    def add_parent(self, name, obj):
+    def add_parent(self, name: str, obj: object):
         """
         Method to add a parent
 
@@ -86,7 +86,7 @@ class Market:
         """
         self.parents[name] = obj
 
-    def add_child(self, obj):
+    def add_child(self, obj: properties.PropertiesABC):
         """
         Method to add a child
 
@@ -97,7 +97,7 @@ class Market:
         if obj not in self.child:
             self.child.append(obj)
 
-    def dataframe(self):
+    def dataframe(self) -> pd.DataFrame:
         """
         Method to return the DataFrame containing all values of all properties
 
@@ -160,7 +160,13 @@ class Market:
             for prop in self.child:
                 prop.clean(nrows=nrows)
                 
-    def _get_all_child(self):
+    def _get_all_child(self) -> list:
+        """
+        Method to return of child objects (properties)
+        Returns
+        -------
+        list of properties object
+        """
         child = self.child
         tmp = child
         while len(tmp) != 0:
@@ -168,26 +174,100 @@ class Market:
             child += tmp
         return child
 
-    def _get_all_child_name(self):
+    def _get_all_child_name(self) -> list:
+        """
+        method to get all child name
+        Returns
+        -------
+        list of str: each str is the name of a property
+        """
         child = self._get_all_child()
         return [c.name for c in child]
 
-    def find_property_by_name(self, name):
+    def find_property_by_name(self, name: str) -> properties.PropertiesABC:
+        """
+        find a property by name in child properties
+
+        Parameters
+        ----------
+        name: str
+            property name to find
+
+        Returns
+        -------
+        Properties
+        """
         return [c for c in self._get_all_child() if c.name == name][0]
 
-    def is_property(self, prop):
+    def is_property(self, prop: properties.PropertiesABC) -> bool:
+        """
+        test if a property object is in child list
+
+        Parameters
+        ----------
+        prop: properties object
+
+        Returns
+        -------
+        Bool
+        """
         return prop in self._get_all_child()
 
-    def is_property_by_name(self, name):
+    def is_property_by_name(self, name: str) -> bool:
+        """
+        test if a property name is in child list
+
+        Parameters
+        ----------
+        name: str
+            property name
+
+        Returns
+        -------
+        Bool
+        """
         return name in self._get_all_child_name()
 
-    def find_properties_by_type(self, ptype):
+    def find_properties_by_type(self, ptype: str) -> list:
+        """
+        find all properties of a specific type
+
+        Parameters
+        ----------
+        ptype: str
+            property type
+
+        Returns
+        -------
+        list of properties object
+        """
         return [c for c in self._get_all_child() if c.type == ptype]
 
-    def find_property_by_type(self, ptype):
+    def find_property_by_type(self, ptype: str) -> properties.PropertiesABC:
+        """
+        find one property of a specific type
+
+        Parameters
+        ----------
+        ptype: str
+            property type
+
+        Returns
+        -------
+        Properties object
+            first property of find_property_by_type
+        """
         return self.find_properties_by_type(ptype)[0]
 
     def generate_property_from_xml_config(self, path: str):
+        """
+        Method to generate properties from an input xml config file
+
+        Parameters
+        ----------
+        path: str
+            path of the input file
+        """
         properties_list = read_input_analysis_config(path)
         for prop in properties_list:
             if prop['format'] == "name":

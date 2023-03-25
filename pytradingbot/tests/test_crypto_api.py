@@ -29,7 +29,7 @@ def test_connect(kraken_user):
 
 @pytest.mark.run(order=6)
 def test_get_market(kraken_user, inputs_config_path):
-    api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
+    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
     api.connect()
     values = api.get_market()
     for key in ['bid', 'ask']:
@@ -40,7 +40,7 @@ def test_get_market(kraken_user, inputs_config_path):
 @pytest.mark.run(order=-1)
 def test_run_api(kraken_user, inputs_config_path):
     ntest = 10
-    api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
+    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
     api.connect()
     t0 = datetime.now()
     api.run(times=ntest)

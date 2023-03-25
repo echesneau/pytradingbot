@@ -24,8 +24,8 @@ class KrakenApi(BaseApi):
     """
     API for Kraken
     """
-    def __int__(self, inputs=""):
-        super().__init__(inputs=inputs)
+    def __int__(self, input_path: str = ""):
+        super().__init__(input_path=input_path)
 
     def connect(self):
         """
@@ -50,7 +50,7 @@ class KrakenApi(BaseApi):
             except:
                 pass
 
-    def _query_market(self, timeout=5):
+    def _query_market(self, timeout: int = 5) -> dict:
         """
         Method to query the Kraken market
 
@@ -72,7 +72,7 @@ class KrakenApi(BaseApi):
                   }
         return values
 
-    def get_market(self):
+    def get_market(self) -> dict:
         """
         Method to get market value
 
@@ -82,6 +82,7 @@ class KrakenApi(BaseApi):
         """
         test = True
         failed = 0
+        values = {}
         while test:
             if failed > 0 and failed % 5 == 0:
                 self.connect()
@@ -107,17 +108,17 @@ class KrakenApiDev(KrakenApi):
     """
         API for Kraken in development mode (user defines in argument)
     """
-    def __init__(self, user='', inputs=""):
+    def __init__(self, user: str = '', input_path: str = ""):
         """
 
         Parameters
         ----------
         user: str
             username
-        inputs: str
+        input_path: str
             input config path
         """
-        super().__init__(inputs=inputs)
+        super().__init__(input_path=input_path)
         self._set_id(user)
 
 
