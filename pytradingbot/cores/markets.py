@@ -8,6 +8,7 @@ import os
 import logging
 import numpy as np
 import pandas as pd
+from alive_progress import alive_bar
 
 # =================
 # Internal IMPORTS
@@ -286,3 +287,13 @@ class MarketLoad(Market):
         self.volume = properties.VolumeLoad(data=volume, market=self)
         for prop in [self.ask, self.bid, self.volume]:
             self.add_child(prop)
+
+    def analyse(self):
+        """
+        Method to analyse market value with progress bar
+        """
+        update_func = [prop.update for prop in self._get_all_child()]
+        with alive_bar(len(update_func)) as bar:
+            for update in update_func:
+                update()
+                bar()
