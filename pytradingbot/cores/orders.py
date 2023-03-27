@@ -23,7 +23,9 @@ class Order(ABC):
         pass
         
     def action(self):
-        # merge all actions
+        # check if update
+        
+        return self.data.values[-1]
         
         # return action to do
         
@@ -31,11 +33,30 @@ class Order(ABC):
 class Action(ABC):
     type = "abstract"
     def __init__(self, parents=None,  market=None):
-        self.parents = 
-        pass
+        self.parents = {}
+        self.child = [] # only condition
+        self.data = pd.Series()
+        
+        if market is not None:
+            self.add_parent("market", market)
+        
+    def add_parent(self, name, obj):
+        """
+        Method to add a parent
+
+        Parameters
+        ----------
+        name: str
+            key of parent in the dict
+        obj: parent object
+        """
+        self.parents[name] = obj
         
     def update(self):
-        pass
+        for child in self.child:
+            child.update()
+        data = pd.concat([child.data for child in self.child], axis = 1)
+        self.data = data.all()
         
         
 class ActionBuy(Action):
@@ -47,4 +68,19 @@ class ActionSell(Action):
     
     
 class Condition(ABC):
-    pass
+    name = "abstract"
+    type = "abstract"
+    def __init__(self, parent, value):
+        self.parent = parent
+        self.value = value
+        
+        pass
+    
+    def _function():
+        return pd.Series() # todo with len of parent
+        
+    
+un order renvoie 1, 0, -1 .
+chaque action renvoie 1 ou 0.
+un order peut contenir plusieurs action du meme type => or pour les sommer
+chaque action contient des conditions (comparaison variables vs valeurs)
