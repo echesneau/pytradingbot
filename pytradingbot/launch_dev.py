@@ -13,7 +13,7 @@ from pytradingbot.iolib.crypto_api import KrakenApiDev
 USER = "erwan"
 CONFIG = 'data/inputs/config.xml'
 
-API = KrakenApiDev(user='erwan', inputs=CONFIG)
+API = KrakenApiDev(user='erwan', input_path=CONFIG)
 API.connect()
 API.get_market()
 

@@ -1,0 +1,7 @@
+[pytest]
+; plugins = ordering
+;markers =
+;    order: order of tests
+; always order tests with dependency markers
+; addopts = --order-group-scope
+; addopts = --order-dependencies

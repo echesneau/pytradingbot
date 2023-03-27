@@ -1,0 +1,246 @@
+# =================
+# Python IMPORTS
+# =================
+import numpy as np
+import pandas as pd
+try:
+    from numpy_ext import rolling_apply
+    NP_ROLL = True
+except ImportError:
+    NP_ROLL = False
+
+# =================
+# Internal IMPORTS
+# =================
+
+# =================
+# Variables
+# =================
+
+
+def derivative(data: pd.Series) -> pd.Series:
+    """
+    derivative function
+    Parameters
+    ----------
+    data: pd.Series
+        data to apply function
+
+    Returns
+    -------
+    pd.Series
+    """
+    # Difference
+    if pd.notnull(data).sum() > 0:
+        odata = data.diff()
+    else:
+        odata = pd.Series(index=data.index, data=[None]*len(data))
+
+    # normalize to minute
+    time = data.index.to_series().diff().dt.total_seconds()/60
+    odata /= time
+
+    # normalize in %
+    odata = odata / data * 100
+    return odata
+
+
+def moving_average(data: pd.Series, k: int) -> pd.Series:
+    """
+    function to calculate Moving average of data
+
+    Parameters
+    ----------
+    data: pd.Series
+    k: int
+        window size for the moving average
+
+    Returns
+    -------
+    pd.Series
+
+    """
+    if len(data) >= k:
+        if NP_ROLL:
+            odata = rolling_apply(np.mean, k, data.values)
+            return pd.Series(index=data.index, data=odata, name=data.name)
+        else:
+            return data.rolling(window=k).mean()
+    else:
+        odata = [None]*len(data)
+        return pd.Series(index=data.index, data=odata, name=data.name)
+
+
+def exponential_moving_average(data: pd.Series, k: int) -> pd.Series:
+    """
+    function to calculate Exponential Moving average of data
+
+    Parameters
+    ----------
+    data: pd.Series
+    k: int
+        window size for the moving average
+
+    Returns
+    -------
+    pd.Series
+
+    """
+    def exp_data(value: np.array):
+        size = value.shape[0]
+        a = 2 / (np.arange(1, size+1)+1)
+        a = np.flipud(a)
+        exp_val = value * a
+        mean = np.sum(exp_val) / np.sum(a)
+        return mean
+    if len(data) >= k:
+        if NP_ROLL:
+            odata = rolling_apply(exp_data, k, data.values)
+            return pd.Series(index=data.index, data=odata, name=data.name)
+        else:
+            return data.rolling(window=k).apply(exp_data)
+    else:
+        odata = [None] * len(data)
+        return pd.Series(index=data.index, data=odata, name=data.name)
+
+
+def standard_deviation(data: pd.Series, k: int) -> pd.Series:
+    """
+    function to calculate standard deviation of data on a window of k rows
+    Parameters
+    ----------
+    data: pd.Series
+    k: int
+        window size
+
+    Returns
+    -------
+    pd.Series
+    """
+    if len(data) >= k:
+        if NP_ROLL:
+            odata = rolling_apply(np.std, k, data.values, ddof=1)
+            return pd.Series(index=data.index, data=odata, name=data.name)
+        else:
+            return data.rolling(window=k).std()
+    else:
+        odata = [None] * len(data)
+        return pd.Series(index=data.index, data=odata, name=data.name)
+
+
+def variation(data: pd.Series, k: int) -> pd.Series:
+    """
+    function to calculate variation of data on a window of size k
+    Parameters
+    ----------
+    data: pd.Series
+    k: int
+        window size
+
+    Returns
+    -------
+    pd.Series
+    """
+    def var(values):
+        max_prct = (values[1:].max() - values[0]) * 100 / values[0]
+        min_prct = (values[1:].min() - values[0]) * 100 / values[0]
+        if np.abs(max_prct) > np.abs(min_prct):
+            return max_prct
+        else:
+            return min_prct
+    if len(data) >= k:
+        if NP_ROLL:
+            odata = rolling_apply(var, k, data.values)
+            return pd.Series(index=data.index, data=odata, name=data.name)
+        else:
+            return data.rolling(window=k).apply(var)
+    else:
+        odata = [None] * len(data)
+        return pd.Series(index=data.index, data=odata, name=data.name)
+
+
+def rsi(data: pd.Series, k: int) -> pd.Series:
+    """
+    Function to calculate RSI
+
+    Parameters
+    ----------
+    data: pd.Series
+    k: int
+        window size
+
+    Returns
+    -------
+    pd.Series
+    """
+    def func(values):
+        shift = np.roll(values, 1)
+        diff = values - shift
+        diff[0] = np.NaN
+        lower = diff[diff < 0]
+        higher = diff[diff > 0]
+        if len(lower) == 0:
+            lower = 0
+        else:
+            lower = np.mean(lower)
+        if len(higher) == 0:
+            higher = 0
+        else:
+            higher = np.mean(higher)
+        if lower == higher:
+            return 100
+        else:
+            return 100*higher/(higher-lower)
+    if len(data) >= k:
+        if NP_ROLL:
+            odata = rolling_apply(func, k, data.values)
+            return pd.Series(index=data.index, data=odata, name=data.name)
+        else:
+            return data.rolling(window=k).apply(func)
+    else:
+        odata = [None] * len(data)
+        return pd.Series(index=data.index, data=odata, name=data.name)
+
+
+def macd(short: pd.Series, long: pd.Series, k: int) -> pd.Series:
+    """
+    function to calculate MACD
+
+    Parameters
+    ----------
+    short: pd.Series
+    long: pd.Series
+    k: int
+
+    Returns
+    -------
+    pd.Series
+    """
+    if len(long) >= k:
+        diff = (short - long) / short * 100
+        if NP_ROLL:
+            odata = rolling_apply(np.mean, k, diff.values)
+            return pd.Series(index=short.index, data=odata)
+        else:
+            return diff.rolling(window=k).mean()
+    else:
+        odata = [None] * len(short)
+        return pd.Series(index=short.index, data=odata)
+
+
+def bollinger(value: pd.Series, mean: pd.Series, std: pd.Series, k: int) -> pd.Series:
+    """
+    function to calculate Bollinger
+
+    Parameters
+    ----------
+    value: pd.Series
+    mean: pd.Series
+    std: pd.Series
+    k: int
+
+    Returns
+    -------
+    pd.Series
+    """
+    return (value - mean) / (2*k*std)

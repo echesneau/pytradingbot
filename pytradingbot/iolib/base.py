@@ -1,3 +1,6 @@
+"""
+Module containing base of API for market connection
+"""
 # =================
 # Python IMPORTS
 # =================
@@ -54,47 +57,66 @@ class ApiABC(ABC):
         # self.session = None
 
     @abstractmethod
-    def _set_id(self, user):
+    def _set_id(self, user: str):
+        """
+        set user as id
+        Parameters
+        ----------
+        user: str
+        """
         pass
 
     @abstractmethod
     def connect(self):
+        """connection to API"""
         pass
 
     @abstractmethod
     def get_market(self):
+        """get market value"""
         pass
 
     @abstractmethod
     def _add_child(self):
+        """add child"""
         pass
 
     @abstractmethod
     def update_market(self):
+        """update market with onlive value"""
         pass
 
     @abstractmethod
     def _get_all_child(self):
+        """get all child of market"""
         pass
 
     @abstractmethod
     def analyse(self):
+        """analyse market"""
         pass
 
     @abstractmethod
     def buy(self):
+        """buy action"""
         pass
 
     @abstractmethod
     def sell(self):
+        """sell action"""
         pass
 
     @abstractmethod
     def _get_balance(self):
         pass
 
-    @property
     def mymoney(self):
+        """
+        get your money
+        Returns
+        -------
+        dict: dict with money available
+        """
         return self._get_balance()
 
 
@@ -104,17 +126,17 @@ class BaseApi(ApiABC):
     """
     market = None
 
-    def __init__(self, inputs=""):
+    def __init__(self, input_path: str = ""):
         """
         Init method
 
         Parameters
         ----------
-        inputs: str
+        input_path: str
             path of the input config
         """
         super().__init__()
-        self.inputs_config_path = inputs
+        self.inputs_config_path = input_path
         self.set_config(self.inputs_config_path)
 
     def _get_user_list(self):
@@ -175,7 +197,8 @@ class BaseApi(ApiABC):
             if "format" in node.attrib and node.attrib['format'] in ['pandas']:
                 self.oformat = node.attrib['format']
             else:
-                logging.warning(f"{node.attrib['format']} is not a good value: set by default to pandas")
+                logging.warning(f"{node.attrib['format']} is not a good value: "
+                                f"set by default to pandas")
                 self.oformat = 'pandas'
         # Symbol
         for node in main.xpath("/pytradingbot/trading/symbol"):
@@ -190,7 +213,8 @@ class BaseApi(ApiABC):
             try:
                 self.refresh = float(node.text)
             except ValueError:
-                logging.warning(f"Refresh time read {node.text} is not a float. Set to default value {self.refresh}")
+                logging.warning(f"Refresh time read {node.text} is not a float. "
+                                f"Set to default value {self.refresh}")
 
     def connect(self):
         """
@@ -219,22 +243,24 @@ class BaseApi(ApiABC):
         # Init Market
         self.set_market(markets.Market(parent=self, odir=f"{self.odir}/{self.pair}",
                                        oformat=self.oformat))
+        self.market.generate_property_from_xml_config(self.inputs_config_path)
 
         # Init counter
         count = 0
-
+        tstart = datetime.now()
         # start run
         while count < times:
-            t0 = datetime.now()
+            count += 1
+            init_time = datetime.now()
             self.update_market()
             self.analyse()
             self.market.save()
             self.market.clean()
-            tf = datetime.now()
-            wait = self.refresh - (tf - t0).total_seconds()
+            final_time = datetime.now()
+            print(f"count={count}: {final_time-init_time}s, (mean={(final_time-tstart)/count})", end="\r")
+            wait = self.refresh - (final_time - init_time).total_seconds()
             if wait > 0:
                 time.sleep(self.refresh)
-            count += 1
 
     def get_market(self):
         pass
@@ -252,7 +278,8 @@ class BaseApi(ApiABC):
         pass
 
     def analyse(self):
-        pass
+        """Method to analyse the market"""
+        self.market.analyse()
 
     def buy(self):
         pass
@@ -271,6 +298,9 @@ class BaseApi(ApiABC):
 
 
 class APILoadData(BaseApi):
+    """
+    API Class to load data
+    """
     def __init__(self, data_file: str = None, fmt: str = 'csv'):
         super().__init__()
         self.market = market_from_file(data_file, fmt=fmt)

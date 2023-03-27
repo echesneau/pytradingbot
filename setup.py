@@ -1,8 +1,9 @@
 from setuptools import setup, find_packages
+from version import __version__
 
 setup(
     name='pytradingbot',
-    version="0.0.1",
+    version=__version__,
     packages=find_packages(),
     include_package_data=True,
     python_requires=">=3.6",
@@ -11,11 +12,13 @@ setup(
     install_requires=[
         "pandas",
         "numpy",
+        "numpy_ext",
         "pytest",
         "krakenex",
         "lxml",
         "requests",
         "sphynx",
+        "alive_progress",
         ]
 )
         

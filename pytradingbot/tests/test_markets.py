@@ -13,13 +13,14 @@ from datetime import datetime
 from pytradingbot.iolib.crypto_api import KrakenApiDev
 from pytradingbot.cores import markets
 from pytradingbot.utils.market_tools import market_from_file
+from pytradingbot.cores import properties
 
 # =================
 # Variables
 # =================
 
 
-@pytest.mark.order(5)
+@pytest.mark.run(order=8)
 def test_create_market():
     api = KrakenApiDev()
     api.set_market(markets.Market(parent=api))
@@ -32,10 +33,10 @@ def test_create_market():
     assert api.market.bid.data.name == 'bid'
 
 
-@pytest.mark.order(6)
+@pytest.mark.run(order=9)
 def test_update(kraken_user, inputs_config_path):
     # Init API and Market
-    api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
+    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
     api.set_market(markets.Market(parent=api, odir=f"{api.odir}/{api.pair}", oformat=api.oformat))
     api.connect()
 
@@ -64,9 +65,10 @@ def test_update(kraken_user, inputs_config_path):
             assert prop in api.market.dataframe().columns
 
 
+@pytest.mark.run(order=10)
 def test_save_market(kraken_user, inputs_config_path):
     # Init API and Market
-    api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
+    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
 
     # remove output if exists
     if os.path.isdir(f"{api.odir}/{api.pair}"):
@@ -96,10 +98,11 @@ def test_save_market(kraken_user, inputs_config_path):
         assert len(tmp) == i+1
 
 
+@pytest.mark.run(order=11)
 def test_clean_market(kraken_user, inputs_config_path):
     nsteps = 5
     # Init API and Market
-    api = KrakenApiDev(user=kraken_user, inputs=inputs_config_path)
+    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
     # api.set_market(markets.Market(parent=api, odir=f"{api.odir}/{api.pair}", oformat=api.oformat))
     api.connect()
 
@@ -123,7 +126,19 @@ def test_clean_market(kraken_user, inputs_config_path):
     assert api.market.dataframe().index[-1] == last
 
 
-def test_load_data(market_one_day_path, market_two_days_list):
+@pytest.mark.run(order=12)
+def test_load_data(market_one_day_path, market_two_days_list, market_one_day_missing_volume_col_path, caplog):
+    # Check wrong file path
+    df_market = market_from_file('toto')
+    assert df_market is None
+    assert "market is not loaded" in caplog.text
+    caplog.clear()
+
+    # test wrong format
+    df_market = market_from_file(market_one_day_path, fmt='wrong')
+    assert df_market is None
+    assert "is not an accepted format" in caplog.text
+
     # check read from csv
     df_market = market_from_file(market_one_day_path, fmt="csv")
     assert len(df_market) == 1
@@ -134,6 +149,12 @@ def test_load_data(market_one_day_path, market_two_days_list):
     assert len(market.dataframe()) > 0
     assert (len(market.ask.data) == len(market.bid.data)) & (len(market.ask.data) == len(market.volume.data))
     assert len(market.ask.data) > 0
+
+    # check read from csv with missing column
+    df_market = market_from_file(market_one_day_missing_volume_col_path, fmt="csv")
+    assert len(df_market) == 0
+    assert "property missing in dataframe" in caplog.text
+    caplog.clear()
 
     # check read from list
     df_market = market_from_file(market_two_days_list, fmt="list")
@@ -147,6 +168,7 @@ def test_load_data(market_one_day_path, market_two_days_list):
     assert len(market.ask.data) > 0
 
 
+@pytest.mark.run(order=13)
 def test_split_data(market_two_days_missingdata_path):
     df_market = market_from_file(market_two_days_missingdata_path, fmt="csv")
     assert len(df_market) == 2
@@ -162,13 +184,87 @@ def test_split_data(market_two_days_missingdata_path):
         assert delta.max() < 120
 
 
-def test_analyse():
-    assert True
+@pytest.mark.run(order=31)
+def test_get_all_child(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop_1 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 7})
+    prop_2 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 13})
+    prop_3 = properties.Derivative(market=market, parent=prop_1)
+    child = market._get_all_child()
+    
+    assert len(child) == 6
+    assert isinstance(child[0], properties.AskLoad)
+    assert isinstance(child[1], properties.BidLoad)
+    assert isinstance(child[2], properties.VolumeLoad)
+    
+    
+@pytest.mark.run(order=32)
+def test_analyse(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    size = len(market.ask.data)
+    prop_1 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 7})
+    prop_2 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 13})
+    prop_3 = properties.Derivative(market=market, parent=prop_1)
+    market.analyse()
+    
+    for prop in market._get_all_child():
+        assert len(prop.data) == size
 
 
-if __name__ == "__main__":
-    market_one_day_path = 'data/XXBTZEUR_1day.dat'
-    market_two_days_missingdata_path = 'data/XXBTZEUR_2days_datamissing.dat'
-    market_two_days_list = 'data/XXBTZEUR_2days.list'
+@pytest.mark.run(order=33)
+def test_find_property_by_name(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop_1 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 7})
+    prop_2 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 13})
+    assert market.find_property_by_name("EMA_k-7_ask") == prop_1
+    assert market.find_property_by_name("EMA_k-7_ask") != prop_2
+    assert market.find_property_by_name("EMA_k-13_ask") == prop_2
+    assert market.find_property_by_name("EMA_k-13_ask") != prop_1
 
-    test_load_data(market_two_days_missingdata_path, market_two_days_list)
+
+@pytest.mark.run(order=34)
+def test_is_property(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop_1 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 7})
+    prop_2 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 13})
+    assert market.is_property(prop_1)
+    assert market.is_property(prop_2)
+
+
+@pytest.mark.run(order=35)
+def test_is_property_by_name(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop_1 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 7})
+    prop_2 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 13})
+    assert market.is_property_by_name("EMA_k-7_ask")
+    assert market.is_property_by_name("EMA_k-13_ask")
+    assert not market.is_property_by_name("EMA_k-20_ask")
+
+
+@pytest.mark.run(order=36)
+def test_find_property_by_type(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop_1 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 7})
+    prop_2 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 13})
+    assert market.find_property_by_type("EMA") in [prop_1, prop_2]
+    assert market.find_property_by_type("market") in [market.volume, market.ask, market.bid]
+
+
+@pytest.mark.run(order=37)
+def test_find_properties_by_type(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    prop_1 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 7})
+    prop_2 = properties.ExponentialMovingAverage(market=market, parent=market.ask, param={'k': 13})
+    assert len(market.find_properties_by_type('EMA')) == 2
+    assert len(market.find_properties_by_type('MA')) == 0
+    assert len(market.find_properties_by_type('market')) == 3
+
+
+@pytest.mark.run(order=38)
+def test_generate_properties_from_inputs_file(inputs_config_path, market_one_day_path, caplog):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market.generate_property_from_xml_config(inputs_config_path)
+    assert len(market._get_all_child()) > 3
+    for property in ["deriv_EMA_k-20_ask", "macd_k-5_long_MA_k-13_ask_short_MA_k-7_ask",
+                     "bollinger_k-2_data_ask_mean_MA_k-10_ask_std_std_k-10_ask"]:
+        assert market.is_property_by_name(property)
