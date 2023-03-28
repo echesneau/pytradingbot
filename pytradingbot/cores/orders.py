@@ -1,4 +1,8 @@
 from abc import ABC
+import pandas as pd
+
+from pytradingbot.cores.properties import PropertiesABC
+
 
 class Order(ABC):
     type = "abstract" # should be buy or sell
@@ -32,9 +36,10 @@ class Order(ABC):
         
 class Action(ABC):
     type = "abstract"
+
     def __init__(self, parents=None,  market=None):
         self.parents = {}
-        self.child = [] # only condition
+        self.child = []  # only condition
         self.data = pd.Series()
         
         if market is not None:
@@ -55,7 +60,7 @@ class Action(ABC):
     def update(self):
         for child in self.child:
             child.update()
-        data = pd.concat([child.data for child in self.child], axis = 1)
+        data = pd.concat([child.data for child in self.child], axis=1)
         self.data = data.all()
         
         
@@ -70,17 +75,90 @@ class ActionSell(Action):
 class Condition(ABC):
     name = "abstract"
     type = "abstract"
-    def __init__(self, parent, value):
+
+    def __init__(self, parent: PropertiesABC, value: float):
         self.parent = parent
         self.value = value
-        
-        pass
+        self.data = pd.Series(dtype=bool)
     
-    def _function():
-        return pd.Series() # todo with len of parent
-        
+    def _function(self) -> pd.Series:
+        return pd.Series(data=[0]*len(self.parent.data), dtype=bool)
+
+    def update(self):
+        if len(self.data) < len(self.parent.data):
+            self.data = self._function()
+
+
+class ConditionUpper(Condition):
+    name = "greater_than"
+    type = ">"
+
+    def __init__(self, parent: PropertiesABC, value: float):
+        super().__init__(parent, value)
+
+    def _function(self) -> pd.Series:
+        return greater_than(self.parent.data, self.value)
+
+
+class ConditionLower(Condition):
+    name = "lower_than"
+    type = "<"
+
+    def __init__(self, parent: PropertiesABC, value: float):
+        super().__init__(parent, value)
+
+    def _function(self) -> pd.Series:
+        return lower_than(self.parent.data, self.value)
+
+
+class ConditionCrossUp(Condition):
+    name = "cross_up"
+    type = "+="
+
+    def __init__(self, parent: PropertiesABC, value: float):
+        super().__init__(parent, value)
+
+    def _function(self) -> pd.Series:
+        return cross_up(self.parent.data, self.value)
+
+
+class ConditionCrossDown(Condition):
+    name = "cross_down"
+    type = "-="
+
+    def __init__(self, parent: PropertiesABC, value: float):
+        super().__init__(parent, value)
+
+    def _function(self) -> pd.Series:
+        return cross_down(self.parent.data, self.value)
+
+
+def greater_than(data: pd.Series, value: float) -> pd.Series:
+    return data > value
+
+
+def lower_than(data: pd.Series, value: float) -> pd.Series:
+    return data < value
+
+
+def cross_up(data: pd.Series, value: float) -> pd.Series:
+    if len(data) > 1:
+        test_sup = data >= value
+        test_inf = data < value
+        return (test_sup + test_inf.shit(1)) == 2
+    else:
+        return pd.Series(data=[None]*len(data))
+
+
+def cross_down(data: pd.Series, value: float) -> pd.Series:
+    if len(data) > 1:
+        test_inf = data <= value
+        test_sup = data > value
+        return (test_inf + test_sup.shit(1)) == 2
+    else:
+        return pd.Series(data=[None]*len(data))
     
-un order renvoie 1, 0, -1 .
-chaque action renvoie 1 ou 0.
-un order peut contenir plusieurs action du meme type => or pour les sommer
-chaque action contient des conditions (comparaison variables vs valeurs)
+# un order renvoie 1, 0, -1 .
+# chaque action renvoie 1 ou 0.
+# un order peut contenir plusieurs action du meme type => or pour les sommer
+# chaque action contient des conditions (comparaison variables vs valeurs)
