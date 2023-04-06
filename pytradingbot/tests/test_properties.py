@@ -390,6 +390,7 @@ def test_bollinger(market_one_day_path):
     assert len(data.data) == 0
 
 
+@pytest.mark.run(order=22)
 def test_generate_derivative_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop = properties.generate_property_by_name("deriv_ask", market)
@@ -397,6 +398,7 @@ def test_generate_derivative_by_name(market_one_day_path):
     assert prop.parents["data"].type == "market"
 
 
+@pytest.mark.run(order=23)
 def test_generate_moving_average_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop = properties.generate_property_by_name("MA_k-7_ask", market)
@@ -405,6 +407,7 @@ def test_generate_moving_average_by_name(market_one_day_path):
     assert prop.parents["data"].type == "market"
 
 
+@pytest.mark.run(order=24)
 def test_generate_exponential_moving_average_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop = properties.generate_property_by_name("EMA_k-7_ask", market)
@@ -413,6 +416,7 @@ def test_generate_exponential_moving_average_by_name(market_one_day_path):
     assert prop.parents["data"].type == "market"
 
 
+@pytest.mark.run(order=25)
 def test_generate_standard_deviation_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop = properties.generate_property_by_name("std_k-7_ask", market)
@@ -421,6 +425,7 @@ def test_generate_standard_deviation_by_name(market_one_day_path):
     assert prop.parents["data"].type == "market"
 
 
+@pytest.mark.run(order=26)
 def test_generate_variation_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop = properties.generate_property_by_name("variation_k-7_ask", market)
@@ -429,6 +434,7 @@ def test_generate_variation_by_name(market_one_day_path):
     assert prop.parents["data"].type == "market"
 
 
+@pytest.mark.run(order=27)
 def test_generate_rsi_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop = properties.generate_property_by_name("rsi_k-7_ask", market)
@@ -437,6 +443,7 @@ def test_generate_rsi_by_name(market_one_day_path):
     assert prop.parents["data"].type == "market"
 
 
+@pytest.mark.run(order=28)
 def test_generate_macd_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop = properties.generate_property_by_name("macd_k-7_long_EMA_k-21_ask_short_EMA_k-7_ask", market)
@@ -444,6 +451,7 @@ def test_generate_macd_by_name(market_one_day_path):
     assert prop.param["k"] == 7
 
 
+@pytest.mark.run(order=29)
 def test_generate_bollinger_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop = properties.generate_property_by_name("bollinger_k-2_data_ask_mean_MA_k-7_ask_std_std_k-7_ask", market)
@@ -451,7 +459,7 @@ def test_generate_bollinger_by_name(market_one_day_path):
     assert prop.param["k"] == 2
 
 
-@pytest.mark.order(19)
+@pytest.mark.run(order=30)
 def test_generate_properties_by_name(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     prop = properties.generate_property_by_name("ask", market)

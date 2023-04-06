@@ -19,6 +19,17 @@ except ImportError:
 
 
 def derivative(data: pd.Series) -> pd.Series:
+    """
+    derivative function
+    Parameters
+    ----------
+    data: pd.Series
+        data to apply function
+
+    Returns
+    -------
+    pd.Series
+    """
     # Difference
     if pd.notnull(data).sum() > 0:
         odata = data.diff()
@@ -34,7 +45,7 @@ def derivative(data: pd.Series) -> pd.Series:
     return odata
 
 
-def MA(data: pd.Series, k: int) -> pd.Series:
+def moving_average(data: pd.Series, k: int) -> pd.Series:
     """
     function to calculate Moving average of data
 
@@ -60,7 +71,7 @@ def MA(data: pd.Series, k: int) -> pd.Series:
         return pd.Series(index=data.index, data=odata, name=data.name)
 
 
-def EMA(data: pd.Series, k: int) -> pd.Series:
+def exponential_moving_average(data: pd.Series, k: int) -> pd.Series:
     """
     function to calculate Exponential Moving average of data
 
@@ -75,7 +86,7 @@ def EMA(data: pd.Series, k: int) -> pd.Series:
     pd.Series
 
     """
-    def exp_data(value):
+    def exp_data(value: np.array):
         size = value.shape[0]
         a = 2 / (np.arange(1, size+1)+1)
         a = np.flipud(a)
@@ -94,6 +105,18 @@ def EMA(data: pd.Series, k: int) -> pd.Series:
 
 
 def standard_deviation(data: pd.Series, k: int) -> pd.Series:
+    """
+    function to calculate standard deviation of data on a window of k rows
+    Parameters
+    ----------
+    data: pd.Series
+    k: int
+        window size
+
+    Returns
+    -------
+    pd.Series
+    """
     if len(data) >= k:
         if NP_ROLL:
             odata = rolling_apply(np.std, k, data.values, ddof=1)
@@ -105,7 +128,19 @@ def standard_deviation(data: pd.Series, k: int) -> pd.Series:
         return pd.Series(index=data.index, data=odata, name=data.name)
 
 
-def variation(data: pd.Series, k: int):
+def variation(data: pd.Series, k: int) -> pd.Series:
+    """
+    function to calculate variation of data on a window of size k
+    Parameters
+    ----------
+    data: pd.Series
+    k: int
+        window size
+
+    Returns
+    -------
+    pd.Series
+    """
     def var(values):
         max_prct = (values[1:].max() - values[0]) * 100 / values[0]
         min_prct = (values[1:].min() - values[0]) * 100 / values[0]
@@ -124,7 +159,20 @@ def variation(data: pd.Series, k: int):
         return pd.Series(index=data.index, data=odata, name=data.name)
 
 
-def rsi(data: pd.Series, k: int):  # TODO
+def rsi(data: pd.Series, k: int) -> pd.Series:
+    """
+    Function to calculate RSI
+
+    Parameters
+    ----------
+    data: pd.Series
+    k: int
+        window size
+
+    Returns
+    -------
+    pd.Series
+    """
     def func(values):
         shift = np.roll(values, 1)
         diff = values - shift
@@ -154,7 +202,20 @@ def rsi(data: pd.Series, k: int):  # TODO
         return pd.Series(index=data.index, data=odata, name=data.name)
 
 
-def macd(short: pd.Series, long: pd.Series, k: int):
+def macd(short: pd.Series, long: pd.Series, k: int) -> pd.Series:
+    """
+    function to calculate MACD
+
+    Parameters
+    ----------
+    short: pd.Series
+    long: pd.Series
+    k: int
+
+    Returns
+    -------
+    pd.Series
+    """
     if len(long) >= k:
         diff = (short - long) / short * 100
         if NP_ROLL:
@@ -167,5 +228,19 @@ def macd(short: pd.Series, long: pd.Series, k: int):
         return pd.Series(index=short.index, data=odata)
 
 
-def bollinger(value: pd.Series, mean: pd.Series, std: pd.Series, k: int):
+def bollinger(value: pd.Series, mean: pd.Series, std: pd.Series, k: int) -> pd.Series:
+    """
+    function to calculate Bollinger
+
+    Parameters
+    ----------
+    value: pd.Series
+    mean: pd.Series
+    std: pd.Series
+    k: int
+
+    Returns
+    -------
+    pd.Series
+    """
     return (value - mean) / (2*k*std)

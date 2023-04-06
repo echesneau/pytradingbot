@@ -29,6 +29,7 @@ def test_read_idconfig(id_config_path, caplog):
     assert len(read_file.read_idconfig(id_config_path)) > 0
 
 
+@pytest.mark.run(order=2)
 def test_read_analysis_properties(inputs_config_path, caplog):
     # test is not a file
     properties = read_file.read_input_analysis_config('toto')
@@ -40,7 +41,7 @@ def test_read_analysis_properties(inputs_config_path, caplog):
     assert "Unknown property format" in caplog.text
 
 
-@pytest.mark.run(order=2)
+@pytest.mark.run(order=3)
 def test_read_csv_market(market_one_day_path, caplog):
     df = read_file.read_csv_market(market_one_day_path)
     assert type(df) == pd.DataFrame
@@ -52,7 +53,7 @@ def test_read_csv_market(market_one_day_path, caplog):
     assert "is not a file" in caplog.text
 
 
-@pytest.mark.run(order=3)
+@pytest.mark.run(order=4)
 def test_read_list_market(market_two_days_list, market_two_days_list_with_dir,
                           market_two_days_list_with_wrong_dir, caplog):
     df = read_file.read_list_market(market_two_days_list)

@@ -1,8 +1,9 @@
 from setuptools import setup, find_packages
+from version import __version__
 
 setup(
     name='pytradingbot',
-    version="0.0.1",
+    version=__version__,
     packages=find_packages(),
     include_package_data=True,
     python_requires=">=3.6",
@@ -17,6 +18,7 @@ setup(
         "lxml",
         "requests",
         "sphynx",
+        "alive_progress",
         ]
 )
         

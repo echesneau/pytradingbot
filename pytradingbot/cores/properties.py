@@ -26,8 +26,8 @@ class PropertiesABC(ABC):
     type = ""
 
     def __init__(self, parent=None,
-                 market: object = None,
-                 param: Dict[str, Any] = None):
+                 market=None,
+                 param: [Dict[str, Any], object] = None):
 
         self.child = []
         self.data = pd.Series(dtype=float)
@@ -54,9 +54,11 @@ class PropertiesABC(ABC):
         self.data = self.data.rename(self.name)
 
     def __call__(self, *args, **kwargs):
+        """Method when call is called"""
         return self.data
 
     def _function(self) -> pd.Series:
+        """function attach to the properties"""
         return self.data
 
     def update(self):
@@ -76,7 +78,7 @@ class PropertiesABC(ABC):
             self.data = self._function()
             self.data = self.data.rename(self.name)
 
-    def add_parent(self, name, obj):
+    def add_parent(self, name: str, obj):
         """
         Method to add a parent
 
@@ -120,17 +122,16 @@ class Ask(PropertiesABC):
 
     def __init__(self, market=None):
         """
-
         Parameters
         ----------
-        market: parent object
+        market: parent Market object
         """
         super().__init__(market=market)
         self.add_parent('market', market)
         self.name = "ask"
         self.data = self.data.rename(self.name)
 
-    def add_value(self, index=None, value=None):
+    def add_value(self, index: list = None, value: list = None):
         """
         Add value to the pd.Series
         Parameters
@@ -166,7 +167,6 @@ class Volume(Ask):
     """
     def __init__(self, market=None):
         """
-
         Parameters
         ----------
         market: parent object
@@ -209,13 +209,14 @@ class Derivative(PropertiesABC):
     """
     type = 'deriv'
 
-    def __init__(self, market=None, parent=None):
+    def __init__(self, market=None, parent: [dict, PropertiesABC] = None):
         super().__init__(market=market, parent=parent)
         if 'data' in self.parents.keys():
             self.name = f"{self.type}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
 
-    def _function(self):
+    def _function(self) -> pd.Series:
+        """Derivative function"""
         return functions.derivative(self.parents['data'].data)
 
 
@@ -225,7 +226,7 @@ class MovingAverage(PropertiesABC):
     """
     type = 'MA'
 
-    def __init__(self, market=None, parent=None, param=None):
+    def __init__(self, market=None, parent: [dict, PropertiesABC, None] = None, param: dict = None):
         super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
             self.name = f"{self.type}_{self.parents['data'].name}"
@@ -238,8 +239,9 @@ class MovingAverage(PropertiesABC):
             if 'data' in self.parents.keys():
                 self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
 
-    def _function(self):
-        return functions.MA(self.parents['data'].data, k=self.param["k"])
+    def _function(self) -> pd.Series:
+        """Mooving average function"""
+        return functions.moving_average(self.parents['data'].data, k=self.param["k"])
 
 
 class ExponentialMovingAverage(PropertiesABC):
@@ -248,7 +250,7 @@ class ExponentialMovingAverage(PropertiesABC):
     """
     type = "EMA"
 
-    def __init__(self, market=None, parent=None, param=None):
+    def __init__(self, market=None, parent: [dict, PropertiesABC, None] = None, param: dict = None):
         super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
             self.name = f"{self.type}_{self.parents['data'].name}"
@@ -261,8 +263,9 @@ class ExponentialMovingAverage(PropertiesABC):
             if 'data' in self.parents.keys():
                 self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
 
-    def _function(self):
-        return functions.EMA(self.parents['data'].data, k=self.param['k'])
+    def _function(self) -> pd.Series:
+        """Exponential moving avergae"""
+        return functions.exponential_moving_average(self.parents['data'].data, k=self.param['k'])
 
 
 class StandardDeviation(PropertiesABC):
@@ -271,7 +274,7 @@ class StandardDeviation(PropertiesABC):
     """
     type = "std"
 
-    def __init__(self, market=None, parent=None, param=None):
+    def __init__(self, market=None, parent: [dict, PropertiesABC, None] = None, param: dict = None):
         super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
             self.name = f"{self.type}_{self.parents['data'].name}"
@@ -284,7 +287,8 @@ class StandardDeviation(PropertiesABC):
             if 'data' in self.parents.keys():
                 self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
 
-    def _function(self):
+    def _function(self) -> pd.Series:
+        """Standard deviation function"""
         return functions.standard_deviation(self.parents['data'].data, k=self.param['k'])
 
 
@@ -294,7 +298,7 @@ class Variation(PropertiesABC):
     """
     type = "variation"
 
-    def __init__(self, market=None, parent=None, param=None):
+    def __init__(self, market=None, parent: [dict, PropertiesABC, None] = None, param: dict = None):
         super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
             self.name = f"{self.type}_{self.parents['data'].name}"
@@ -307,7 +311,8 @@ class Variation(PropertiesABC):
             if 'data' in self.parents.keys():
                 self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
 
-    def _function(self):
+    def _function(self) -> pd.Series:
+        """Variation function"""
         return functions.variation(self.parents['data'].data, k=self.param['k'])
 
 
@@ -317,7 +322,7 @@ class RSI(PropertiesABC):
     """
     type = 'rsi'
 
-    def __init__(self, market=None, parent=None, param=None):
+    def __init__(self, market=None, parent: [dict, PropertiesABC, None] = None, param: dict = None):
         super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys():
             self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
@@ -330,7 +335,8 @@ class RSI(PropertiesABC):
                 self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
 
-    def _function(self):
+    def _function(self) -> pd.Series:
+        """RSI function"""
         return functions.rsi(self.parents['data'].data, k=self.param['k'])
 
 
@@ -340,7 +346,7 @@ class MACD(PropertiesABC):
     """
     type = 'macd'
 
-    def __init__(self, market=None, parent=None, param=None):
+    def __init__(self, market=None, parent: [dict, PropertiesABC] = None, param: dict = None):
         super().__init__(market=market, parent=parent, param=param)
         if 'short' in self.parents.keys() and 'long' in self.parents.keys():
             if 'k' in self.param:
@@ -350,11 +356,13 @@ class MACD(PropertiesABC):
             logging.warning(f"k is not defined in parameters: {param}")
         self.data = self.data.rename(self.name)
 
-    def _function(self):
+    def _function(self) -> pd.Series:
+        """MACD function"""
         return functions.macd(self.parents['short'].data, self.parents['long'].data,
                               k=self.param['k'])
 
     def update(self):
+        """Update function for MACD"""
         update = False
         if len(self.parents) > 0:
             if 'short' in self.parents and 'long' in self.parents and \
@@ -375,7 +383,7 @@ class Bollinger(PropertiesABC):
     """
     type = 'bollinger'
 
-    def __init__(self, market=None, parent=None, param=None):
+    def __init__(self, market=None, parent: [dict, PropertiesABC] = None, param: dict = None):
         super().__init__(market=market, parent=parent, param=param)
         if 'data' in self.parents.keys() and 'mean' in self.parents.keys() and \
                 'std' in self.parents.keys():
@@ -389,19 +397,42 @@ class Bollinger(PropertiesABC):
             self.name = self.type
         self.data = self.data.rename(self.name)
 
-    def _function(self):
+    def _function(self) -> pd.Series:
+        """Bollinger function"""
         return functions.bollinger(self.parents['data'].data, self.parents['mean'].data,
                                    self.parents['std'].data, self.param['k'])
 
 
-def generate_derivative_by_name(name: str, market):
+def generate_derivative_by_name(name: str, market) -> Derivative:
+    """
+    Function to generate derivative properties from a name
+    Parameters
+    ----------
+    name: str
+    market: Market
+
+    Returns
+    -------
+    Derivative
+    """
     words = name.split("_")
     parent_str = "_".join(words[1:])
     parent_prop = generate_property_by_name(parent_str, market)
     return Derivative(market=market, parent=parent_prop)
 
 
-def generate_moving_average_by_name(name: str, market):
+def generate_moving_average_by_name(name: str, market) -> MovingAverage:
+    """
+    Function to generate moving average properties from a name
+    Parameters
+    ----------
+    name: str
+    market: Market
+
+    Returns
+    -------
+    MovingAverage
+    """
     words = name.split("_")
     param = {}
     if words[1].startswith("k-"):
@@ -411,7 +442,18 @@ def generate_moving_average_by_name(name: str, market):
     return MovingAverage(market=market, parent=parent_prop, param=param)
 
 
-def generate_exponential_moving_average_by_name(name: str, market):
+def generate_exponential_moving_average_by_name(name: str, market) -> ExponentialMovingAverage:
+    """
+    Function to generate exponential moving average properties from a name
+    Parameters
+    ----------
+    name: str
+    market: Market
+
+    Returns
+    -------
+    ExponentialMovingAverage
+    """
     words = name.split("_")
     param = {}
     if words[1].startswith("k-"):
@@ -421,7 +463,18 @@ def generate_exponential_moving_average_by_name(name: str, market):
     return ExponentialMovingAverage(market=market, parent=parent_prop, param=param)
 
 
-def generate_standard_deviation_by_name(name: str, market):
+def generate_standard_deviation_by_name(name: str, market) -> StandardDeviation:
+    """
+    Function to generate standard deviation properties from a name
+    Parameters
+    ----------
+    name: str
+    market: Market
+
+    Returns
+    -------
+    StandardDeviation
+    """
     words = name.split("_")
     param = {}
     if words[1].startswith("k-"):
@@ -431,7 +484,18 @@ def generate_standard_deviation_by_name(name: str, market):
     return StandardDeviation(market=market, parent=parent_prop, param=param)
 
 
-def generate_variation_by_name(name: str, market):
+def generate_variation_by_name(name: str, market) -> Variation:
+    """
+    Function to generate variation properties from a name
+    Parameters
+    ----------
+    name: str
+    market: Market
+
+    Returns
+    -------
+    Variation
+    """
     words = name.split("_")
     param = {}
     if words[1].startswith("k-"):
@@ -441,7 +505,18 @@ def generate_variation_by_name(name: str, market):
     return Variation(market=market, parent=parent_prop, param=param)
 
 
-def generate_rsi_by_name(name: str, market):
+def generate_rsi_by_name(name: str, market) -> RSI:
+    """
+    Function to generate RSI properties from a name
+    Parameters
+    ----------
+    name: str
+    market: Market
+
+    Returns
+    -------
+    RSI
+    """
     words = name.split("_")
     param = {}
     if words[1].startswith("k-"):
@@ -451,7 +526,18 @@ def generate_rsi_by_name(name: str, market):
     return RSI(market=market, parent=parent_prop, param=param)
 
 
-def generate_macd_by_name(name: str, market):
+def generate_macd_by_name(name: str, market) -> MACD:
+    """
+    Function to generate MACD properties from a name
+    Parameters
+    ----------
+    name: str
+    market: Market
+
+    Returns
+    -------
+    MACD
+    """
     words = name.split("_")
     param = {}
     if words[1].startswith("k-"):
@@ -465,7 +551,18 @@ def generate_macd_by_name(name: str, market):
     return MACD(market=market, param=param, parent={"short": parent_short, "long": parent_long})
 
 
-def generate_bollinger_by_name(name: str, market):
+def generate_bollinger_by_name(name: str, market) -> Bollinger:
+    """
+    Function to generate Bollinger properties from a name
+    Parameters
+    ----------
+    name: str
+    market: Market
+
+    Returns
+    -------
+    Bollinger
+    """
     words = name.split("_")
     param = {}
     if words[1].startswith("k-"):
@@ -484,6 +581,17 @@ def generate_bollinger_by_name(name: str, market):
 
 
 def generate_property_by_name(name: str, market) -> [PropertiesABC, None]:
+    """
+    Function to generate a property from a name
+    Parameters
+    ----------
+    name: str
+    market: Market
+
+    Returns
+    -------
+    PropertiesABC
+    """
     if market.is_property_by_name(name):
         return market.find_property_by_name(name)
     words = name.split("_")
@@ -510,5 +618,3 @@ def generate_property_by_name(name: str, market) -> [PropertiesABC, None]:
 
     else:
         logging.warning(f"unknown property format name : {name}")
-
-

@@ -13,9 +13,9 @@ from pytradingbot.iolib.base import BaseApi, APILoadData
 # =================
 
 
-@pytest.mark.run(order=3)
+@pytest.mark.run(order=6)
 def test_base_api(id_config_path, kraken_user, inputs_config_path):
-    api = BaseApi(inputs=inputs_config_path)
+    api = BaseApi(input_path=inputs_config_path)
 
     # get users list
     assert type(api._get_user_list()) is np.ndarray
@@ -50,7 +50,7 @@ def test_base_api(id_config_path, kraken_user, inputs_config_path):
     assert api.oformat == 'pandas'
 
 
-@pytest.mark.run(order=4)
+@pytest.mark.run(order=6)
 def test_APILoadData(market_one_day_path):
     api = APILoadData(market_one_day_path, fmt='csv')
     assert len(api.market) == 1
