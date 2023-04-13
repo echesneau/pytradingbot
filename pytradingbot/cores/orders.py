@@ -71,8 +71,9 @@ class Order(ABC):
         
         # generate self.data by merging  conditions
         # -1 if sell, +1 buy, 0 if both are true
-        self.data = buy_data - sell_data 
-        
+        self.data = buy_data.astype(int) - sell_data.astype(int)
+
+    @property
     def action(self):
         # check if update
         
@@ -89,7 +90,7 @@ class Action(ABC):
     def __init__(self, parents=None,  market=None):
         self.parents = {}
         self.child = []  # only condition
-        self.data = pd.Series()
+        self.data = pd.Series(dtype=int)
         
         if market is not None:
             self.add_parent("market", market)

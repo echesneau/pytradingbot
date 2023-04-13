@@ -72,7 +72,6 @@ def test_condition_cross_down(market_one_day_path):
     assert data.sum() == 0
     market.ask.data = pd.Series(data=np.arange(len(size)+1, 0, -1))
     condition.update()
-    data = condition.data
     assert condition.data.sum() == 1
     
      
@@ -86,7 +85,8 @@ def test_action_add_child(market_one_day_path, caplog):
     action.add_child(market.ask)
     assert len(action.child) == 1
     assert "Wrong object type" in caplog.text
-    
+
+
 @pytest.mark.run(order=44)
 def test_action_update(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
@@ -101,7 +101,6 @@ def test_action_update(market_one_day_path):
     action.update()
     assert len(action.data) == len(market.ask.data)
     assert action.data.sum() == 0
-    
 
     
 @pytest.mark.run(order=45)
@@ -112,6 +111,7 @@ def test_order(market_one_day_path):
     order.update()
     assert len(order.data) == len(market.ask.data)
     assert order.data.sum() == 0
+    assert order.action == 0
     
     # test with always buy
     action_buy = ActionBuy(market=market)
@@ -119,18 +119,38 @@ def test_order(market_one_day_path):
     action_buy.add_child(condition1)
     order.add_child(action_buy) 
     order.update()
-    assert  len(order.data) == len(market.ask.data)
+    assert len(order.data) == len(market.ask.data)
     assert order.data.sum() == len(market.ask.data)
+    assert order.action == 1
     
     # test with never sell
-    action_sell =ActionSell(market=market)
+    action_sell = ActionSell(market=market)
     condition1_sell = ConditionLower(market.ask, 0)
     action_sell.add_child(condition1_sell)
     order.add_child(action_sell)
     order.update()
-    assert  len(order.data) == len(market.ask.data)
+    assert len(order.data) == len(market.ask.data)
     assert order.data.sum() == len(market.ask.data)
-    
+    assert order.action == 1
+
+    # test with always nothing
+    action_sell2 = ActionSell(market=market)
+    condition2_sell = ConditionUpper(market.ask, 0)
+    action_sell2.add_child(condition2_sell)
+    order.add_child(action_sell2)
+    order.update()
+    assert len(order.data) == len(market.ask.data)
+    assert order.data.sum() == 0
+    assert order.action == 0
+
+    # test with always sell
+    condition2_buy = ConditionLower(market.ask, 0)
+    action_buy.add_child(condition2_buy)
+    order.update()
+    assert len(order.data) == len(market.ask.data)
+    assert order.data.sum() == -len(market.ask.data)
+    assert order.action == -1
+
 
 if __name__ == "__main__":
     market_one_day_path = 'data/XXBTZEUR_1day.dat'
