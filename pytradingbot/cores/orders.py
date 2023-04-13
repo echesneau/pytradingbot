@@ -1,37 +1,86 @@
 from abc import ABC
 import pandas as pd
+import logging
 
 from pytradingbot.cores.properties import PropertiesABC
 
+
+class Condition(ABC):
+    name = "abstract"
+    type = "abstract"
+
+    def __init__(self, parent: PropertiesABC, value: float):
+        self.parent = parent
+        self.value = value
+        self.data = pd.Series(dtype=bool)
+    
+    def _function(self) -> pd.Series:
+        return pd.Series(data=[0]*len(self.parent.data), dtype=bool)
+
+    def update(self):
+        if len(self.data) < len(self.parent.data):
+            self.data = self._function()
 
 class Order(ABC):
     type = "abstract" # should be buy or sell
     def __init__(self, market: object = None):
         self.child = []
         self.parents = {}
-        self.data = pd.Series()
+        self.data = pd.Series(dtype=bool)
         if market is not None:
             self.parents["market"] = market
+        
+    def add_child(self, obj):
+        """
+        Method to add a child
+
+        Parameters
+        ----------
+        obj: child object
+        """
+        if obj not in self.child:
+            self.child.append(obj)
+        
+    def _get_all_child(self):
+        return [child for child in self.child]
+        
+    def get_all_data_by_type(self, atype):
+        child = self.find_actions_by_type(atype)
+        return [c.data for c in child]
+        
+    def find_actions_by_type(self, atype):
+        return [child for child in self.child if child.type == atype]
         
     def update(self):
         for child in self.child:
             child.update()
         
-        buy_child = [child for child in self.child if child.type == "buy"]
-        buy_data = pd.concat([buy_child], axis = 1).any()
-        
-        sell_child = [child for child in self.child if child.type == "sell"]
-        sell_data = pd.concat([sell_child], axis = 1).any()
+        buy_child = self.find_actions_by_type("buy")
+        if len(buy_child) > 0:
+            buy_data = pd.concat(self.get_all_data_by_type("buy"), axis = 1).any(axis=1)
+        elif "market" in self.parents:
+            buy_data = pd.Series(data=[0]*len(self.parents["market"].ask.data), index=self.parents["market"].ask.data.index)
+        else:
+            buy_data = pd.Series(data=[0])
+            
+        sell_child = self.find_actions_by_type("sell")
+        if len(sell_child) > 0:
+            sell_data = pd.concat(self.get_all_data_by_type("sell"), axis = 1).any(axis=1)
+        else:
+            sell_data = pd.Series(data=[0]*len(buy_data), index=buy_data.index)
         
         # generate self.data by merging  conditions
-        pass
+        # -1 if sell, +1 buy, 0 if both are true
+        self.data = buy_data - sell_data 
         
     def action(self):
         # check if update
         
         return self.data.values[-1]
-        
         # return action to do
+        
+    def simulate_action(self, imoney=100):
+        pass
         
         
 class Action(ABC):
@@ -44,7 +93,15 @@ class Action(ABC):
         
         if market is not None:
             self.add_parent("market", market)
-        
+    
+    def add_child(self, obj: Condition):
+            if isinstance(obj, Condition):
+                if obj not in self.child:
+                    self.child.append(obj)
+            else:
+                logging.warning(f"Wrong object type : {type(obj)}, skipped") 
+            
+    
     def add_parent(self, name, obj):
         """
         Method to add a parent
@@ -61,7 +118,7 @@ class Action(ABC):
         for child in self.child:
             child.update()
         data = pd.concat([child.data for child in self.child], axis=1)
-        self.data = data.all()
+        self.data = data.all(axis=1)
         
         
 class ActionBuy(Action):
@@ -72,21 +129,7 @@ class ActionSell(Action):
     type = "sell"
     
     
-class Condition(ABC):
-    name = "abstract"
-    type = "abstract"
 
-    def __init__(self, parent: PropertiesABC, value: float):
-        self.parent = parent
-        self.value = value
-        self.data = pd.Series(dtype=bool)
-    
-    def _function(self) -> pd.Series:
-        return pd.Series(data=[0]*len(self.parent.data), dtype=bool)
-
-    def update(self):
-        if len(self.data) < len(self.parent.data):
-            self.data = self._function()
 
 
 class ConditionUpper(Condition):
@@ -145,7 +188,7 @@ def cross_up(data: pd.Series, value: float) -> pd.Series:
     if len(data) > 1:
         test_sup = data >= value
         test_inf = data < value
-        return (test_sup + test_inf.shit(1)) == 2
+        return (test_sup + test_inf.shift(1)) == 2
     else:
         return pd.Series(data=[None]*len(data))
 
@@ -154,7 +197,7 @@ def cross_down(data: pd.Series, value: float) -> pd.Series:
     if len(data) > 1:
         test_inf = data <= value
         test_sup = data > value
-        return (test_inf + test_sup.shit(1)) == 2
+        return (test_inf + test_sup.shift(1)) == 2
     else:
         return pd.Series(data=[None]*len(data))
     
