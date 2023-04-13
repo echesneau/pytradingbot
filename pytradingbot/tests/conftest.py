@@ -15,6 +15,7 @@ import os.path
 
 ROOT_DIR = os.path.dirname(__file__)
 
+
 @pytest.fixture()
 def id_config_path():
     root_dir = os.path.dirname(__file__)

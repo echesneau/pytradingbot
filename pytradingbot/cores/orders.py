@@ -21,8 +21,10 @@ class Condition(ABC):
         if len(self.data) < len(self.parent.data):
             self.data = self._function()
 
+
 class Order(ABC):
-    type = "abstract" # should be buy or sell
+    type = "abstract"  # should be buy or sell
+
     def __init__(self, market: object = None):
         self.child = []
         self.parents = {}
@@ -57,15 +59,16 @@ class Order(ABC):
         
         buy_child = self.find_actions_by_type("buy")
         if len(buy_child) > 0:
-            buy_data = pd.concat(self.get_all_data_by_type("buy"), axis = 1).any(axis=1)
+            buy_data = pd.concat(self.get_all_data_by_type("buy"), axis=1).any(axis=1)
         elif "market" in self.parents:
-            buy_data = pd.Series(data=[0]*len(self.parents["market"].ask.data), index=self.parents["market"].ask.data.index)
+            buy_data = pd.Series(data=[0]*len(self.parents["market"].ask.data),
+                                 index=self.parents["market"].ask.data.index)
         else:
             buy_data = pd.Series(data=[0])
             
         sell_child = self.find_actions_by_type("sell")
         if len(sell_child) > 0:
-            sell_data = pd.concat(self.get_all_data_by_type("sell"), axis = 1).any(axis=1)
+            sell_data = pd.concat(self.get_all_data_by_type("sell"), axis=1).any(axis=1)
         else:
             sell_data = pd.Series(data=[0]*len(buy_data), index=buy_data.index)
         
@@ -96,13 +99,12 @@ class Action(ABC):
             self.add_parent("market", market)
     
     def add_child(self, obj: Condition):
-            if isinstance(obj, Condition):
-                if obj not in self.child:
-                    self.child.append(obj)
-            else:
-                logging.warning(f"Wrong object type : {type(obj)}, skipped") 
+        if isinstance(obj, Condition):
+            if obj not in self.child:
+                self.child.append(obj)
+        else:
+            logging.warning(f"Wrong object type : {type(obj)}, skipped")
             
-    
     def add_parent(self, name, obj):
         """
         Method to add a parent
@@ -128,9 +130,6 @@ class ActionBuy(Action):
     
 class ActionSell(Action):
     type = "sell"
-    
-    
-
 
 
 class ConditionUpper(Condition):
