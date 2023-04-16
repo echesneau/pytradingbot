@@ -9,7 +9,8 @@ import pandas as pd
 # Internal IMPORTS
 # =================
 from pytradingbot.utils.market_tools import market_from_file
-from pytradingbot.cores.orders import ConditionUpper, ConditionLower, ConditionCrossUp, ConditionCrossDown, ActionBuy, ActionSell, Order
+from pytradingbot.cores.orders import ConditionUpper, ConditionLower, ConditionCrossUp, ConditionCrossDown, ActionBuy, \
+    ActionSell, Order, generate_condition_from_dict
 
 
 @pytest.mark.run(order=39)
@@ -150,6 +151,46 @@ def test_order(market_one_day_path):
     assert len(order.data) == len(market.ask.data)
     assert order.data.sum() == -len(market.ask.data)
     assert order.action == -1
+
+
+@pytest.mark.run(order=46)
+def test_generate_condition(market_one_day_path, caplog):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    # Test wrong dict
+    condition_dict = {"value": 0, "function": "<"}
+    condition = generate_condition_from_dict(condition_dict, market=market)
+    assert "Invalid dictionary keys" in caplog.text
+    assert condition is None
+    # test Wrong function
+    condition_dict = {"value": 0, "function": "toto", 'property': "EMA_k-12_ask"}
+    condition = generate_condition_from_dict(condition_dict, market=market)
+    assert condition is None
+    assert "Unknown function" in caplog.text
+    # test ConditionLower
+    condition_dict = {"value": 0, "function": "<", 'property': "EMA_k-12_ask"}
+    condition = generate_condition_from_dict(condition_dict, market=market)
+    assert isinstance(condition, ConditionLower)
+    assert condition.value == 0
+    assert condition.parent.name == "EMA_k-12_ask"
+    # test ConditionUpper
+    condition_dict = {"value": 0, "function": ">", 'property': "EMA_k-12_ask"}
+    condition = generate_condition_from_dict(condition_dict, market=market)
+    assert isinstance(condition, ConditionUpper)
+    assert condition.value == 0
+    assert condition.parent.name == "EMA_k-12_ask"
+    # test ConditionCrossUp
+    condition_dict = {"value": 0, "function": "+=", 'property': "EMA_k-12_ask"}
+    condition = generate_condition_from_dict(condition_dict, market=market)
+    assert isinstance(condition, ConditionCrossUp)
+    assert condition.value == 0
+    assert condition.parent.name == "EMA_k-12_ask"
+    # test ConditionCrossDown
+    condition_dict = {"value": 0, "function": "-=", 'property': "EMA_k-12_ask"}
+    condition = generate_condition_from_dict(condition_dict, market=market)
+    assert isinstance(condition, ConditionCrossDown)
+    assert condition.value == 0
+    assert condition.parent.name == "EMA_k-12_ask"
+
 
 
 if __name__ == "__main__":

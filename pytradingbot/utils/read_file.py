@@ -9,6 +9,7 @@ import logging
 import pandas as pd
 from lxml import etree
 
+
 # =================
 # Internal IMPORTS
 # =================
@@ -137,6 +138,53 @@ def read_input_analysis_config(path: str) -> list:
         else:
             logging.warning(f"Unknown property format: {fmt}: {prop.text} skipped")
     return properties
+
+
+def read_input_order_config(path: str) -> list:
+    """function to read the order part of input xml file
+
+        Parameters
+        ----------
+        path: str
+            path if the xml file
+
+        Returns
+        -------
+        list of action: each action are stored in a dict
+        """
+    actions = []
+    if not os.path.isfile(path):
+        logging.warning(f"{path} is not a file, cannot set input config parameters")
+        return actions
+
+    # XML Parser
+    main = etree.parse(path)
+
+    # Read properties
+    for i, action in enumerate(main.xpath("/pytradingbot/order/action")):
+        tmp = {}
+        if "type" in action.attrib and action.attrib["type"] in ["sell", "buy"]:
+            tmp["type"] = action.attrib["type"]
+            tmp["conditions"] = []
+            for j, condition in enumerate(action.xpath("condition")):
+                if "function" in condition.attrib and condition.attrib['function'] in ['>', '<', "+=", "-="]:
+                    if "value" in condition.attrib:
+                        try:
+                            value = float(condition.attrib['value'])
+                        except ValueError:
+                            logging.warning(f"Value of condition {j} of action {i} is not a digit")
+                            continue
+                        tmp['conditions'].append({"function": condition.attrib['function'],
+                                                  "value": value,
+                                                  "property": condition.text})
+                else:
+                    logging.warning(f"Unknown function in condition {j} of action {i}")
+                    continue
+            actions.append(tmp)
+        else:
+            logging.warning(f"Unknown type for action {i}")
+            continue
+        return actions
 
 
 def read_input_config():

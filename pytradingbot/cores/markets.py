@@ -13,8 +13,8 @@ from alive_progress import alive_bar
 # =================
 # Internal IMPORTS
 # =================
-from pytradingbot.cores import properties
-from pytradingbot.utils.read_file import read_input_analysis_config
+from pytradingbot.cores import properties, orders
+from pytradingbot.utils.read_file import read_input_analysis_config, read_input_order_config
 
 # =================
 # Variables
@@ -43,6 +43,7 @@ class Market:
         self.ask = properties.Ask(market=self)
         self.bid = properties.Bid(market=self)
         self.volume = properties.Volume(market=self)
+        self.order = orders.Order(market=self)
         for prop in [self.ask, self.bid, self.volume]:
             self.add_child(prop)
         self.odir = odir
@@ -273,6 +274,18 @@ class Market:
         for prop in properties_list:
             if prop['format'] == "name":
                 properties.generate_property_by_name(prop['value'], self)
+
+    def generate_order_from_xml_config(self, path: str):
+        """
+        Method to generate order from an input xml config file
+
+        Parameters
+        ----------
+        path: str
+            path of the xml input file
+        """
+        actions = read
+        pass
 
 
 class MarketLoad(Market):
