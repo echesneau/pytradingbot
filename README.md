@@ -3,11 +3,14 @@ A Python Trading bot
 This project is in development : not stable yet
 
 # Versions
+## v0.2.1
+This version add an exception in get_market method to avoid unexpected crash.
+## v0.2.0
+This version included properties to analyse the market.  
+A market could be real time, or loaded.  
 ## v0.1.0
 This version allows to get market via Kraken API in real time and to save it in a CSV file.
-## v0.2.0
-This version inclued properties to analyse the market.  
-A market could be real time, or loaded.  
+ 
 # Installation
 all required packages are listed in the setup file and in requierements.txt file.  
 Tradingbot module and all required package are installed by
