@@ -1,5 +1,6 @@
 from abc import ABC
 import pandas as pd
+import numpy as np
 import logging
 
 from pytradingbot.cores.properties import PropertiesABC, generate_property_by_name
@@ -25,7 +26,7 @@ class Condition(ABC):
 class Order(ABC):
     type = "abstract"  # should be buy or sell
 
-    def __init__(self, market: object = None):
+    def __init__(self, market=None):
         self.child = []
         self.parents = {}
         self.data = pd.Series(dtype=bool)
@@ -57,24 +58,31 @@ class Order(ABC):
         for child in self.child:
             child.update()
 
-        buy_child = self.find_actions_by_type("buy")
-        if len(buy_child) > 0:
-            buy_data = pd.concat(self.get_all_data_by_type("buy"), axis=1).any(axis=1)
-        elif "market" in self.parents:
-            buy_data = pd.Series(data=[0] * len(self.parents["market"].ask.data),
-                                 index=self.parents["market"].ask.data.index)
+        if "market" in self.parents and len(self.data) < len(self.parents["markets"].dataframe()):
+            update = True
+        elif len(self.child) > 0 and len(self.data) < len(self.child[0].data):
+            update = True
         else:
-            buy_data = pd.Series(data=[0])
+            update = False
+        if update:
+            buy_child = self.find_actions_by_type("buy")
+            if len(buy_child) > 0:
+                buy_data = pd.concat(self.get_all_data_by_type("buy"), axis=1).any(axis=1)
+            elif "market" in self.parents:
+                buy_data = pd.Series(data=[0] * len(self.parents["market"].ask.data),
+                                     index=self.parents["market"].ask.data.index)
+            else:
+                buy_data = pd.Series(data=[0])
 
-        sell_child = self.find_actions_by_type("sell")
-        if len(sell_child) > 0:
-            sell_data = pd.concat(self.get_all_data_by_type("sell"), axis=1).any(axis=1)
-        else:
-            sell_data = pd.Series(data=[0] * len(buy_data), index=buy_data.index)
+            sell_child = self.find_actions_by_type("sell")
+            if len(sell_child) > 0:
+                sell_data = pd.concat(self.get_all_data_by_type("sell"), axis=1).any(axis=1)
+            else:
+                sell_data = pd.Series(data=[0] * len(buy_data), index=buy_data.index)
 
-        # generate self.data by merging  conditions
-        # -1 if sell, +1 buy, 0 if both are true
-        self.data = buy_data.astype(int) - sell_data.astype(int)
+            # generate self.data by merging  conditions
+            # -1 if sell, +1 buy, 0 if both are true
+            self.data = buy_data.astype(int) - sell_data.astype(int)
 
     @property
     def action(self):
@@ -83,8 +91,64 @@ class Order(ABC):
         return self.data.values[-1]
         # return action to do
 
-    def simulate_action(self, imoney=100):
-        pass
+    def simulate_trading(self, imoney: float = 100, fees: float = 0.1,
+                        cost_no_action: float = -100):
+        # Update order
+        self.update()
+        # Init variable
+        list_buy: list = []  # list of buy action
+        list_sell: list = []  # list of sell action
+        list_cost: list = []  # list of cost of operation
+        money: float = imoney
+        balance_action: float = 0  # action in balance
+        action: int = 1  # buy: 1, sell: -1
+        counter: int = 0  # last position in array
+        if "market" in self.parents:
+            market = self.parents['markets']
+        else:
+            logging.warning("No market specify in Order, cannot simulate trading")
+            return None
+
+        # simulate
+        while True:
+            i = np.where(self.data == action)[0]  # array of index where action
+            i = i[np.where(i > counter)[0]]  # first item upper than last action
+            if i.shape[0] == 0:
+                break  # Stop if no more occurrence
+            else:
+                i = i[0]
+            if action == 1:  # if buy
+                balance_action += money/market.ask.data.iloc[i]
+                list_buy.append([balance_action, market.ask.data.iloc[i]])
+                money -= list_buy[-1][0]*list_buy[-1][1]
+                print(f"{market.ask.data.index[i]} : BUY : {list_buy[-1][0]} @ {list_buy[-1][1]}")
+                print(f"{market.ask.data.index[i]} : MONEY = {money}")
+                action = -1
+                counter = i
+            elif action == -1:
+                list_sell.append([list_buy[-1][0], market.bid.data.iloc[i]])
+                action -= list_buy[-1][0]
+                money += list_sell[-1][0] * list_sell[-1][1]
+                fee = (list_buy[-1][0] * list_buy[-1][1] + list_sell[-1][0] * list_sell[-1][1]) * fees / 100
+                money -= fee
+                list_cost.append(fee)
+                print(f"{market.bid.data.index[i]} : SELL : {list_sell[-1][0]} @ {list_sell[-1][1]}")
+                print(f"{market.bid.data.index[i]} : MONEY = {money}")
+                action = 1
+                counter = i
+        if len(list_buy) > len(list_sell):
+            list_buy = list_buy[:-1]  # remove last buy if end with a buy
+        if len(list_buy) > 0:
+            array_buy = np.array(list_buy)
+            array_sell = np.array(list_sell)
+            tmp = np.zeros(array_buy.shape)
+            tmp[:, 0] = array_buy[:, 0] * array_buy[:, 1]
+            tmp[:, 1] = array_sell[:, 0] * array_sell[:, 1] - np.array(list_cost)
+            win = np.count_nonzero(np.any(np.diff(tmp, axis=1) > 0, axis=1))
+            loose = np.count_nonzero(np.any(np.diff(tmp, axis=1) < 0, axis=1))
+            return np.sum(np.diff(tmp, axis=1)), win, loose
+        else:
+            return cost_no_action, 0, 0
 
 
 class Action(ABC):
@@ -202,7 +266,7 @@ def cross_down(data: pd.Series, value: float) -> pd.Series:
         return pd.Series(data=[None] * len(data))
 
 
-def generate_condition_from_dict(cond_dict: dict, market=None) -> Condition:
+def generate_condition_from_dict(cond_dict: dict, market=None) -> [None, Condition]:
     if "function" in cond_dict and \
             "value" in cond_dict and \
             "property" in cond_dict.keys():
