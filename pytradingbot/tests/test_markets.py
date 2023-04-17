@@ -13,7 +13,7 @@ from datetime import datetime
 from pytradingbot.iolib.crypto_api import KrakenApiDev
 from pytradingbot.cores import markets
 from pytradingbot.utils.market_tools import market_from_file
-from pytradingbot.cores import properties
+from pytradingbot.cores import properties, orders
 
 # =================
 # Variables
@@ -268,3 +268,13 @@ def test_generate_properties_from_inputs_file(inputs_config_path, market_one_day
     for property in ["deriv_EMA_k-20_ask", "macd_k-5_long_MA_k-13_ask_short_MA_k-7_ask",
                      "bollinger_k-2_data_ask_mean_MA_k-10_ask_std_std_k-10_ask"]:
         assert market.is_property_by_name(property)
+
+
+@pytest.mark.run(order=48)
+def test_generate_order_from_xml_config(inputs_config_path, market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market.generate_order_from_xml_config(inputs_config_path)
+    assert isinstance(market.order, orders.Order)
+    assert len(market.order.child) == 1
+    assert isinstance(market.order.child[0], orders.ActionBuy)
+    assert len(market.order.child[0].child) == 2

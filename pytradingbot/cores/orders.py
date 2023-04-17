@@ -40,7 +40,7 @@ class Order(ABC):
         ----------
         obj: child object
         """
-        if obj not in self.child:
+        if obj is not None and obj not in self.child:
             self.child.append(obj)
 
     def _get_all_child(self):
@@ -220,6 +220,31 @@ def generate_condition_from_dict(cond_dict: dict, market=None) -> Condition:
             return None
     else:
         logging.warning("Invalid dictionary keys: should contain function, value and property keys")
+        return None
+
+
+def generate_action_from_dict(action_dict: dict, market):
+    if "type" in action_dict.keys() and "conditions" in action_dict.keys():
+        if action_dict['type'] == "buy":
+            action = ActionBuy(market=market)
+        elif action_dict['type'] == "sell":
+            action = ActionSell(market=market)
+        else:
+            logging.warning(f"Unknown action type {action_dict['type']}")
+            return None
+        if isinstance(action_dict['conditions'], list):
+            for condition in action_dict['conditions']:
+                condition_tmp = generate_condition_from_dict(condition, market=market)
+                if condition_tmp is not None:
+                    action.add_child(condition_tmp)
+                else:
+                    logging.warning(f"Cannot generate condition : {condition}")
+            return action
+        else:
+            logging.warning(f"Conditions of action should be a list, {type(action_dict['conditions'])} found")
+            return None
+    else:
+        logging.warning("Invalid dictionary keys to generate action: should contain type and condition keys")
         return None
 
 # un order renvoie 1, 0, -1 .

@@ -48,3 +48,5 @@ def test_run_api(kraken_user, inputs_config_path):
 
     assert (tf-t0).total_seconds() < ntest * api.refresh * 1.1
     assert len(api.market.dataframe()) == ntest
+    assert len(api.market.order.data) == ntest
+    assert api.market.order.action in [-1, 0, 1]

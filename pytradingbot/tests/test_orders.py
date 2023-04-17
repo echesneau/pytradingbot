@@ -10,7 +10,7 @@ import pandas as pd
 # =================
 from pytradingbot.utils.market_tools import market_from_file
 from pytradingbot.cores.orders import ConditionUpper, ConditionLower, ConditionCrossUp, ConditionCrossDown, ActionBuy, \
-    ActionSell, Order, generate_condition_from_dict
+    ActionSell, Order, generate_condition_from_dict, generate_action_from_dict
 
 
 @pytest.mark.run(order=39)
@@ -191,6 +191,31 @@ def test_generate_condition(market_one_day_path, caplog):
     assert condition.value == 0
     assert condition.parent.name == "EMA_k-12_ask"
 
+
+@pytest.mark.run(order=47)
+def test_generate_action_from_dict(market_one_day_path, caplog):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    # Test wrong dict
+    action_dict = {"type": "sell"}
+    action = generate_action_from_dict(action_dict, market)
+    assert "Invalid dictionary" in caplog.text
+    assert action is None
+    # Test wrong type
+    action_dict = {"type": "wrong", "conditions": []}
+    action = generate_action_from_dict(action_dict, market)
+    assert "Unknown action type" in caplog.text
+    assert action is None
+    # Test wrong conditions
+    action_dict = {"type": "buy", "conditions": {}}
+    action = generate_action_from_dict(action_dict, market)
+    assert "Conditions of action should be a list" in caplog.text
+    assert action is None
+    # Test good conditions
+    action_dict = {"type": "buy", "conditions": [{"value": 0, "function": "+=", 'property': "EMA_k-12_ask"}]}
+    action = generate_action_from_dict(action_dict, market)
+    assert isinstance(action, ActionBuy)
+    condition = action.child[0]
+    assert condition.parent.name == "EMA_k-12_ask"
 
 
 if __name__ == "__main__":
