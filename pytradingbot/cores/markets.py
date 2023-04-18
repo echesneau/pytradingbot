@@ -313,3 +313,4 @@ class MarketLoad(Market):
             for update in update_func:
                 update()
                 bar()
+        self.order.update()

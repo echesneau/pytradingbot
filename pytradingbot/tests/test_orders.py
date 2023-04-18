@@ -115,16 +115,22 @@ def test_order(market_one_day_path):
     assert order.action == 0
     
     # test with always buy
+    order = Order(market=market)
     action_buy = ActionBuy(market=market)
     condition1 = ConditionUpper(market.ask, 0)
     action_buy.add_child(condition1)
-    order.add_child(action_buy) 
+    order.add_child(action_buy)
     order.update()
     assert len(order.data) == len(market.ask.data)
     assert order.data.sum() == len(market.ask.data)
     assert order.action == 1
     
     # test with never sell
+    order = Order(market=market)
+    action_buy = ActionBuy(market=market)
+    condition1 = ConditionUpper(market.ask, 0)
+    action_buy.add_child(condition1)
+    order.add_child(action_buy)
     action_sell = ActionSell(market=market)
     condition1_sell = ConditionLower(market.ask, 0)
     action_sell.add_child(condition1_sell)
@@ -135,6 +141,11 @@ def test_order(market_one_day_path):
     assert order.action == 1
 
     # test with always nothing
+    order = Order(market=market)
+    action_buy = ActionBuy(market=market)
+    condition1 = ConditionUpper(market.ask, 0)
+    action_buy.add_child(condition1)
+    order.add_child(action_buy)
     action_sell2 = ActionSell(market=market)
     condition2_sell = ConditionUpper(market.ask, 0)
     action_sell2.add_child(condition2_sell)
@@ -145,8 +156,11 @@ def test_order(market_one_day_path):
     assert order.action == 0
 
     # test with always sell
-    condition2_buy = ConditionLower(market.ask, 0)
-    action_buy.add_child(condition2_buy)
+    order = Order(market=market)
+    action_sell = ActionSell(market=market)
+    condition1_sell = ConditionUpper(market.ask, 0)
+    action_sell.add_child(condition1_sell)
+    order.add_child(action_sell)
     order.update()
     assert len(order.data) == len(market.ask.data)
     assert order.data.sum() == -len(market.ask.data)
@@ -218,7 +232,23 @@ def test_generate_action_from_dict(market_one_day_path, caplog):
     assert condition.parent.name == "EMA_k-12_ask"
 
 
-if __name__ == "__main__":
-    market_one_day_path = 'data/XXBTZEUR_1day.dat'
-    test_order(market_one_day_path)
-    
+@pytest.mark.run(order=49)
+def test_simulate_trading(market_one_day_path, caplog):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market.analyse()
+    # Do nothing
+    result = market.order.simulate_trading(imoney=100, fees=0.1, cost_no_action=-100)
+    assert result == (-100, 0, 0)
+    # Always buy
+    market.order.data = market.order.data.replace(0, 1)
+    result = market.order.simulate_trading(imoney=100, fees=0.1, cost_no_action=-100)
+    assert result == (-100, 0, 0)
+    # one on 2 buy
+    market.order.data = market.order.data.replace(1, 0)
+    index = list(market.order.data.index)
+    market.order.data.iloc[[i for i in range(0, len(index), 4)]] = 1
+    market.order.data.iloc[[i for i in range(1, len(index), 4)]] = -1
+    result = market.order.simulate_trading(imoney=100, fees=0.1, cost_no_action=-100)
+    gain, win, loose = result
+    assert gain != 0 and -100 < gain < 100
+    assert (win+loose) == int(len(index)/4)

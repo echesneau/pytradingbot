@@ -29,7 +29,7 @@ class Order(ABC):
     def __init__(self, market=None):
         self.child = []
         self.parents = {}
-        self.data = pd.Series(dtype=bool)
+        self.data = pd.Series(dtype=int)
         if market is not None:
             self.parents["market"] = market
 
@@ -58,7 +58,7 @@ class Order(ABC):
         for child in self.child:
             child.update()
 
-        if "market" in self.parents and len(self.data) < len(self.parents["markets"].dataframe()):
+        if "market" in self.parents and len(self.data) < len(self.parents["market"].dataframe()):
             update = True
         elif len(self.child) > 0 and len(self.data) < len(self.child[0].data):
             update = True
@@ -87,12 +87,13 @@ class Order(ABC):
     @property
     def action(self):
         # check if update
+        self.update()
 
         return self.data.values[-1]
         # return action to do
 
     def simulate_trading(self, imoney: float = 100, fees: float = 0.1,
-                        cost_no_action: float = -100):
+                         cost_no_action: float = -100):
         # Update order
         self.update()
         # Init variable
@@ -104,10 +105,10 @@ class Order(ABC):
         action: int = 1  # buy: 1, sell: -1
         counter: int = 0  # last position in array
         if "market" in self.parents:
-            market = self.parents['markets']
+            market = self.parents['market']
         else:
             logging.warning("No market specify in Order, cannot simulate trading")
-            return None
+            return None, None, None
 
         # simulate
         while True:
@@ -118,16 +119,17 @@ class Order(ABC):
             else:
                 i = i[0]
             if action == 1:  # if buy
-                balance_action += money/market.ask.data.iloc[i]
+                balance_action += money / market.ask.data.iloc[i]
+                print(balance_action, money)
                 list_buy.append([balance_action, market.ask.data.iloc[i]])
-                money -= list_buy[-1][0]*list_buy[-1][1]
+                money -= list_buy[-1][0] * list_buy[-1][1]
                 print(f"{market.ask.data.index[i]} : BUY : {list_buy[-1][0]} @ {list_buy[-1][1]}")
                 print(f"{market.ask.data.index[i]} : MONEY = {money}")
                 action = -1
                 counter = i
             elif action == -1:
                 list_sell.append([list_buy[-1][0], market.bid.data.iloc[i]])
-                action -= list_buy[-1][0]
+                balance_action -= list_buy[-1][0]
                 money += list_sell[-1][0] * list_sell[-1][1]
                 fee = (list_buy[-1][0] * list_buy[-1][1] + list_sell[-1][0] * list_sell[-1][1]) * fees / 100
                 money -= fee
@@ -142,8 +144,8 @@ class Order(ABC):
             array_buy = np.array(list_buy)
             array_sell = np.array(list_sell)
             tmp = np.zeros(array_buy.shape)
-            tmp[:, 0] = array_buy[:, 0] * array_buy[:, 1]
-            tmp[:, 1] = array_sell[:, 0] * array_sell[:, 1] - np.array(list_cost)
+            tmp[:, 0] = array_buy[:, 0] * array_buy[:, 1]  # buy list
+            tmp[:, 1] = array_sell[:, 0] * array_sell[:, 1] - np.array(list_cost)  # sell list
             win = np.count_nonzero(np.any(np.diff(tmp, axis=1) > 0, axis=1))
             loose = np.count_nonzero(np.any(np.diff(tmp, axis=1) < 0, axis=1))
             return np.sum(np.diff(tmp, axis=1)), win, loose
