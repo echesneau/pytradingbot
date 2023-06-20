@@ -308,13 +308,17 @@ class MarketLoad(Market):
         for prop in [self.ask, self.bid, self.volume]:
             self.add_child(prop)
 
-    def analyse(self):
+    def analyse(self, verbose=True):
         """
         Method to analyse market value with progress bar
         """
         update_func = [prop.update for prop in self._get_all_child()]
-        with alive_bar(len(update_func)) as bar:
+        if verbose:
+            with alive_bar(len(update_func)) as bar:
+                for update in update_func:
+                    update()
+                    bar()
+        else:
             for update in update_func:
                 update()
-                bar()
         self.order.update()

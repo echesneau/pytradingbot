@@ -97,7 +97,7 @@ class Order(ABC):
         # return action to do
 
     def simulate_trading(self, imoney: float = 100, fees: float = 0.1,
-                         cost_no_action: float = -100):
+                         cost_no_action: float = -100, verbose=1):
         # Update order
         self.update()
         # Init variable
@@ -124,11 +124,13 @@ class Order(ABC):
                 i = i[0]
             if action == 1:  # if buy
                 balance_action += money / market.ask.data.iloc[i]
-                print(balance_action, money)
+                if verbose == 1:
+                    print(balance_action, money)
                 list_buy.append([balance_action, market.ask.data.iloc[i]])
                 money -= list_buy[-1][0] * list_buy[-1][1]
-                print(f"{market.ask.data.index[i]} : BUY : {list_buy[-1][0]} @ {list_buy[-1][1]}")
-                print(f"{market.ask.data.index[i]} : MONEY = {money}")
+                if verbose == 1:
+                    print(f"{market.ask.data.index[i]} : BUY : {list_buy[-1][0]} @ {list_buy[-1][1]}")
+                    print(f"{market.ask.data.index[i]} : MONEY = {money}")
                 action = -1
                 counter = i
             elif action == -1:
@@ -138,8 +140,9 @@ class Order(ABC):
                 fee = (list_buy[-1][0] * list_buy[-1][1] + list_sell[-1][0] * list_sell[-1][1]) * fees / 100
                 money -= fee
                 list_cost.append(fee)
-                print(f"{market.bid.data.index[i]} : SELL : {list_sell[-1][0]} @ {list_sell[-1][1]}")
-                print(f"{market.bid.data.index[i]} : MONEY = {money}")
+                if verbose == 1:
+                    print(f"{market.bid.data.index[i]} : SELL : {list_sell[-1][0]} @ {list_sell[-1][1]}")
+                    print(f"{market.bid.data.index[i]} : MONEY = {money}")
                 action = 1
                 counter = i
         if len(list_buy) > len(list_sell):
