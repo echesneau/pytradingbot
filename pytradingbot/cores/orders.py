@@ -58,16 +58,19 @@ class Order(ABC):
     def find_actions_by_type(self, atype):
         return [child for child in self.child if child.type == atype]
 
-    def update(self):
+    def update(self, force=False):
         for child in self.child:
             child.update()
 
-        if "market" in self.parents and len(self.data) < len(self.parents["market"].dataframe()):
+        if force:
+            update = True
+        elif "market" in self.parents and len(self.data) < len(self.parents["market"].dataframe()):
             update = True
         elif len(self.child) > 0 and len(self.data) < len(self.child[0].data):
             update = True
         else:
             update = False
+
         if update:
             buy_child = self.find_actions_by_type("buy")
             if len(buy_child) > 0:
