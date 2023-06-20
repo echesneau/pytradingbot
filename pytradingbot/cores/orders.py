@@ -7,18 +7,22 @@ from pytradingbot.cores.properties import PropertiesABC, generate_property_by_na
 
 
 class Condition(ABC):
+    """Condition Class"""
     name = "abstract"
     type = "abstract"
 
     def __init__(self, parent: PropertiesABC, value: float):
+        """Initialisation method"""
         self.parent = parent
         self.value = value
         self.data = pd.Series(dtype=bool)
 
     def _function(self) -> pd.Series:
+        """Condition function"""
         return pd.Series(data=[0] * len(self.parent.data), dtype=bool)
 
     def update(self):
+        """Update method"""
         if len(self.data) < len(self.parent.data):
             self.data = self._function()
 
@@ -156,7 +160,7 @@ class Order(ABC):
 class Action(ABC):
     type = "abstract"
 
-    def __init__(self, parents=None, market=None):
+    def __init__(self, market=None):
         self.parents = {}
         self.child = []  # only condition
         self.data = pd.Series(dtype=int)

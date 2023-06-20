@@ -28,6 +28,7 @@ class Market:
 
     def __init__(self, parent=None, odir: str = None, oformat: str = 'pandas'):
         """
+        Initialisation
 
         Parameters
         ----------
@@ -53,6 +54,9 @@ class Market:
         self.nclean: int = 300  # maximum number of row in dataframe
 
     def __call__(self, *args, **kwargs):
+        """
+        call method
+        """
         return self.dataframe()
 
     def update(self):
