@@ -1,8 +1,11 @@
+"""
+Module containing all classes and functions for market Orders
+"""
 from abc import ABC
 import pandas as pd
 import numpy as np
 import logging
-
+from typing import List
 from pytradingbot.cores.properties import PropertiesABC, generate_property_by_name
 
 
@@ -28,6 +31,7 @@ class Condition(ABC):
 
 
 class Order(ABC):
+    """Market Order class"""
     type = "abstract"  # should be buy or sell
 
     def __init__(self, market=None):
@@ -51,14 +55,46 @@ class Order(ABC):
     def _get_all_child(self):
         return [child for child in self.child]
 
-    def get_all_data_by_type(self, atype):
+    def get_all_data_by_type(self, atype: str) -> list:
+        """
+        Method to get all actions of a specific type
+
+        Parameters
+        ----------
+        atype: str
+            Action type: sell or buy
+
+        Returns
+        -------
+        list of Action object
+        """
         child = self.find_actions_by_type(atype)
         return [c.data for c in child]
 
     def find_actions_by_type(self, atype):
+        """
+        Method to get all actions of a specific type
+
+        Parameters
+        ----------
+        atype: str
+            Action type: sell or buy
+
+        Returns
+        -------
+        list of Action object
+        """
         return [child for child in self.child if child.type == atype]
 
-    def update(self, force=False):
+    def update(self, force: bool = False):
+        """
+        Method to update order data value.
+        Do the update of all actions
+        Parameters
+        ----------
+        force: Bool
+            arguments to force the analysis evenif the shape of data is the same
+        """
         for child in self.child:
             child.update()
 
@@ -93,6 +129,17 @@ class Order(ABC):
 
     @property
     def action(self):
+        """
+        Method to get the action to do at the last line of market (for a use in a production mode)
+
+        Returns
+        -------
+        int: -1, 0 or 1
+            -1 to sell
+            0 to do nothing
+            1 to buy
+
+        """
         # check if update
         self.update()
 
@@ -102,6 +149,27 @@ class Order(ABC):
     def simulate_trading(self, imoney: float = 100, fees: float = 0.1,
                          cost_no_action: float = -100, min_order_per_day=0,
                          verbose=1):
+        """
+        Method to simulate a trading for the Order.
+        Use with MarketLoad
+
+        Parameters
+        ----------
+        imoney: float
+            initial money
+        fees: float
+            trading fees
+        cost_no_action: float
+            cost if no trade
+        min_order_per_day:
+            minimum amount of trades per day
+        verbose: bool
+            verbose mode
+
+        Returns
+        -------
+        tuple: money win, number of win, number of loose
+        """
         # Update order
         self.update()
         # Init variable
