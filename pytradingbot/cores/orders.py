@@ -100,7 +100,8 @@ class Order(ABC):
         # return action to do
 
     def simulate_trading(self, imoney: float = 100, fees: float = 0.1,
-                         cost_no_action: float = -100, verbose=1):
+                         cost_no_action: float = -100, min_order_per_day=0,
+                         verbose=1):
         # Update order
         self.update()
         # Init variable
@@ -116,6 +117,11 @@ class Order(ABC):
         else:
             logging.warning("No market specify in Order, cannot simulate trading")
             return None, None, None
+
+        # Number of days in market
+        market_time = market.ask.data.index
+        market_duration = market_time[-1]-market_time[0]
+        ndays = market_duration.total_seconds()/3600/24
 
         # simulate
         while True:
@@ -158,9 +164,13 @@ class Order(ABC):
             tmp[:, 1] = array_sell[:, 0] * array_sell[:, 1] - np.array(list_cost)  # sell list
             win = np.count_nonzero(np.any(np.diff(tmp, axis=1) > 0, axis=1))
             loose = np.count_nonzero(np.any(np.diff(tmp, axis=1) < 0, axis=1))
-            return np.sum(np.diff(tmp, axis=1)), win, loose
+            gain = np.sum(np.diff(tmp, axis=1))
         else:
-            return cost_no_action, 0, 0
+            gain, win, loose = -100, 0, 0
+        if win + loose > min_order_per_day * ndays:
+            return gain, win, loose
+        else:
+            return gain - min_order_per_day * ndays, 0, 0
 
 
 class Action(ABC):
