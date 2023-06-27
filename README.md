@@ -72,6 +72,16 @@ An example are available in inputs directory.
         <properties format="name">bollinger_k-2_data_ask_mean_MA_k-10_ask_std_std_k-10_ask</properties>
         <properties format="name">MA_k-10_ask</properties>
     </analysis>
+    <order>
+        <action type="sell">
+            <condition function=">" value="0">macd_k-5_long_MA_k-13_ask_short_MA_k-7_ask</condition>
+        </action>
+        <action type="buy">
+            <condition function=">" value="0">macd_k-5_long_MA_k-13_ask_short_MA_k-7_ask</condition>
+            <condition function="+=" value="0">deriv_macd_k-5_long_MA_k-13_ask_short_MA_k-7_ask</condition>
+            <condition function="<" value="0">deriv_macd_k-5_long_MA_k-13_ask_short_MA_k-7_ask</condition>
+        </action>
+    </order>
 </pytradingbot>
 ````
 # Exemples of uses
