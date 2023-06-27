@@ -24,9 +24,9 @@ class Condition(ABC):
         """Condition function"""
         return pd.Series(data=[0] * len(self.parent.data), dtype=bool)
 
-    def update(self):
+    def update(self, force: bool = False):
         """Update method"""
-        if len(self.data) < len(self.parent.data):
+        if (len(self.data) < len(self.parent.data)) or force:
             self.data = self._function()
 
 
@@ -96,7 +96,7 @@ class Order(ABC):
             arguments to force the analysis evenif the shape of data is the same
         """
         for child in self.child:
-            child.update()
+            child.update(force=force)
 
         if force:
             update = True
@@ -234,7 +234,7 @@ class Order(ABC):
             loose = np.count_nonzero(np.any(np.diff(tmp, axis=1) < 0, axis=1))
             gain = np.sum(np.diff(tmp, axis=1))
         else:
-            gain, win, loose = -100, 0, 0
+            gain, win, loose = cost_no_action, 0, 0
         if win + loose > min_order_per_day * ndays:
             return gain, win, loose
         else:
@@ -242,6 +242,10 @@ class Order(ABC):
 
 
 class Action(ABC):
+    """
+    Action class
+    Compile Conditions for a type of Action
+    """
     type = "abstract"
 
     def __init__(self, market=None):
@@ -253,6 +257,14 @@ class Action(ABC):
             self.add_parent("market", market)
 
     def add_child(self, obj: Condition):
+        """
+        Method to add a child
+
+        Parameters
+        ----------
+        obj: Condition
+            child object
+        """
         if isinstance(obj, Condition):
             if obj not in self.child:
                 self.child.append(obj)
@@ -271,22 +283,35 @@ class Action(ABC):
         """
         self.parents[name] = obj
 
-    def update(self):
+    def update(self, force: bool = False):
+        """
+        Method to update Action data value.
+        Do the update of all conditions
+        """
         for child in self.child:
-            child.update()
+            child.update(force=force)
         data = pd.concat([child.data for child in self.child], axis=1)
         self.data = data.all(axis=1)
 
 
 class ActionBuy(Action):
+    """
+    Action class to buy
+    Compile Conditions for action "buy"
+    """
     type = "buy"
 
 
 class ActionSell(Action):
+    """
+    Action class to sell
+    Compile Conditions for action "sell"
+    """
     type = "sell"
 
 
 class ConditionUpper(Condition):
+    """Condition Class with greater than function"""
     name = "greater_than"
     type = ">"
 
@@ -298,6 +323,7 @@ class ConditionUpper(Condition):
 
 
 class ConditionLower(Condition):
+    """Condition Class with lower than function"""
     name = "lower_than"
     type = "<"
 
@@ -309,6 +335,7 @@ class ConditionLower(Condition):
 
 
 class ConditionCrossUp(Condition):
+    """Condition Class with cross up function"""
     name = "cross_up"
     type = "+="
 
@@ -320,6 +347,7 @@ class ConditionCrossUp(Condition):
 
 
 class ConditionCrossDown(Condition):
+    """Condition Class with cross down function"""
     name = "cross_down"
     type = "-="
 
@@ -331,14 +359,56 @@ class ConditionCrossDown(Condition):
 
 
 def greater_than(data: pd.Series, value: float) -> pd.Series:
+    """
+    Function to check if data are greater than a value
+
+    Parameters
+    ----------
+    data: Series
+        Series to compare
+    value: float
+        target value
+
+    Returns
+    -------
+    Series of bool
+    """
     return data > value
 
 
 def lower_than(data: pd.Series, value: float) -> pd.Series:
+    """
+    Function to check if data are lower than a value
+
+    Parameters
+    ----------
+    data: Series
+        Series to compare
+    value: float
+        target value
+
+    Returns
+    -------
+    Series of bool
+    """
     return data < value
 
 
 def cross_up(data: pd.Series, value: float) -> pd.Series:
+    """
+    function to detect a cross up
+
+    Parameters
+    ----------
+    data: Series
+        data where to check the cross up
+    value: float
+        target value of cross up
+
+    Returns
+    -------
+    Series of bool
+    """
     if len(data) > 1:
         test_sup = data >= value
         test_inf = data < value
@@ -348,6 +418,20 @@ def cross_up(data: pd.Series, value: float) -> pd.Series:
 
 
 def cross_down(data: pd.Series, value: float) -> pd.Series:
+    """
+    function to detect a cross down
+
+    Parameters
+    ----------
+    data: Series
+        data where to check the cross down
+    value: float
+        target value of cross down
+
+    Returns
+    -------
+    Series of bool
+    """
     if len(data) > 1:
         test_inf = data <= value
         test_sup = data > value
@@ -357,6 +441,20 @@ def cross_down(data: pd.Series, value: float) -> pd.Series:
 
 
 def generate_condition_from_dict(cond_dict: dict, market=None) -> [None, Condition]:
+    """
+    function to generate conditions from a dictionary.
+    dictionary should have function, value and property keys
+
+    Parameters
+    ----------
+    cond_dict: dict
+        dict keys: function (<,>,-=,+=), value (float) and property (str of the property name)
+    market: Market object
+
+    Returns
+    -------
+    Condition if succeed, else None
+    """
     if "function" in cond_dict and \
             "value" in cond_dict and \
             "property" in cond_dict.keys():
@@ -377,7 +475,21 @@ def generate_condition_from_dict(cond_dict: dict, market=None) -> [None, Conditi
         return None
 
 
-def generate_action_from_dict(action_dict: dict, market):
+def generate_action_from_dict(action_dict: dict, market) -> [Action, None]:
+    """
+    function to generate Action from a dictionary.
+    dictionary should have type and conditions keys
+
+    Parameters
+    ----------
+    action_dict: dict
+        dict keys: type (sell or buy), conditions (list of dict to generate conditions)
+    market: Market object
+
+    Returns
+    -------
+    Action if succeed, else None
+    """
     if "type" in action_dict.keys() and "conditions" in action_dict.keys():
         if action_dict['type'] == "buy":
             action = ActionBuy(market=market)
@@ -400,8 +512,3 @@ def generate_action_from_dict(action_dict: dict, market):
     else:
         logging.warning("Invalid dictionary keys to generate action: should contain type and condition keys")
         return None
-
-# un order renvoie 1, 0, -1 .
-# chaque action renvoie 1 ou 0.
-# un order peut contenir plusieurs action du meme type => or pour les sommer
-# chaque action contient des conditions (comparaison variables vs valeurs)
