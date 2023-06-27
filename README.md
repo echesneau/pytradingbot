@@ -3,11 +3,17 @@ A Python Trading bot
 This project is in development : not stable yet
 
 # Versions
+## v0.3.0
+This version included Order objects to analyse and to decide to buy or sell on a market.
+Different object are created : Order, Action and Condition
+
 ## v0.2.1
 This version add an exception in get_market method to avoid unexpected crash.
+
 ## v0.2.0
 This version included properties to analyse the market.  
 A market could be real time, or loaded.  
+
 ## v0.1.0
 This version allows to get market via Kraken API in real time and to save it in a CSV file.
  
@@ -36,6 +42,7 @@ You should also give a id.config file in the project directory. More information
 in the configuration
 
 ## Tests coverage 
+94% of lines for v0.3.0
 93% of lines for v0.2.0 
 
 # id.config
