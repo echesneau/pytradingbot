@@ -8,4 +8,10 @@
         <clean>300</clean> <!-- Maximum number of rows in memory -->
         <odir format="pandas">data/outputs/market</odir> <!-- ouptut directory -->
     </market>
+    <order format="xml">
+        <buy>
+            <condition param="ask" function="&gt;">0</condition>
+        </buy>
+    </order>
+    
 </pytradingbot>

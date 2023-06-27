@@ -13,8 +13,8 @@ from alive_progress import alive_bar
 # =================
 # Internal IMPORTS
 # =================
-from pytradingbot.cores import properties
-from pytradingbot.utils.read_file import read_input_analysis_config
+from pytradingbot.cores import properties, orders
+from pytradingbot.utils.read_file import read_input_analysis_config, read_input_order_config
 
 # =================
 # Variables
@@ -28,6 +28,7 @@ class Market:
 
     def __init__(self, parent=None, odir: str = None, oformat: str = 'pandas'):
         """
+        Initialisation
 
         Parameters
         ----------
@@ -43,6 +44,7 @@ class Market:
         self.ask = properties.Ask(market=self)
         self.bid = properties.Bid(market=self)
         self.volume = properties.Volume(market=self)
+        self.order = orders.Order(market=self)
         for prop in [self.ask, self.bid, self.volume]:
             self.add_child(prop)
         self.odir = odir
@@ -52,6 +54,9 @@ class Market:
         self.nclean: int = 300  # maximum number of row in dataframe
 
     def __call__(self, *args, **kwargs):
+        """
+        call method
+        """
         return self.dataframe()
 
     def update(self):
@@ -74,6 +79,7 @@ class Market:
         update_func = [prop.update for prop in self._get_all_child()]
         for update in update_func:
             update()
+        self.order.update()
 
     def add_parent(self, name: str, obj: object):
         """
@@ -274,6 +280,20 @@ class Market:
             if prop['format'] == "name":
                 properties.generate_property_by_name(prop['value'], self)
 
+    def generate_order_from_xml_config(self, path: str):
+        """
+        Method to generate order from an input xml config file
+
+        Parameters
+        ----------
+        path: str
+            path of the xml input file
+        """
+        self.order = orders.Order(market=self)  # (Re)Init order
+        actions = read_input_order_config(path)
+        for action in actions:
+            self.order.add_child(orders.generate_action_from_dict(action, market=self))
+
 
 class MarketLoad(Market):
     """
@@ -288,12 +308,17 @@ class MarketLoad(Market):
         for prop in [self.ask, self.bid, self.volume]:
             self.add_child(prop)
 
-    def analyse(self):
+    def analyse(self, verbose=True):
         """
         Method to analyse market value with progress bar
         """
         update_func = [prop.update for prop in self._get_all_child()]
-        with alive_bar(len(update_func)) as bar:
+        if verbose:
+            with alive_bar(len(update_func)) as bar:
+                for update in update_func:
+                    update()
+                    bar()
+        else:
             for update in update_func:
                 update()
-                bar()
+        self.order.update()

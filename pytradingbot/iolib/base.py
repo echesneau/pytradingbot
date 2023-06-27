@@ -244,6 +244,7 @@ class BaseApi(ApiABC):
         self.set_market(markets.Market(parent=self, odir=f"{self.odir}/{self.pair}",
                                        oformat=self.oformat))
         self.market.generate_property_from_xml_config(self.inputs_config_path)
+        self.market.generate_order_from_xml_config(self.inputs_config_path)
 
         # Init counter
         count = 0

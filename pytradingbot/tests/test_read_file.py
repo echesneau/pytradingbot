@@ -42,6 +42,27 @@ def test_read_analysis_properties(inputs_config_path, caplog):
 
 
 @pytest.mark.run(order=3)
+def test_read_action_config(inputs_config_path, caplog):
+    # test is not a file
+    actions = read_file.read_input_order_config('toto')
+    assert len(actions) == 0
+    assert "is not a file" in caplog.text
+    caplog.clear()
+    actions = read_file.read_input_order_config(inputs_config_path)
+    assert "Unknown type" in caplog.text
+    assert "Unknown function" in caplog.text
+    assert len(actions) == 1
+    action = actions[0]
+    assert action['type'] in ['buy', "sell"]
+    assert len(action['conditions']) == 2
+    for condition in action['conditions']:
+        assert "value" in condition
+        assert isinstance(condition['value'], float)
+        assert 'function' in condition
+        assert condition['function'] in ['<', ">", '+=', '-=']
+        assert isinstance(condition['property'], str)
+
+@pytest.mark.run(order=3)
 def test_read_csv_market(market_one_day_path, caplog):
     df = read_file.read_csv_market(market_one_day_path)
     assert type(df) == pd.DataFrame

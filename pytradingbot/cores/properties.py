@@ -614,7 +614,5 @@ def generate_property_by_name(name: str, market) -> [PropertiesABC, None]:
             return generate_bollinger_by_name(name, market)
         else:
             logging.warning(f"unknow property type {name}")
-            return None
-
     else:
         logging.warning(f"unknown property format name : {name}")
