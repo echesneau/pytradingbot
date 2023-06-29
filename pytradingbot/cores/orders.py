@@ -147,6 +147,109 @@ class Order(ABC):
         # return action to do
 
     def simulate_trading(self, imoney: float = 100, fees: float = 0.1,
+                         cost_no_action: float = 100, min_order_per_day=0,
+                         verbose=1):
+        """
+        Method to simulate a trading for the Order.
+        Use with MarketLoad
+
+        Parameters
+        ----------
+        imoney: float
+            initial money
+        fees: float
+            trading fees
+        cost_no_action: float
+            cost if no trade
+        min_order_per_day:
+            minimum amount of trades per day
+        verbose: bool
+            verbose mode
+
+        Returns
+        -------
+        tuple: money win, number of win, number of loose
+        """
+        # Update order
+        self.update()
+        # Init variable
+        list_buy: list = []  # list of buy action
+        list_sell: list = []  # list of sell action
+        list_fees_buy: list = []
+        list_fees_sell: list = []
+        list_cost: list = []  # list of cost of operation
+        money: float = imoney
+        balance_action: float = 0  # action in balance
+        action: int = 1  # buy: 1, sell: -1
+        counter: int = 0  # last position in array
+        if "market" in self.parents:
+            market = self.parents['market']
+        else:
+            logging.warning("No market specify in Order, cannot simulate trading")
+            return None, None, None
+
+        # Number of days in market
+        market_time = market.ask.data.index
+        market_duration = market_time[-1]-market_time[0]
+        ndays = market_duration.total_seconds()/3600/24
+
+        # simulate
+        while True:
+            i = np.where(self.data == action)[0]  # array of index where action
+            i = i[np.where(i > counter)[0]]  # first item upper than last action
+            if i.shape[0] == 0:
+                break  # Stop if no more occurrence
+            else:
+                i = i[0]
+            if action == 1:  # if buy
+                balance_action += money / market.ask.data.iloc[i]
+                # remove action corresponding to fees
+                fee = money * fees / 100
+                balance_action -= fee / market.ask.data.iloc[i]
+                if verbose == 1:
+                    print(balance_action, money)
+                list_buy.append([balance_action, market.ask.data.iloc[i]])
+                list_fees_buy.append(fee)
+                money -= list_buy[-1][0] * list_buy[-1][1]
+                money -= fee
+                if verbose == 1:
+                    print(f"{market.ask.data.index[i]} : BUY : {list_buy[-1][0]} @ {list_buy[-1][1]}")
+                    print(f"{market.ask.data.index[i]} : MONEY = {money}")
+                action = -1
+                counter = i
+            elif action == -1:
+                list_sell.append([list_buy[-1][0], market.bid.data.iloc[i]])
+                balance_action -= list_buy[-1][0]
+                money += list_sell[-1][0] * list_sell[-1][1]
+                fee = list_sell[-1][0] * list_sell[-1][1] * fee /100
+                money -= fee
+                list_fees_sell.append(fee)
+                if verbose == 1:
+                    print(f"{market.bid.data.index[i]} : SELL : {list_sell[-1][0]} @ {list_sell[-1][1]}")
+                    print(f"{market.bid.data.index[i]} : MONEY = {money}")
+                action = 1
+                counter = i
+        if len(list_buy) > len(list_sell):
+            # list_buy = list_buy[:-1]  # remove last buy if end with a buy
+            money += list_buy[-1][0] * list_buy[-1][1] + list_fees_buy[-1]
+        if len(list_buy) > 0:
+            array_buy = np.array(list_buy)
+            array_sell = np.array(list_sell)
+            tmp = np.zeros(array_buy.shape)
+            #tmp[:, 0] = array_buy[:, 0] * array_buy[:, 1]  # buy list
+            #tmp[:, 1] = array_sell[:, 0] * array_sell[:, 1] - np.array(list_cost)  # sell list
+            win = np.count_nonzero(np.any(np.diff(tmp, axis=1) > 0, axis=1))
+            loose = np.count_nonzero(np.any(np.diff(tmp, axis=1) < 0, axis=1))
+            # gain = np.sum(np.diff(tmp, axis=1))
+        else:
+            win, loose = 0, 0
+            money -= cost_no_action
+        if win + loose > min_order_per_day * ndays:
+            return money, win, loose
+        else:
+            return money - min_order_per_day * ndays, win, loose
+
+    def simulate_trading_old(self, imoney: float = 100, fees: float = 0.1,
                          cost_no_action: float = -100, min_order_per_day=0,
                          verbose=1):
         """
