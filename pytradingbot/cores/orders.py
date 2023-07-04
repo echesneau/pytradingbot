@@ -221,7 +221,7 @@ class Order(ABC):
                 list_sell.append([list_buy[-1][0], market.bid.data.iloc[i]])
                 balance_action -= list_buy[-1][0]
                 money += list_sell[-1][0] * list_sell[-1][1]
-                fee = list_sell[-1][0] * list_sell[-1][1] * fee /100
+                fee = list_sell[-1][0] * list_sell[-1][1] * fees /100
                 money -= fee
                 list_fees_sell.append(fee)
                 if verbose == 1:
@@ -230,14 +230,14 @@ class Order(ABC):
                 action = 1
                 counter = i
         if len(list_buy) > len(list_sell):
-            # list_buy = list_buy[:-1]  # remove last buy if end with a buy
             money += list_buy[-1][0] * list_buy[-1][1] + list_fees_buy[-1]
+            list_buy = list_buy[:-1]  # remove last buy if end with a buy
         if len(list_buy) > 0:
             array_buy = np.array(list_buy)
             array_sell = np.array(list_sell)
             tmp = np.zeros(array_buy.shape)
-            #tmp[:, 0] = array_buy[:, 0] * array_buy[:, 1]  # buy list
-            #tmp[:, 1] = array_sell[:, 0] * array_sell[:, 1] - np.array(list_cost)  # sell list
+            tmp[:, 0] = array_buy[:, 0] * array_buy[:, 1]  # buy list
+            tmp[:, 1] = array_sell[:, 0] * array_sell[:, 1] # - np.array(list_cost)  # sell list
             win = np.count_nonzero(np.any(np.diff(tmp, axis=1) > 0, axis=1))
             loose = np.count_nonzero(np.any(np.diff(tmp, axis=1) < 0, axis=1))
             # gain = np.sum(np.diff(tmp, axis=1))
