@@ -201,7 +201,7 @@ class Order(ABC):
                 break  # Stop if no more occurrence
             else:
                 i = i[0]
-            if action == 1:  # if buy
+            if action == 1 and money > 0:  # if buy
                 balance_action += money / market.ask.data.iloc[i]
                 # remove action corresponding to fees
                 fee = money * fees / 100
@@ -247,7 +247,8 @@ class Order(ABC):
         if win + loose > min_order_per_day * ndays:
             return money, win, loose
         else:
-            return money - min_order_per_day * ndays, win, loose
+            penalty = (win+loose) - (min_order_per_day * ndays)
+            return money + penalty, win, loose
 
     def simulate_trading_old(self, imoney: float = 100, fees: float = 0.1,
                          cost_no_action: float = -100, min_order_per_day=0,
