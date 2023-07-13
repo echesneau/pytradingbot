@@ -201,13 +201,13 @@ class Order(ABC):
                 break  # Stop if no more occurrence
             else:
                 i = i[0]
-            if action == 1 and money > 0:  # if buy
+            if action == 1:  # if buy
+                if money < 0:
+                    break  # Stop if no more money
                 balance_action += money / market.ask.data.iloc[i]
                 # remove action corresponding to fees
                 fee = money * fees / 100
                 balance_action -= fee / market.ask.data.iloc[i]
-                if verbose == 1:
-                    print(balance_action, money)
                 list_buy.append([balance_action, market.ask.data.iloc[i]])
                 list_fees_buy.append(fee)
                 money -= list_buy[-1][0] * list_buy[-1][1]
