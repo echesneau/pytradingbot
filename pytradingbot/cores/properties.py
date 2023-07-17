@@ -113,6 +113,15 @@ class PropertiesABC(ABC):
         if len(self.data) > nrows:
             self.data = self.data.iloc[-nrows-1:]
 
+    def delete_link(self):
+        for parents in self.parents.values():
+            if self in parents.child:
+                parents.child.remove(self)
+        for child in self.child:
+            child.delete_link()
+            del child
+
+
 
 class Ask(PropertiesABC):
     """

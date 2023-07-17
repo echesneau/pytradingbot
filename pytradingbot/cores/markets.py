@@ -166,6 +166,10 @@ class Market:
             self.volume.clean(nrows=nrows)
             for prop in self.child:
                 prop.clean(nrows=nrows)
+
+    def delete_properties(self, obj: properties.PropertiesABC):
+        obj.delete_link()
+        del obj
                 
     def _get_all_child(self) -> list:
         """
