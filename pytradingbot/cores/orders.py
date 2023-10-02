@@ -450,6 +450,30 @@ class ConditionCrossUp(Condition):
         return cross_up(self.parent.data, self.value)
 
 
+class ConditionCrossUp5(Condition):
+    """Condition Class with cross up last ten function"""
+    name = "cross_up_last_five"
+    type = "+=5"
+
+    def __init__(self, parent: PropertiesABC, value: float):
+        super().__init__(parent, value)
+
+    def _function(self) -> pd.Series:
+        return cross_up_last_n(self.parent.data, self.value, n=5)
+
+
+class ConditionCrossUp10(Condition):
+    """Condition Class with cross up last ten function"""
+    name = "cross_up_last_ten"
+    type = "+=10"
+
+    def __init__(self, parent: PropertiesABC, value: float):
+        super().__init__(parent, value)
+
+    def _function(self) -> pd.Series:
+        return cross_up_last_n(self.parent.data, self.value, n=10)
+
+
 class ConditionCrossDown(Condition):
     """Condition Class with cross down function"""
     name = "cross_down"
@@ -521,6 +545,28 @@ def cross_up(data: pd.Series, value: float) -> pd.Series:
         return pd.Series(data=[None] * len(data))
 
 
+def cross_up_last_n(data: pd.Series, value: float, n: int = 5) -> pd.Series:
+    """
+    function to detect a cross up in previous last n step
+    Parameters
+    ----------
+    data: Series
+        data where to check the cross up
+    value: float
+        target value of cross up
+    n: int
+        number to step to check
+
+    Returns
+    -------
+    Series of bool
+    """
+    cross_up_data = cross_up(data, value)
+    idx_cross_up = list(cross_up_data[cross_up_data == True].index)
+    idx_new = [i for idx in idx_cross_up for i in range(idx, idx+n+1)]
+    cross_up_data.iloc[idx_new] = True
+    return cross_up_data
+
 def cross_down(data: pd.Series, value: float) -> pd.Series:
     """
     function to detect a cross down
@@ -571,6 +617,12 @@ def generate_condition_from_dict(cond_dict: dict, market=None) -> [None, Conditi
                                       cond_dict['value'])
         elif cond_dict['function'] == "+=":
             return ConditionCrossUp(generate_property_by_name(cond_dict['property'], market=market), cond_dict['value'])
+        elif cond_dict['function'] == "+=5":
+            return ConditionCrossUp5(generate_property_by_name(cond_dict['property'], market=market),
+                                      cond_dict['value'])
+        elif cond_dict['function'] == "+=10":
+            return ConditionCrossUp10(generate_property_by_name(cond_dict['property'], market=market),
+                                      cond_dict['value'])
         else:
             logging.warning(f"Unknown function: {cond_dict['function']}")
             return None
