@@ -114,13 +114,13 @@ class PropertiesABC(ABC):
             self.data = self.data.iloc[-nrows-1:]
 
     def delete_link(self):
+        """Method to remove link of object in all parents childs"""
         for parents in self.parents.values():
             if self in parents.child:
                 parents.child.remove(self)
         for child in self.child:
             child.delete_link()
             del child
-
 
 
 class Ask(PropertiesABC):

@@ -98,11 +98,11 @@ def read_list_market(path: str):
                 else:
                     logging.warning("Uncorrected format for directory, please use format: DIR = your/path/")
             elif len(line) > 0:
-                file = f"{directory}/{line.rstrip()}"
-                if os.path.isfile(file):
-                    data_df = pd.concat([data_df, read_csv_market(file)], axis=0)
+                ifile = f"{directory}/{line.rstrip()}"
+                if os.path.isfile(ifile):
+                    data_df = pd.concat([data_df, read_csv_market(ifile)], axis=0)
                 else:
-                    logging.warning(f"{file} is not a file, file skipped")
+                    logging.warning(f"{ifile} is not a file, file skipped")
     data_df.sort_index(axis=0)
     return data_df
 

@@ -167,7 +167,9 @@ class Market:
             for prop in self.child:
                 prop.clean(nrows=nrows)
 
-    def delete_properties(self, obj: properties.PropertiesABC):
+    @staticmethod
+    def delete_properties(obj: properties.PropertiesABC):
+        """Method to delete properties from childs"""
         obj.delete_link()
         del obj
                 
