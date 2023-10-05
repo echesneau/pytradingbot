@@ -184,7 +184,7 @@ def read_input_order_config(path: str) -> list:
         else:
             logging.warning(f"Unknown type for action {i}")
             continue
-        return actions
+    return actions
 
 
 def read_input_config():
