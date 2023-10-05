@@ -1,3 +1,4 @@
+"""Test all order classes and functions"""
 # =================
 # Python IMPORTS
 # =================
@@ -10,7 +11,7 @@ import pandas as pd
 # =================
 from pytradingbot.utils.market_tools import market_from_file
 from pytradingbot.cores.orders import ConditionUpper, ConditionLower, ConditionCrossUp, ConditionCrossUp10, \
-    ConditionCrossUp5, ConditionCrossDown, ActionBuy, \
+    ConditionCrossUp5, ConditionCrossDown, ConditionCrossDown5, ConditionCrossDown10, ActionBuy, \
     ActionSell, Order, generate_condition_from_dict, generate_action_from_dict
 
 
@@ -91,6 +92,7 @@ def test_condition_cross_up_last_five(market_one_day_path):
     market.ask.data = pd.Series(data=np.arange(len(size) + 1, 0, -1))
     condition.update()
     assert condition.data.sum() == 0
+
 
 @pytest.mark.run(order=42)
 def test_condition_cross_up_last_ten(market_one_day_path):
@@ -246,6 +248,18 @@ def test_generate_condition(market_one_day_path, caplog):
     condition_dict = {"value": 0, "function": "-=", 'property': "EMA_k-12_ask"}
     condition = generate_condition_from_dict(condition_dict, market=market)
     assert isinstance(condition, ConditionCrossDown)
+    assert condition.value == 0
+    assert condition.parent.name == "EMA_k-12_ask"
+    # test ConditionCrossDown10
+    condition_dict = {"value": 0, "function": "-=10", 'property': "EMA_k-12_ask"}
+    condition = generate_condition_from_dict(condition_dict, market=market)
+    assert isinstance(condition, ConditionCrossDown10)
+    assert condition.value == 0
+    assert condition.parent.name == "EMA_k-12_ask"
+    # test ConditionCrossUp5
+    condition_dict = {"value": 0, "function": "-=5", 'property': "EMA_k-12_ask"}
+    condition = generate_condition_from_dict(condition_dict, market=market)
+    assert isinstance(condition, ConditionCrossDown5)
     assert condition.value == 0
     assert condition.parent.name == "EMA_k-12_ask"
 

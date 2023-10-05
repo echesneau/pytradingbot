@@ -5,7 +5,6 @@ from abc import ABC
 import pandas as pd
 import numpy as np
 import logging
-from typing import List
 from pytradingbot.cores.properties import PropertiesABC, generate_property_by_name
 
 
@@ -177,7 +176,6 @@ class Order(ABC):
         list_sell: list = []  # list of sell action
         list_fees_buy: list = []
         list_fees_sell: list = []
-        list_cost: list = []  # list of cost of operation
         money: float = imoney
         balance_action: float = 0  # action in balance
         action: int = 1  # buy: 1, sell: -1
@@ -221,7 +219,7 @@ class Order(ABC):
                 list_sell.append([list_buy[-1][0], market.bid.data.iloc[i]])
                 balance_action -= list_buy[-1][0]
                 money += list_sell[-1][0] * list_sell[-1][1]
-                fee = list_sell[-1][0] * list_sell[-1][1] * fees /100
+                fee = list_sell[-1][0] * list_sell[-1][1] * fees / 100
                 money -= fee
                 list_fees_sell.append(fee)
                 if verbose == 1:
@@ -237,10 +235,9 @@ class Order(ABC):
             array_sell = np.array(list_sell)
             tmp = np.zeros(array_buy.shape)
             tmp[:, 0] = array_buy[:, 0] * array_buy[:, 1]  # buy list
-            tmp[:, 1] = array_sell[:, 0] * array_sell[:, 1] # - np.array(list_cost)  # sell list
+            tmp[:, 1] = array_sell[:, 0] * array_sell[:, 1]  # - np.array(list_cost)  # sell list
             win = np.count_nonzero(np.any(np.diff(tmp, axis=1) > 0, axis=1))
             loose = np.count_nonzero(np.any(np.diff(tmp, axis=1) < 0, axis=1))
-            # gain = np.sum(np.diff(tmp, axis=1))
         else:
             win, loose = 0, 0
             money -= cost_no_action
@@ -251,8 +248,8 @@ class Order(ABC):
             return money + penalty, win, loose
 
     def simulate_trading_old(self, imoney: float = 100, fees: float = 0.1,
-                         cost_no_action: float = -100, min_order_per_day=0,
-                         verbose=1):
+                             cost_no_action: float = -100, min_order_per_day=0,
+                             verbose=1):
         """
         Method to simulate a trading for the Order.
         Use with MarketLoad
@@ -486,6 +483,30 @@ class ConditionCrossDown(Condition):
         return cross_down(self.parent.data, self.value)
 
 
+class ConditionCrossDown5(Condition):
+    """Condition Class with cross down last 5 steps function"""
+    name = "cross_down_last_five"
+    type = "-=5"
+
+    def __init__(self, parent: PropertiesABC, value: float):
+        super().__init__(parent, value)
+
+    def _function(self) -> pd.Series:
+        return cross_down_last_n(self.parent.data, self.value, n=5)
+
+
+class ConditionCrossDown10(Condition):
+    """Condition Class with cross down last 10 steps function"""
+    name = "cross_down_last_ten"
+    type = "-=10"
+
+    def __init__(self, parent: PropertiesABC, value: float):
+        super().__init__(parent, value)
+
+    def _function(self) -> pd.Series:
+        return cross_down_last_n(self.parent.data, self.value, n=10)
+
+
 def greater_than(data: pd.Series, value: float) -> pd.Series:
     """
     Function to check if data are greater than a value
@@ -567,6 +588,7 @@ def cross_up_last_n(data: pd.Series, value: float, n: int = 5) -> pd.Series:
     cross_up_data.iloc[idx_new] = True
     return cross_up_data
 
+
 def cross_down(data: pd.Series, value: float) -> pd.Series:
     """
     function to detect a cross down
@@ -588,6 +610,29 @@ def cross_down(data: pd.Series, value: float) -> pd.Series:
         return (test_inf + test_sup.shift(1)) == 2
     else:
         return pd.Series(data=[None] * len(data))
+
+
+def cross_down_last_n(data: pd.Series, value: float, n: int = 5) -> pd.Series:
+    """
+    function to detect a cross down in previous last n step
+    Parameters
+    ----------
+    data: Series
+        data where to check the cross down
+    value: float
+        target value of cross down
+    n: int
+        number to step to check
+
+    Returns
+    -------
+    Series of bool
+    """
+    cross_down_data = cross_down(data, value)
+    idx_cross_down = list(cross_down_data[cross_down_data == True].index)
+    idx_new = [i for idx in idx_cross_down for i in range(idx, idx + n + 1)]
+    cross_down_data.iloc[idx_new] = True
+    return cross_down_data
 
 
 def generate_condition_from_dict(cond_dict: dict, market=None) -> [None, Condition]:
@@ -619,10 +664,16 @@ def generate_condition_from_dict(cond_dict: dict, market=None) -> [None, Conditi
             return ConditionCrossUp(generate_property_by_name(cond_dict['property'], market=market), cond_dict['value'])
         elif cond_dict['function'] == "+=5":
             return ConditionCrossUp5(generate_property_by_name(cond_dict['property'], market=market),
-                                      cond_dict['value'])
+                                     cond_dict['value'])
         elif cond_dict['function'] == "+=10":
             return ConditionCrossUp10(generate_property_by_name(cond_dict['property'], market=market),
                                       cond_dict['value'])
+        elif cond_dict['function'] == "-=5":
+            return ConditionCrossDown5(generate_property_by_name(cond_dict['property'], market=market),
+                                       cond_dict['value'])
+        elif cond_dict['function'] == "-=10":
+            return ConditionCrossDown10(generate_property_by_name(cond_dict['property'], market=market),
+                                        cond_dict['value'])
         else:
             logging.warning(f"Unknown function: {cond_dict['function']}")
             return None
