@@ -95,6 +95,21 @@ def test_condition_cross_up_last_five(market_one_day_path):
 
 
 @pytest.mark.run(order=42)
+def test_condition_cross_down_last_five(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    size = market.ask.data
+    market.ask.data = pd.Series(data=range(len(size)))
+    condition = ConditionCrossDown5(market.ask, 10)
+    assert isinstance(condition, ConditionCrossDown5)
+    condition.update()
+    data = condition.data
+    assert len(data) == len(market.ask.data)
+    assert data.sum() == 0
+    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 0, -1))
+    condition.update()
+    assert condition.data.sum() == 5 + 1
+
+@pytest.mark.run(order=42)
 def test_condition_cross_up_last_ten(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt='csv')[0]
     size = market.ask.data
@@ -108,6 +123,22 @@ def test_condition_cross_up_last_ten(market_one_day_path):
     market.ask.data = pd.Series(data=np.arange(len(size) + 1, 0, -1))
     condition.update()
     assert condition.data.sum() == 0
+
+
+@pytest.mark.run(order=42)
+def test_condition_cross_down_last_ten(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    size = market.ask.data
+    market.ask.data = pd.Series(data=range(len(size)))
+    condition = ConditionCrossDown10(market.ask, 10)
+    assert isinstance(condition, ConditionCrossDown10)
+    condition.update()
+    data = condition.data
+    assert len(data) == len(market.ask.data)
+    assert data.sum() == 0
+    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 0, -1))
+    condition.update()
+    assert condition.data.sum() == 10
 
 
 @pytest.mark.run(order=43)
