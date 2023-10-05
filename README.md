@@ -3,6 +3,15 @@ A Python Trading bot
 This project is in development : not stable yet
 
 # Versions
+## v0.3.1
+This version included new conditions:
+- CrossUp10
+- CroosUp5  
+- CrossDown10
+- CroosDown5  
+
+These conditions return True if the cross up or the cross down happened in last n (5 or 10) steps.  
+
 ## v0.3.0
 This version included Order objects to analyse and to decide to buy or sell on a market.
 Different object are created : Order, Action and Condition
@@ -42,6 +51,7 @@ You should also give a id.config file in the project directory. More information
 in the configuration
 
 ## Tests coverage 
+94% of lines for v0.3.1
 94% of lines for v0.3.0
 93% of lines for v0.2.0 
 
