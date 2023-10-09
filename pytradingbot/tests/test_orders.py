@@ -91,8 +91,8 @@ def test_condition_cross_up_last_five(market_one_day_path):
     data = condition.data
     assert len(data) == len(market.ask.data)
     assert data.sum() == 5 + 1
-    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 0, -1), index=index)
-    condition.update()
+    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 1, -1), index=index)
+    condition.update(force=True)
     assert condition.data.sum() == 0
 
 
@@ -108,8 +108,8 @@ def test_condition_cross_down_last_five(market_one_day_path):
     data = condition.data
     assert len(data) == len(market.ask.data)
     assert data.sum() == 0
-    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 0, -1), index=index)
-    condition.update()
+    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 1, -1), index=index)
+    condition.update(force=True)
     assert condition.data.sum() == 5 + 1
 
 @pytest.mark.run(order=42)
@@ -124,8 +124,8 @@ def test_condition_cross_up_last_ten(market_one_day_path):
     data = condition.data
     assert len(data) == len(market.ask.data)
     assert data.sum() == 10 + 1
-    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 0, -1), index=index)
-    condition.update()
+    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 1, -1), index=index)
+    condition.update(force=True)
     assert condition.data.sum() == 0
 
 
@@ -141,9 +141,9 @@ def test_condition_cross_down_last_ten(market_one_day_path):
     data = condition.data
     assert len(data) == len(market.ask.data)
     assert data.sum() == 0
-    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 0, -1), index=index)
-    condition.update()
-    assert condition.data.sum() == 10
+    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 1, -1), index=index)
+    condition.update(force=True)
+    assert condition.data.sum() == 10 -1
 
 
 @pytest.mark.run(order=43)
