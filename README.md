@@ -3,6 +3,9 @@ A Python Trading bot
 This project is in development : not stable yet
 
 # Versions
+## v0.3.2
+Fix bug on cross_up_last_n and cross_down_last_n function
+
 ## v0.3.1
 This version included new conditions:
 - CrossUp10
@@ -51,6 +54,7 @@ You should also give a id.config file in the project directory. More information
 in the configuration
 
 ## Tests coverage 
+94% of lines for v0.3.2
 94% of lines for v0.3.1
 94% of lines for v0.3.0
 93% of lines for v0.2.0 
