@@ -1,6 +1,7 @@
 # =================
 # Python IMPORTS
 # =================
+import pandas as pd
 import pytest
 import krakenex
 from datetime import datetime
@@ -35,6 +36,20 @@ def test_get_market(kraken_user, inputs_config_path):
     for key in ['bid', 'ask']:
         assert key in values.keys()
         assert type(values[key]) == float
+
+
+@pytest.mark.run(order=6)
+def test_get_money(kraken_user, inputs_config_path, balance_path):
+    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path, imoney=200)
+    api.connect()
+    assert api.mymoney == 200
+    api.money -= 100
+    assert api.mymoney == 100
+    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path, balance_path=balance_path)
+    tmp = pd.DataFrame(columns=['name', 'quantity'], data=[["EUR", 100]]).to_csv(balance_path, sep=";", index=False)
+    assert api.mymoney == 100
+    tmp = pd.DataFrame(columns=['name', 'quantity'], data=[["EUR", 0]]).to_csv(balance_path, sep=";", index=False)
+    assert api.mymoney == 0
 
 
 @pytest.mark.run(order=-1)

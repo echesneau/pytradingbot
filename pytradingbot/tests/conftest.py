@@ -33,6 +33,10 @@ def inputs_config_path():
 
 
 @pytest.fixture()
+def balance_path():
+    return f"{ROOT_DIR}/data/balance_test.csv"
+
+@pytest.fixture()
 def market_one_day_path():
     return f'{ROOT_DIR}/data/XXBTZEUR_1day.dat'
 

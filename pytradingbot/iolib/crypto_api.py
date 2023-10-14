@@ -4,11 +4,13 @@ Module containing API for crypto trading
 # =================
 # Python IMPORTS
 # =================
+import os
 import logging
 from datetime import datetime
 from time import sleep
 import requests.exceptions
 import krakenex
+import pandas as pd
 
 # =================
 # Internal IMPORTS
@@ -112,7 +114,7 @@ class KrakenApiDev(KrakenApi):
     """
         API for Kraken in development mode (user defines in argument)
     """
-    def __init__(self, user: str = '', input_path: str = ""):
+    def __init__(self, user: str = '', input_path: str = "", imoney: float = 100, balance_path: str = None):
         """
 
         Parameters
@@ -124,7 +126,22 @@ class KrakenApiDev(KrakenApi):
         """
         super().__init__(input_path=input_path)
         self._set_id(user)
+        self.balance_path = balance_path
+        if balance_path is None:
+            self.money = imoney
+            self.balance = {}
+        elif not os.path.isfile(balance_path):
+            raise FileNotFoundError(f"Balance file {balance_path} is not a file")
 
+
+    @property
+    def mymoney(self):
+        if self.balance_path is None:
+            return self.money
+        else:
+            balance = pd.read_csv(self.balance_path, sep=";", index_col='name').squeeze(axis=1)
+            balance = balance.to_dict()
+            return balance['EUR']
 
 class CryptoEmptyLoad:
     """
