@@ -73,6 +73,37 @@ def test_buy(kraken_user, inputs_config_path, balance_path):
     assert api.mymoney == 3
 
 
+@pytest.mark.run(order=6)
+def test_sell(kraken_user, inputs_config_path, balance_path):
+    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
+    api.money = 0
+    api.balance[api.pair] = 5
+    api.sell(5, 10)
+    assert api.mymoney == 50
+    assert api.pair in api.balance.keys()
+    assert api.balance[api.pair] == 0
+    api.money = 0
+    api.balance[api.pair] = 5
+    api.sell(7, 10)
+    assert api.mymoney == 50
+    assert api.pair in api.balance.keys()
+    assert api.balance[api.pair] == 0
+    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path, balance_path=balance_path)
+    pd.DataFrame(columns=['name', 'quantity'], data=[["EUR", 0], ["XXBTZEUR", 5]]).to_csv(balance_path,
+                                                                                          sep=";", index=False)
+    api.sell(5, 2)
+    assert api.mymoney == 10
+    balance = pd.read_csv(balance_path, sep=";", index_col='name').squeeze(axis=1)
+    balance = balance.to_dict()
+    assert balance[api.pair] == 0
+    pd.DataFrame(columns=['name', 'quantity'], data=[["EUR", 0], ["XXBTZEUR", 5]]).to_csv(balance_path,
+                                                                                          sep=";", index=False)
+    api.sell(7, 4)
+    assert api.mymoney == 20
+    balance = pd.read_csv(balance_path, sep=";", index_col='name').squeeze(axis=1)
+    balance = balance.to_dict()
+    assert balance[api.pair] == 0
+
 
 @pytest.mark.run(order=-1)
 def test_run_api(kraken_user, inputs_config_path):

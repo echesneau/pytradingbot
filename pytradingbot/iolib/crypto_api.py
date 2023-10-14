@@ -143,7 +143,6 @@ class KrakenApiDev(KrakenApi):
             balance = balance.to_dict()
             return balance['EUR']
 
-
     def buy(self, quantity, price):
         tot_price = quantity * price
         if self.balance_path is None:
@@ -159,6 +158,22 @@ class KrakenApiDev(KrakenApi):
                 balance[self.pair] += quantity
             else:
                 balance[self.pair] = quantity
+            tmp = pd.Series(balance).to_frame().reset_index()
+            tmp.columns = ['name', 'quantity']
+            tmp.to_csv(self.balance_path, sep=';', index=False)
+
+    def sell(self, quantity, price):
+        if self.balance_path is None:
+            if quantity > self.balance[self.pair]:
+                quantity = self.balance[self.pair]
+            self.money += quantity * price
+            self.balance[self.pair] -= quantity
+        else:
+            balance = pd.read_csv(self.balance_path, sep=";", index_col='name').squeeze(axis=1).to_dict()
+            if quantity > balance[self.pair]:
+                quantity = balance[self.pair]
+            balance['EUR'] += quantity * price
+            balance[self.pair] -= quantity
             tmp = pd.Series(balance).to_frame().reset_index()
             tmp.columns = ['name', 'quantity']
             tmp.to_csv(self.balance_path, sep=';', index=False)
