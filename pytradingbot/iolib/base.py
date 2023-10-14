@@ -19,6 +19,7 @@ from lxml import etree
 from pytradingbot.utils import read_file
 from pytradingbot.cores import markets
 from pytradingbot.utils.market_tools import market_from_file
+from pytradingbot.utils import math
 
 
 # =================
@@ -287,7 +288,14 @@ class BaseApi(ApiABC):
         """Method to analyse the market"""
         self.market.analyse()
 
-    def buy(self):
+    def calculate_quantity_buy(self, price: float):
+        """Method to calculate quantity to buy in function of a price"""
+        precision = 5
+        money = self.mymoney
+        qtt = math.floor(money/price, precision=precision)
+        return qtt
+
+    def buy(self, quantity, price):
         pass
 
     def sell(self):
@@ -296,6 +304,7 @@ class BaseApi(ApiABC):
     def _get_balance(self):
         pass
 
+    @property
     def mymoney(self):
         """
         Method to get your balance

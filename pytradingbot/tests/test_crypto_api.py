@@ -51,6 +51,13 @@ def test_get_money(kraken_user, inputs_config_path, balance_path):
     tmp = pd.DataFrame(columns=['name', 'quantity'], data=[["EUR", 0]]).to_csv(balance_path, sep=";", index=False)
     assert api.mymoney == 0
 
+@pytest.mark.run(order=6)
+def test_calculate_quantity(kraken_user, inputs_config_path): # Should be in test_base
+    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
+    api.money = 100
+    assert api.calculate_quantity_buy(10) == 10
+    assert api.calculate_quantity_buy(9.9) == 10
+
 
 @pytest.mark.run(order=-1)
 def test_run_api(kraken_user, inputs_config_path):
