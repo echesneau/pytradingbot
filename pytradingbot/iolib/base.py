@@ -255,6 +255,11 @@ class BaseApi(ApiABC):
             init_time = datetime.now()
             self.update_market()
             self.analyse()
+            action = self.market.action
+            if action == 1:
+                self.buy()
+            elif action == -1:
+                self.sell()
             self.market.save()
             self.market.clean()
             final_time = datetime.now()

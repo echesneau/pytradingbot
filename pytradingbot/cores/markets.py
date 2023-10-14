@@ -45,6 +45,7 @@ class Market:
         self.bid = properties.Bid(market=self)
         self.volume = properties.Volume(market=self)
         self.order = orders.Order(market=self)
+        self.action = self.order.action
         for prop in [self.ask, self.bid, self.volume]:
             self.add_child(prop)
         self.odir = odir

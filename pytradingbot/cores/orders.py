@@ -141,8 +141,10 @@ class Order(ABC):
         """
         # check if update
         self.update()
-
-        return self.data.values[-1]
+        if len(self.data) > 0:
+            return self.data.values[-1]
+        else:
+            return 0
         # return action to do
 
     def simulate_trading(self, imoney: float = 100, fees: float = 0.1,
