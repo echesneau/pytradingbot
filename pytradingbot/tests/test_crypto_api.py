@@ -43,7 +43,7 @@ def test_get_money(kraken_user, inputs_config_path, balance_path):
     api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path, imoney=200)
     api.connect()
     assert api.mymoney == 200
-    api.money -= 100
+    api.balance_dict['EUR'] -= 100
     assert api.mymoney == 100
     api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path, balance_path=balance_path)
     tmp = pd.DataFrame(columns=['name', 'quantity'], data=[["EUR", 100]]).to_csv(balance_path, sep=";", index=False)
@@ -54,7 +54,7 @@ def test_get_money(kraken_user, inputs_config_path, balance_path):
 @pytest.mark.run(order=6)
 def test_calculate_quantity(kraken_user, inputs_config_path):  # Should be in test_base
     api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
-    api.money = 100
+    api.balance_dict['EUR'] = 100
     assert api.calculate_quantity_buy(10) == 10
     assert api.calculate_quantity_buy(8) == 12.5
 
@@ -62,7 +62,7 @@ def test_calculate_quantity(kraken_user, inputs_config_path):  # Should be in te
 @pytest.mark.run(order=6)
 def test_buy(kraken_user, inputs_config_path, balance_path):
     api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
-    api.money = 100
+    api.balance_dict['EUR'] = 100
     api.buy(10, 10)
     assert api.mymoney == 0
     assert api.pair in api.balance.keys()
@@ -76,13 +76,13 @@ def test_buy(kraken_user, inputs_config_path, balance_path):
 @pytest.mark.run(order=6)
 def test_sell(kraken_user, inputs_config_path, balance_path):
     api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
-    api.money = 0
+    api.balance_dict['EUR'] = 0
     api.balance[api.pair] = 5
     api.sell(5, 10)
     assert api.mymoney == 50
     assert api.pair in api.balance.keys()
     assert api.balance[api.pair] == 0
-    api.money = 0
+    api.balance_dict['EUR'] = 0
     api.balance[api.pair] = 5
     api.sell(7, 10)
     assert api.mymoney == 50

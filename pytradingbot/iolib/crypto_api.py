@@ -114,7 +114,7 @@ class KrakenApiDev(KrakenApi):
     """
         API for Kraken in development mode (user defines in argument)
     """
-    def __init__(self, user: str = '', input_path: str = "", imoney: float = 100, balance_path: str = None):
+    def __init__(self, user: str = '', input_path: str = "", imoney: float = 0, balance_path: str = None):
         """
 
         Parameters
@@ -128,31 +128,28 @@ class KrakenApiDev(KrakenApi):
         self._set_id(user)
         self.balance_path = balance_path
         if balance_path is None:
-            self.money = imoney
-            self.balance = {}
+            self.balance_dict = {'EUR': imoney}
         elif not os.path.isfile(balance_path):
             raise FileNotFoundError(f"Balance file {balance_path} is not a file")
 
-
-    @property
-    def mymoney(self):
+    def _get_balance(self):
         if self.balance_path is None:
-            return self.money
+            return self.balance_dict
         else:
             balance = pd.read_csv(self.balance_path, sep=";", index_col='name').squeeze(axis=1)
-            balance = balance.to_dict()
-            return balance['EUR']
+            return balance.to_dict()
+
 
     def buy(self, quantity, price):
         tot_price = quantity * price
         if self.balance_path is None:
-            self.money -= tot_price
-            if self.pair not in self.balance.keys():
-                self.balance[self.pair] = quantity
+            self.balance_dict['EUR'] -= tot_price
+            if self.pair not in self.balance_dict.keys():
+                self.balance_dict[self.pair] = quantity
             else:
-                self.balance[self.pair] += quantity
+                self.balance_dict[self.pair] += quantity
         else:
-            balance = pd.read_csv(self.balance_path, sep=";", index_col='name').squeeze(axis=1).to_dict()
+            balance = self.balance
             balance['EUR'] -= tot_price
             if self.pair in balance.keys():
                 balance[self.pair] += quantity
@@ -166,10 +163,10 @@ class KrakenApiDev(KrakenApi):
         if self.balance_path is None:
             if quantity > self.balance[self.pair]:
                 quantity = self.balance[self.pair]
-            self.money += quantity * price
-            self.balance[self.pair] -= quantity
+            self.balance_dict['EUR'] += quantity * price
+            self.balance_dict[self.pair] -= quantity
         else:
-            balance = pd.read_csv(self.balance_path, sep=";", index_col='name').squeeze(axis=1).to_dict()
+            balance = self.balance
             if quantity > balance[self.pair]:
                 quantity = balance[self.pair]
             balance['EUR'] += quantity * price

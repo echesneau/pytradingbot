@@ -54,7 +54,6 @@ class ApiABC(ABC):
         #     self.id = read_file.read_idconfig(id_config)
         # self.parent = []
         # self.child = []
-        # self.money = 0
         # self.session = None
 
     @abstractmethod
@@ -298,18 +297,22 @@ class BaseApi(ApiABC):
     def buy(self, quantity, price):
         pass
 
-    def sell(self):
+    def sell(self, quantity, price):
         pass
 
     def _get_balance(self):
         pass
 
     @property
-    def mymoney(self):
+    def balance(self) -> dict:
+        return self._get_balance()
+
+    @property
+    def mymoney(self) -> float:
         """
         Method to get your balance
         """
-        return self._get_balance()
+        return self.balance['EUR']
 
 
 class APILoadData(BaseApi):
