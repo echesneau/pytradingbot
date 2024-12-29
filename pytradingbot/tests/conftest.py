@@ -17,17 +17,6 @@ ROOT_DIR = os.path.dirname(__file__)
 
 
 @pytest.fixture()
-def id_config_path():
-    root_dir = os.path.dirname(__file__)
-    return f"{root_dir}/../id.config"
-
-
-@pytest.fixture()
-def kraken_user():
-    return 'erwan'
-
-
-@pytest.fixture()
 def inputs_config_path():
     return f'{ROOT_DIR}/data/config.xml'
 

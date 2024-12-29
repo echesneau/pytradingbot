@@ -40,7 +40,6 @@ class ApiABC(ABC):
 
     def __init__(self):
         root_dir = os.path.dirname(__file__)
-        self.id_config_path = f"{root_dir}/../id.config"
         self.id = {}
         self.session = None
         self.odir = None
@@ -139,18 +138,8 @@ class BaseApi(ApiABC):
         self.inputs_config_path = input_path
         self.set_config(self.inputs_config_path)
 
-    def _get_user_list(self):
-        """
-        method to get available user name
-        Returns
-            list: list of users
-        -------
 
-        """
-        id_config = read_file.read_idconfig(self.id_config_path)
-        return id_config['user'].values
-
-    def _set_id(self, user: str):
+    def _set_id(self):
         """
         method to set id for the connection
         Parameters
@@ -158,19 +147,12 @@ class BaseApi(ApiABC):
         user: str
             username
         """
-        id_config = read_file.read_idconfig(self.id_config_path)
-        if id_config is None:
-            self.id = {}
-        else:
-            ids = id_config.loc[id_config['user'] == user]
-            if len(ids) == 0:
-                logging.warning(f"No user found with name {user}")
-                self.id = {}
-            else:
-                ids = ids.to_dict('records')
-                if len(ids) > 1:
-                    logging.warning(f"More than one user found with name {user}. First is selected")
-                self.id = ids[0]
+        id = {}
+        id['user'] = os.getenv('API_USER')
+        id['key'] = os.getenv('API_KEY')
+        id['private'] = os.getenv('API_PRIVATE')
+        self.id = id
+
 
     def set_config(self, path: str):
         """
