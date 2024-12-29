@@ -27,13 +27,21 @@ jobs:
       with:
         python-version: '3.9' # Changez selon la version requise
 
-    # Étape 3 : Installez les dépendances
+    # Étape 3 : Exporter les variables d'environnement
+    - name: Configuration des variables d'environnement
+      env:
+        API_USER: ${{ secrets.API_USER }} # Exemple de variable
+        # API_KEY: ${{ secrets.API_KEY }}         # Autre variable
+      run: |
+        echo "Variables d'environnement configurées."
+        echo "USER = $API_USER"
+    # Étape 4 : Installez les dépendances
     - name: Installation des dépendances
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # Étape 4 : Exécutez les tests
+    # Étape 5 : Exécutez les tests
     - name: Exécution des tests
       run: |
         pytest 
