@@ -3,6 +3,12 @@ A Python Trading bot
 This project is in development : not stable yet
 
 # Versions
+## HEAD
+This version does not use anymore the id_config file. Now secrets to connect to the api are store
+ as environment variables. 
+- API_USER
+- API_KEY
+- API_PRIVATE
 ## v0.3.1
 This version included new conditions:
 - CrossUp10
@@ -55,11 +61,11 @@ in the configuration
 94% of lines for v0.3.0
 93% of lines for v0.2.0 
 
-# id.config
-This file contains users and password to use in order to connect to the trading service.
-The format of this file could be found in data/inputs/id.config.example.  
-It contains a username and the private key for kraken connection.  
-The username is then use in API classes to establish connection.  
+# Environment variables
+Users and password to use in order to connect to the trading service are stored in 3 environment variables:
+- API_USER: username (optional)
+- API_KEY: kraken public key
+- API_PRIVATE: kraken private key
 
 # config.xml
 This file contains all parameters used for the trading.  
