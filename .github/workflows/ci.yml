@@ -31,7 +31,9 @@ jobs:
     - name: Configuration des variables d'environnement
       env:
         API_USER: ${{ secrets.API_USER }} # Exemple de variable
-        # API_KEY: ${{ secrets.API_KEY }}         # Autre variable
+        API_KEY: ${{ secrets.API_KEY }} # Exemple de variable
+        API_PRIVATE: ${{ secrets.API_PRIVATE }} # Exemple de variable
+
       run: |
         echo "Variables d'environnement configurées."
         echo "USER = $API_USER"
