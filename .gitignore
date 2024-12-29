@@ -1,5 +1,5 @@
 # Project files
-*/id.config
+pytradingbot/id.config_not_used
 */tests/data/outputs
 
 # Byte-compiled / optimized / DLL files

@@ -1,6 +1,8 @@
 # =================
 # Python IMPORTS
 # =================
+import os
+
 import pytest
 import numpy as np
 # =================
@@ -14,23 +16,16 @@ from pytradingbot.iolib.base import BaseApi, APILoadData
 
 
 @pytest.mark.run(order=6)
-def test_base_api(id_config_path, kraken_user, inputs_config_path):
+def test_base_api(inputs_config_path):
     api = BaseApi(input_path=inputs_config_path)
 
-    # get users list
-    assert type(api._get_user_list()) is np.ndarray
-    dim = api._get_user_list().shape
-    assert len(dim) in [1, 2]
-    if len(dim) == 2:
-        assert dim[1] == 1
-    assert dim[0] > 0
-
     # ID check
-    api._set_id(kraken_user)
+    api._set_id()
     assert type(api.id) == dict
     for value in ['user', 'private', 'key']:
         assert value in api.id.keys()
-    assert api.id['user'] == kraken_user
+    for value in [os.getenv('API_USER'), os.getenv('API_KEY'), os.getenv('API_PRIVATE')]:
+        assert (value is not None) & (value != '')
 
     # read inputs XML config
     api.set_config(inputs_config_path)

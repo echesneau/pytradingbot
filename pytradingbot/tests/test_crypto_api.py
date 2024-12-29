@@ -17,20 +17,20 @@ from pytradingbot.iolib.crypto_api import KrakenApi, KrakenApiDev
 
 
 @pytest.mark.run(order=5)
-def test_connect(kraken_user):
+def test_connect():
     api = KrakenApi()
-    api._set_id(kraken_user)
+    api._set_id()
     api.connect()
     assert type(api.session) is krakenex.api.API
 
-    api = KrakenApiDev(user=kraken_user)
+    api = KrakenApiDev()
     api.connect()
     assert type(api.session) is krakenex.api.API
 
 
 @pytest.mark.run(order=6)
-def test_get_market(kraken_user, inputs_config_path):
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
+def test_get_market(inputs_config_path):
+    api = KrakenApiDev(input_path=inputs_config_path)
     api.connect()
     values = api.get_market()
     for key in ['bid', 'ask']:
@@ -39,43 +39,43 @@ def test_get_market(kraken_user, inputs_config_path):
 
 
 @pytest.mark.run(order=6)
-def test_get_money(kraken_user, inputs_config_path, balance_path):
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path, imoney=200)
+def test_get_money(inputs_config_path, balance_path):
+    api = KrakenApiDev(input_path=inputs_config_path, imoney=200)
     api.connect()
     assert api.mymoney == 200
     api.balance_dict['EUR'] -= 100
     assert api.mymoney == 100
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path, balance_path=balance_path)
+    api = KrakenApiDev(input_path=inputs_config_path, balance_path=balance_path)
     tmp = pd.DataFrame(columns=['name', 'quantity'], data=[["EUR", 100]]).to_csv(balance_path, sep=";", index=False)
     assert api.mymoney == 100
     tmp = pd.DataFrame(columns=['name', 'quantity'], data=[["EUR", 0]]).to_csv(balance_path, sep=";", index=False)
     assert api.mymoney == 0
 
 @pytest.mark.run(order=6)
-def test_calculate_quantity(kraken_user, inputs_config_path):  # Should be in test_base
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
+def test_calculate_quantity(inputs_config_path):  # Should be in test_base
+    api = KrakenApiDev(input_path=inputs_config_path)
     api.balance_dict['EUR'] = 100
     assert api.calculate_quantity_buy(10) == 10
     assert api.calculate_quantity_buy(8) == 12.5
 
 
 @pytest.mark.run(order=6)
-def test_buy(kraken_user, inputs_config_path, balance_path):
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
+def test_buy(inputs_config_path, balance_path):
+    api = KrakenApiDev(input_path=inputs_config_path)
     api.balance_dict['EUR'] = 100
     api.buy(10, 10)
     assert api.mymoney == 0
     assert api.pair in api.balance.keys()
     assert api.balance[api.pair] == 10
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path, balance_path=balance_path)
+    api = KrakenApiDev(input_path=inputs_config_path, balance_path=balance_path)
     pd.DataFrame(columns=['name', 'quantity'], data=[["EUR", 10]]).to_csv(balance_path, sep=";", index=False)
     api.buy(3.5, 2)
     assert api.mymoney == 3
 
 
 @pytest.mark.run(order=6)
-def test_sell(kraken_user, inputs_config_path, balance_path):
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
+def test_sell(inputs_config_path, balance_path):
+    api = KrakenApiDev(input_path=inputs_config_path)
     api.balance_dict['EUR'] = 0
     api.balance[api.pair] = 5
     api.sell(5, 10)
@@ -88,7 +88,7 @@ def test_sell(kraken_user, inputs_config_path, balance_path):
     assert api.mymoney == 50
     assert api.pair in api.balance.keys()
     assert api.balance[api.pair] == 0
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path, balance_path=balance_path)
+    api = KrakenApiDev(input_path=inputs_config_path, balance_path=balance_path)
     pd.DataFrame(columns=['name', 'quantity'], data=[["EUR", 0], ["XXBTZEUR", 5]]).to_csv(balance_path,
                                                                                           sep=";", index=False)
     api.sell(5, 2)
@@ -106,9 +106,9 @@ def test_sell(kraken_user, inputs_config_path, balance_path):
 
 
 @pytest.mark.run(order=-1)
-def test_run_api(kraken_user, inputs_config_path):
+def test_run_api(inputs_config_path):
     ntest = 10
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
+    api = KrakenApiDev(input_path=inputs_config_path)
     api.connect()
     t0 = datetime.now()
     api.run(times=ntest)

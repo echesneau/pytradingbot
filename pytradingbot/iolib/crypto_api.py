@@ -33,16 +33,7 @@ class KrakenApi(BaseApi):
         """
         connection to the API
         """
-        if len(self.id) == 0:
-            users = self._get_user_list()
-            if users.shape[0] == 0:
-                logging.error("No user read in the id.config")
-            myuser = ""
-            while myuser not in users:
-                myuser = input("User: ")
-                if myuser not in users:
-                    print(f"{myuser} is not in the id.config")
-            self._set_id(myuser)
+        self._set_id()
         test = True
         while test:
             try:
@@ -114,18 +105,16 @@ class KrakenApiDev(KrakenApi):
     """
         API for Kraken in development mode (user defines in argument)
     """
-    def __init__(self, user: str = '', input_path: str = "", imoney: float = 0, balance_path: str = None):
+    def __init__(self, input_path: str = "", imoney: float = 0, balance_path: str = None):
         """
 
         Parameters
         ----------
-        user: str
-            username
         input_path: str
             input config path
         """
         super().__init__(input_path=input_path)
-        self._set_id(user)
+        self._set_id()
         self.balance_path = balance_path
         if balance_path is None:
             self.balance_dict = {'EUR': imoney}

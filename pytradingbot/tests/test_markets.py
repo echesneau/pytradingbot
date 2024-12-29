@@ -34,9 +34,9 @@ def test_create_market():
 
 
 @pytest.mark.run(order=9)
-def test_update(kraken_user, inputs_config_path):
+def test_update(inputs_config_path):
     # Init API and Market
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
+    api = KrakenApiDev(input_path=inputs_config_path)
     api.set_market(markets.Market(parent=api, odir=f"{api.odir}/{api.pair}", oformat=api.oformat))
     api.connect()
 
@@ -66,9 +66,9 @@ def test_update(kraken_user, inputs_config_path):
 
 
 @pytest.mark.run(order=10)
-def test_save_market(kraken_user, inputs_config_path):
+def test_save_market(inputs_config_path):
     # Init API and Market
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
+    api = KrakenApiDev(input_path=inputs_config_path)
 
     # remove output if exists
     if os.path.isdir(f"{api.odir}/{api.pair}"):
@@ -99,10 +99,10 @@ def test_save_market(kraken_user, inputs_config_path):
 
 
 @pytest.mark.run(order=11)
-def test_clean_market(kraken_user, inputs_config_path):
+def test_clean_market(inputs_config_path):
     nsteps = 5
     # Init API and Market
-    api = KrakenApiDev(user=kraken_user, input_path=inputs_config_path)
+    api = KrakenApiDev(input_path=inputs_config_path)
     # api.set_market(markets.Market(parent=api, odir=f"{api.odir}/{api.pair}", oformat=api.oformat))
     api.connect()
 

@@ -16,19 +16,6 @@ from pytradingbot.utils import read_file
 # =================
 
 
-@pytest.mark.run(order=1)
-def test_read_idconfig(id_config_path, caplog):
-    # Check wrong path
-    df_id = read_file.read_idconfig('toto')
-    assert len(df_id) == 0
-    assert "is not a file" in caplog.text
-    caplog.clear()
-
-    assert os.path.isfile(id_config_path)
-    assert type(read_file.read_idconfig(id_config_path)) == pd.DataFrame
-    assert len(read_file.read_idconfig(id_config_path)) > 0
-
-
 @pytest.mark.run(order=2)
 def test_read_analysis_properties(inputs_config_path, caplog):
     # test is not a file
