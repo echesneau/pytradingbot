@@ -14,6 +14,7 @@ setup(
         "numpy",
         "numpy_ext",
         "pytest",
+        "pytest-ordering",
         "krakenex",
         "lxml",
         "requests",
