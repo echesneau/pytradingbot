@@ -45,5 +45,9 @@ jobs:
 
     # Étape 5 : Exécutez les tests
     - name: Exécution des tests
+      env:
+        API_USER: ${{ secrets.API_USER }}
+        API_KEY: ${{ secrets.API_KEY }}
+        API_PRIVATE: ${{ secrets.API_PRIVATE }}
       run: |
         pytest 
