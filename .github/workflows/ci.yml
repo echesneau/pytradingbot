@@ -50,4 +50,4 @@ jobs:
         API_KEY: ${{ secrets.API_KEY }}
         API_PRIVATE: ${{ secrets.API_PRIVATE }}
       run: |
-        pytest 
+        pytest --cov=mon_module --cov-fail-under=75
