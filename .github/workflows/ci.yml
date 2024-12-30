@@ -50,4 +50,10 @@ jobs:
         API_KEY: ${{ secrets.API_KEY }}
         API_PRIVATE: ${{ secrets.API_PRIVATE }}
       run: |
-        pytest --cov=mon_module --cov-fail-under=75
+        pytest --cov=mon_module --cov-fail-under=75 --cov-report=xml
+    # Etape 6: appliquer codecov
+    - name: Upload results to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: echesneau/pytradingbot
