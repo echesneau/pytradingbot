@@ -21,6 +21,10 @@ setup(
         "requests",
         "sphynx",
         "alive_progress",
+        "flake8",
+        "black",
+        "pylint",
+        "bandit",
         ]
 )
         

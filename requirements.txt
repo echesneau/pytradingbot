@@ -9,3 +9,7 @@ lxml==4.9.2
 requests==2.28.2
 sphinx
 alive_progress
+flake8
+black
+pylint
+bandit
