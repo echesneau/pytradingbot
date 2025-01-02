@@ -344,7 +344,7 @@ def test_generate_action_from_dict(market_one_day_path, caplog):
 
 
 @pytest.mark.run(order=49)
-def test_simulate_trading(market_one_day_path, caplog):
+def test_simulate_trading(market_one_day_path):
     market = market_from_file(market_one_day_path, fmt="csv")[0]
     market.analyse()
     # Do nothing
@@ -362,4 +362,4 @@ def test_simulate_trading(market_one_day_path, caplog):
     result = market.order.simulate_trading(imoney=100, fees=0.1, cost_no_action=100)
     gain, win, loose = result
     assert gain != 0 and -100 < gain < 100
-    assert (win + loose) in range(int(len(index) / 4) - 1, int(len(index) / 4) + 2)
+    assert win + loose in range(int(len(index) / 4) - 1, int(len(index) / 4) + 2)

@@ -1,10 +1,9 @@
+"""test base iolib"""
 # =================
 # Python IMPORTS
 # =================
 import os
-
 import pytest
-import numpy as np
 
 # =================
 # Internal IMPORTS
@@ -22,9 +21,9 @@ def test_base_api(inputs_config_path):
 
     # ID check
     api._set_id()
-    assert type(api.id) == dict
+    assert isinstance(api.id, dict)
     for value in ["user", "private", "key"]:
-        assert value in api.id.keys()
+        assert value in api.id
     variables = {
         "API_USER": os.getenv("API_USER"),
         "API_KEY": os.getenv("API_KEY"),

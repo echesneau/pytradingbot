@@ -1,10 +1,9 @@
+"""Module to test read functions"""
 # =================
 # Python IMPORTS
 # =================
-import os
 import pytest
 import pandas as pd
-import logging
 
 # =================
 # Internal IMPORTS
@@ -53,7 +52,7 @@ def test_read_action_config(inputs_config_path, caplog):
 @pytest.mark.run(order=3)
 def test_read_csv_market(market_one_day_path, caplog):
     df = read_file.read_csv_market(market_one_day_path)
-    assert type(df) == pd.DataFrame
+    assert isinstance(df, pd.DataFrame)
     assert len(df) > 0
 
     # test wrong path

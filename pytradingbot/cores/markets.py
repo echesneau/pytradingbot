@@ -68,15 +68,14 @@ class Market:
         """
         method to update market values from the api
         """
-        if "api" in self.parents.keys():
+        if "api" in self.parents:
             values = self.parents["api"].get_market()
             self.ask.add_value(index=[values["time"]], value=[values["ask"]])
             self.bid.add_value(index=[values["time"]], value=[values["bid"]])
             self.volume.add_value(index=[values["time"]], value=[values["volume"]])
         else:
             logging.warning(
-                "api is not defined in parents: available parents: "
-                f"{self.parents.keys()}"
+                f"api is not defined in parents: available parents: {self.parents.keys()}"
             )
 
     def analyse(self):
@@ -329,10 +328,10 @@ class MarketLoad(Market):
         """
         update_func = [prop.update for prop in self._get_all_child()]
         if verbose:
-            with alive_bar(len(update_func)) as bar:
+            with alive_bar(len(update_func)) as mybar:
                 for update in update_func:
                     update()
-                    bar()
+                    mybar()
         else:
             for update in update_func:
                 update()

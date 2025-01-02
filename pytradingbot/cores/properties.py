@@ -37,11 +37,8 @@ class PropertiesABC(ABC):
         self.parents: Dict[str, object] = {}
         if isinstance(parent, dict):
             self.parents = parent
-        # elif parent is not None and type(type(parent)) == type:  # Check is parent is an object created from a class
         elif parent is not None:
             self.add_parent("data", parent)
-        # elif parent is not None:
-        #     logging.warning(f"type of {parent} is unexpected, skipped")
 
         if (
             market is not None

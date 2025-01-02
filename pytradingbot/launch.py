@@ -1,3 +1,4 @@
+"""A launch script for pytradingbot in production mode"""
 # =================
 # Python IMPORTS
 # =================

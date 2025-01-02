@@ -145,7 +145,7 @@ class KrakenApiDev(KrakenApi):
         tot_price = quantity * price
         if self.balance_path is None:
             self.balance_dict["EUR"] -= tot_price
-            if self.pair not in self.balance_dict.keys():
+            if self.pair not in self.balance_dict:
                 self.balance_dict[self.pair] = quantity
             else:
                 self.balance_dict[self.pair] += quantity
@@ -162,12 +162,12 @@ class KrakenApiDev(KrakenApi):
 
     def sell(self, quantity, price):
         if self.balance_path is None:
-            if quantity > self.balance[self.pair]:
-                quantity = self.balance[self.pair]
+            quantity = min(quantity, self.balance[self.pair])
             self.balance_dict["EUR"] += quantity * price
             self.balance_dict[self.pair] -= quantity
         else:
             balance = self.balance
+            quantity = min(quantity, balance[self.pair])
             if quantity > balance[self.pair]:
                 quantity = balance[self.pair]
             balance["EUR"] += quantity * price
@@ -181,5 +181,4 @@ class CryptoEmptyLoad:
     """
     to be defined
     """
-
     pass

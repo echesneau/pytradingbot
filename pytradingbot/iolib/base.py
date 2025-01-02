@@ -17,7 +17,6 @@ from lxml import etree
 # =================
 # Internal IMPORTS
 # =================
-from pytradingbot.utils import read_file
 from pytradingbot.cores import markets
 from pytradingbot.utils.market_tools import market_from_file
 from pytradingbot.utils import math
@@ -41,21 +40,10 @@ class ApiABC(ABC):
     refresh = 60
 
     def __init__(self):
-        root_dir = os.path.dirname(__file__)
         self.id = {}
         self.session = None
         self.odir = None
         self.oformat = "pandas"
-        # if not id_config is None and user != "":
-        #     self.user = user
-        #     self.id = id_config.loc[id_config['user'] == user]
-        # print(id_config)
-
-        # else:
-        #     self.id = read_file.read_idconfig(id_config)
-        # self.parent = []
-        # self.child = []
-        # self.session = None
 
     @abstractmethod
     def _set_id(self, user: str):
@@ -149,11 +137,11 @@ class BaseApi(ApiABC):
         user: str
             username
         """
-        id = {}
-        id["user"] = os.getenv("API_USER")
-        id["key"] = os.getenv("API_KEY")
-        id["private"] = os.getenv("API_PRIVATE")
-        self.id = id
+        api_id = {}
+        api_id["user"] = os.getenv("API_USER")
+        api_id["key"] = os.getenv("API_KEY")
+        api_id["private"] = os.getenv("API_PRIVATE")
+        self.id = api_id
 
     def set_config(self, path: str):
         """

@@ -1,9 +1,9 @@
+"""Module to test properties"""
 # =================
 # Python IMPORTS
 # =================
 import pandas as pd
 import pytest
-from numpy.testing import assert_approx_equal
 
 # =================
 # Internal IMPORTS
@@ -25,7 +25,7 @@ def test_derivative(market_one_day_path):
     market.add_child(properties.Derivative(market=market, parent=market.ask))
 
     # Check init
-    assert type(market.child[3]) == properties.Derivative
+    assert isinstance(market.child[3], properties.Derivative)
     assert market.child[3].parents["data"] == market.ask
     assert market.child[3].parents["market"] == market
     assert market.child[3].name == "deriv_ask"
@@ -58,7 +58,7 @@ def test_moving_average(market_one_day_path):
     )
 
     # Check init
-    assert type(market.child[3]) == properties.MovingAverage
+    assert isinstance(market.child[3], properties.MovingAverage)
     assert market.child[3].parents["data"] == market.ask
     assert market.child[3].parents["market"] == market
     assert market.child[3].name == f"MA_k-{k}_ask"
@@ -121,7 +121,7 @@ def test_exponential_moving_average(market_one_day_path):
     )
 
     # Check init
-    assert type(market.child[3]) == properties.ExponentialMovingAverage
+    assert isinstance(market.child[3], properties.ExponentialMovingAverage)
     assert market.child[3].parents["data"] == market.ask
     assert market.child[3].parents["market"] == market
     assert market.child[3].name == f"EMA_k-{k}_ask"
@@ -184,7 +184,7 @@ def test_standard_deviation(market_one_day_path):
     )
 
     # Check init
-    assert type(market.child[3]) == properties.StandardDeviation
+    assert isinstance(market.child[3], properties.StandardDeviation)
     assert market.child[3].parents["data"] == market.ask
     assert market.child[3].parents["market"] == market
     assert market.child[3].name == f"std_k-{k}_ask"
@@ -233,7 +233,7 @@ def test_variation(market_one_day_path):
     )
 
     # Check init
-    assert type(market.child[3]) == properties.Variation
+    assert isinstance(market.child[3], properties.Variation)
     assert market.child[3].parents["data"] == market.ask
     assert market.child[3].parents["market"] == market
     assert market.child[3].name == f"variation_k-{k}_ask"
@@ -284,7 +284,7 @@ def test_rsi(market_one_day_path):
     market.add_child(properties.RSI(market=market, parent=market.ask, param={"k": k}))
 
     # Check init
-    assert type(market.child[3]) == properties.RSI
+    assert isinstance(market.child[3], properties.RSI)
     assert market.child[3].parents["data"] == market.ask
     assert market.child[3].parents["market"] == market
     assert market.child[3].name == f"rsi_k-{k}_ask"
@@ -348,7 +348,7 @@ def test_macd(market_one_day_path):
     )
 
     # Check init
-    assert type(market.child[-1]) == properties.MACD
+    assert isinstance(market.child[-1], properties.MACD)
     assert market.child[-1].parents["short"] == short
     assert market.child[-1].parents["long"] == long
     assert market.child[-1].parents["market"] == market
@@ -421,7 +421,7 @@ def test_bollinger(market_one_day_path):
     )
 
     # Check init
-    assert type(market.child[-1]) == properties.Bollinger
+    assert isinstance(market.child[-1], properties.Bollinger)
     assert market.child[-1].parents["data"] == market.ask
     assert market.child[-1].parents["mean"] == mean
     assert market.child[-1].parents["std"] == std

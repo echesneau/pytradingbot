@@ -1,3 +1,4 @@
+"""Module with all functions used in properties"""
 # =================
 # Python IMPORTS
 # =================

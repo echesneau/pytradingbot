@@ -1,10 +1,11 @@
+"""module to test crypto api"""
 # =================
 # Python IMPORTS
 # =================
+from datetime import datetime
 import pandas as pd
 import pytest
 import krakenex
-from datetime import datetime
 
 # =================
 # Internal IMPORTS
@@ -21,11 +22,11 @@ def test_connect():
     api = KrakenApi()
     api._set_id()
     api.connect()
-    assert type(api.session) is krakenex.api.API
+    assert isinstance(api.session, krakenex.api.API)
 
     api = KrakenApiDev()
     api.connect()
-    assert type(api.session) is krakenex.api.API
+    assert isinstance(api.session, krakenex.api.API)
 
 
 @pytest.mark.run(order=6)
@@ -34,8 +35,8 @@ def test_get_market(inputs_config_path):
     api.connect()
     values = api.get_market()
     for key in ["bid", "ask"]:
-        assert key in values.keys()
-        assert type(values[key]) == float
+        assert key in values
+        assert isinstance(values[key], float)
 
 
 @pytest.mark.run(order=6)

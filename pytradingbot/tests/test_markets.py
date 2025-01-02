@@ -1,11 +1,12 @@
+"""module to test markets objects"""
 # =================
 # Python IMPORTS
 # =================
+from datetime import datetime
 import os
 import shutil
 import pandas as pd
 import pytest
-from datetime import datetime
 
 # =================
 # Internal IMPORTS
@@ -26,10 +27,10 @@ def test_create_market():
     api.set_market(markets.Market(parent=api))
     assert len(api.market.dataframe()) == 0
     assert api.market.ask.name == "ask"
-    assert type(api.market.ask.data) == pd.Series
+    assert isinstance(api.market.ask.data, pd.Series)
     assert api.market.ask.data.name == "ask"
     assert api.market.bid.name == "bid"
-    assert type(api.market.bid.data) == pd.Series
+    assert isinstance(api.market.bid.data, pd.Series)
     assert api.market.bid.data.name == "bid"
 
 
@@ -152,7 +153,7 @@ def test_load_data(
     df_market = market_from_file(market_one_day_path, fmt="csv")
     assert len(df_market) == 1
     market = df_market[0]
-    assert type(market) == markets.MarketLoad
+    assert isinstance(market, markets.MarketLoad)
     for prop in ["ask", "bid", "volume"]:
         assert hasattr(market, prop)
     assert len(market.dataframe()) > 0
@@ -171,7 +172,7 @@ def test_load_data(
     df_market = market_from_file(market_two_days_list, fmt="list")
     assert len(df_market) == 1
     market = df_market[0]
-    assert type(market) == markets.MarketLoad
+    assert isinstance(market, markets.MarketLoad)
     for prop in ["ask", "bid", "volume"]:
         assert hasattr(market, prop)
     assert len(market.dataframe()) > 0
@@ -307,7 +308,7 @@ def test_find_properties_by_type(market_one_day_path):
 
 @pytest.mark.run(order=38)
 def test_generate_properties_from_inputs_file(
-    inputs_config_path, market_one_day_path, caplog
+    inputs_config_path, market_one_day_path
 ):
     market = market_from_file(market_one_day_path, fmt="csv")[0]
     market.generate_property_from_xml_config(inputs_config_path)

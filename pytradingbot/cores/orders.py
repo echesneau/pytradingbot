@@ -3,9 +3,9 @@ Module containing all classes and functions for market Orders
 """
 
 from abc import ABC
+import logging
 import pandas as pd
 import numpy as np
-import logging
 from pytradingbot.cores.properties import PropertiesABC, generate_property_by_name
 
 
@@ -244,7 +244,8 @@ class Order(ABC):
                 list_fees_sell.append(fee)
                 if verbose == 1:
                     print(
-                        f"{market.bid.data.index[i]} : SELL : {list_sell[-1][0]} @ {list_sell[-1][1]}"
+                        f"{market.bid.data.index[i]} : SELL : "
+                        f"{list_sell[-1][0]} @ {list_sell[-1][1]}"
                     )
                     print(f"{market.bid.data.index[i]} : MONEY = {money}")
                 action = 1
@@ -350,9 +351,6 @@ class ConditionUpper(Condition):
     name = "greater_than"
     type = ">"
 
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
-
     def _function(self) -> pd.Series:
         return greater_than(self.parent.data, self.value)
 
@@ -362,9 +360,6 @@ class ConditionLower(Condition):
 
     name = "lower_than"
     type = "<"
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return lower_than(self.parent.data, self.value)
@@ -376,9 +371,6 @@ class ConditionCrossUp(Condition):
     name = "cross_up"
     type = "+="
 
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
-
     def _function(self) -> pd.Series:
         return cross_up(self.parent.data, self.value)
 
@@ -388,9 +380,6 @@ class ConditionCrossUp5(Condition):
 
     name = "cross_up_last_five"
     type = "+=5"
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return cross_up_last_n(self.parent.data, self.value, n=5)
@@ -402,9 +391,6 @@ class ConditionCrossUp10(Condition):
     name = "cross_up_last_ten"
     type = "+=10"
 
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
-
     def _function(self) -> pd.Series:
         return cross_up_last_n(self.parent.data, self.value, n=10)
 
@@ -414,9 +400,6 @@ class ConditionCrossDown(Condition):
 
     name = "cross_down"
     type = "-="
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return cross_down(self.parent.data, self.value)
@@ -428,9 +411,6 @@ class ConditionCrossDown5(Condition):
     name = "cross_down_last_five"
     type = "-=5"
 
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
-
     def _function(self) -> pd.Series:
         return cross_down_last_n(self.parent.data, self.value, n=5)
 
@@ -440,9 +420,6 @@ class ConditionCrossDown10(Condition):
 
     name = "cross_down_last_ten"
     type = "-=10"
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return cross_down_last_n(self.parent.data, self.value, n=10)
