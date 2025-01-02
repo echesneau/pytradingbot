@@ -181,4 +181,5 @@ class CryptoEmptyLoad:
     """
     to be defined
     """
+
     pass

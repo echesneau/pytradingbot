@@ -64,7 +64,7 @@ def read_list_market(path: str):
         os.path.join(os.path.dirname(__file__), "..")
     )  # get the directory of the module
     data_df = pd.DataFrame()
-    with open(path, encoding='utf-8') as files:
+    with open(path, encoding="utf-8") as files:
         directory = root_dir
         for line in files:
             if line.startswith("DIR"):

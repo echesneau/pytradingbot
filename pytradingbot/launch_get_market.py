@@ -1,4 +1,5 @@
 """A script to launch a get_market mode of pytradingbot"""
+
 #!/bin/python3.6
 
 import argparse

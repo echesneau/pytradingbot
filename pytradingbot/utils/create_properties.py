@@ -1,4 +1,5 @@
 """module to generate properties"""
+
 # =================
 # Python IMPORTS
 # =================

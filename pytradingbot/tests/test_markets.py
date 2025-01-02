@@ -1,4 +1,5 @@
 """module to test markets objects"""
+
 # =================
 # Python IMPORTS
 # =================
@@ -307,9 +308,7 @@ def test_find_properties_by_type(market_one_day_path):
 
 
 @pytest.mark.run(order=38)
-def test_generate_properties_from_inputs_file(
-    inputs_config_path, market_one_day_path
-):
+def test_generate_properties_from_inputs_file(inputs_config_path, market_one_day_path):
     market = market_from_file(market_one_day_path, fmt="csv")[0]
     market.generate_property_from_xml_config(inputs_config_path)
     assert len(market._get_all_child()) > 3

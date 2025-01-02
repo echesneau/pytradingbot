@@ -1,4 +1,5 @@
 """module with math functions"""
+
 import numpy as np
 
 

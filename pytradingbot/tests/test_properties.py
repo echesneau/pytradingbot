@@ -1,4 +1,5 @@
 """Module to test properties"""
+
 # =================
 # Python IMPORTS
 # =================
