@@ -7,7 +7,6 @@ This project is in development : not stable yet
 |---------|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------| 
 | main    | ![Statut CI](https://github.com/echesneau/pytradingbot/actions/workflows/ci.yml/badge.svg?branch=main)               | [![Couverture de code](https://codecov.io/gh/echesneau/pytradingbot/branch/main/graph/badge.svg)](https://codecov.io/gh/echesneau/pytradingbot)               |
 | dev     | ![Statut CI](https://github.com/echesneau/pytradingbot/actions/workflows/ci.yml/badge.svg?branch=dev)                | [![Couverture de code](https://codecov.io/gh/echesneau/pytradingbot/branch/dev/graph/badge.svg)](https://codecov.io/gh/echesneau/pytradingbot)                |
-| main    | ![Statut CI](https://github.com/echesneau/pytradingbot/actions/workflows/ci.yml/badge.svg?branch=5-create-gitlab-ci) | [![Couverture de code](https://codecov.io/gh/echesneau/pytradingbot/branch/5-create-gitlab-ci/graph/badge.svg)](https://codecov.io/gh/echesneau/pytradingbot) |
 
 # Versions
 ## HEAD
