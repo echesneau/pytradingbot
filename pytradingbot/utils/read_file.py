@@ -1,6 +1,7 @@
 """
 Module containing function to read file
 """
+
 # =================
 # Python IMPORTS
 # =================
@@ -59,7 +60,9 @@ def read_list_market(path: str):
     if not os.path.isfile(path):
         logging.warning(f"{path} is not a file, market is not loaded")
         return None
-    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # get the directory of the module
+    root_dir = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..")
+    )  # get the directory of the module
     data_df = pd.DataFrame()
     with open(path) as files:
         directory = root_dir
@@ -72,9 +75,13 @@ def read_list_market(path: str):
                     elif os.path.isdir(f"{root_dir}/{words[2]}"):
                         directory = f"{root_dir}/{words[2]}"
                     else:
-                        logging.warning(f"{words[2]} is not a directory: {directory} is used")
+                        logging.warning(
+                            f"{words[2]} is not a directory: {directory} is used"
+                        )
                 else:
-                    logging.warning("Uncorrected format for directory, please use format: DIR = your/path/")
+                    logging.warning(
+                        "Uncorrected format for directory, please use format: DIR = your/path/"
+                    )
             elif len(line) > 0:
                 ifile = f"{directory}/{line.rstrip()}"
                 if os.path.isfile(ifile):
@@ -108,10 +115,10 @@ def read_input_analysis_config(path: str) -> list:
     # Read properties
     for prop in main.xpath("/pytradingbot/analysis/properties"):
         if "format" in prop.attrib:
-            fmt = prop.attrib['format']
+            fmt = prop.attrib["format"]
         else:
             fmt = "name"
-        if fmt in ['name']:
+        if fmt in ["name"]:
             properties.append({"format": fmt, "value": prop.text})
         else:
             logging.warning(f"Unknown property format: {fmt}: {prop.text} skipped")
@@ -121,15 +128,15 @@ def read_input_analysis_config(path: str) -> list:
 def read_input_order_config(path: str) -> list:
     """function to read the order part of input xml file
 
-        Parameters
-        ----------
-        path: str
-            path if the xml file
+    Parameters
+    ----------
+    path: str
+        path if the xml file
 
-        Returns
-        -------
-        list of action: each action are stored in a dict
-        """
+    Returns
+    -------
+    list of action: each action are stored in a dict
+    """
     actions = []
     if not os.path.isfile(path):
         logging.warning(f"{path} is not a file, cannot set input config parameters")
@@ -145,16 +152,27 @@ def read_input_order_config(path: str) -> list:
             tmp["type"] = action.attrib["type"]
             tmp["conditions"] = []
             for j, condition in enumerate(action.xpath("condition")):
-                if "function" in condition.attrib and condition.attrib['function'] in ['>', '<', "+=", "-="]:
+                if "function" in condition.attrib and condition.attrib["function"] in [
+                    ">",
+                    "<",
+                    "+=",
+                    "-=",
+                ]:
                     if "value" in condition.attrib:
                         try:
-                            value = float(condition.attrib['value'])
+                            value = float(condition.attrib["value"])
                         except ValueError:
-                            logging.warning(f"Value of condition {j} of action {i} is not a digit")
+                            logging.warning(
+                                f"Value of condition {j} of action {i} is not a digit"
+                            )
                             continue
-                        tmp['conditions'].append({"function": condition.attrib['function'],
-                                                  "value": value,
-                                                  "property": condition.text})
+                        tmp["conditions"].append(
+                            {
+                                "function": condition.attrib["function"],
+                                "value": value,
+                                "property": condition.text,
+                            }
+                        )
                 else:
                     logging.warning(f"Unknown function in condition {j} of action {i}")
                     continue

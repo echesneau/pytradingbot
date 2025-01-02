@@ -3,8 +3,10 @@
 # =================
 import numpy as np
 import pandas as pd
+
 try:
     from numpy_ext import rolling_apply
+
     NP_ROLL = True
 except ImportError:
     NP_ROLL = False
@@ -34,10 +36,10 @@ def derivative(data: pd.Series) -> pd.Series:
     if pd.notnull(data).sum() > 0:
         odata = data.diff()
     else:
-        odata = pd.Series(index=data.index, data=[None]*len(data))
+        odata = pd.Series(index=data.index, data=[None] * len(data))
 
     # normalize to minute
-    time = data.index.to_series().diff().dt.total_seconds()/60
+    time = data.index.to_series().diff().dt.total_seconds() / 60
     odata /= time
 
     # normalize in %
@@ -67,7 +69,7 @@ def moving_average(data: pd.Series, k: int) -> pd.Series:
         else:
             return data.rolling(window=k).mean()
     else:
-        odata = [None]*len(data)
+        odata = [None] * len(data)
         return pd.Series(index=data.index, data=odata, name=data.name)
 
 
@@ -86,13 +88,15 @@ def exponential_moving_average(data: pd.Series, k: int) -> pd.Series:
     pd.Series
 
     """
+
     def exp_data(value: np.array):
         size = value.shape[0]
-        a = 2 / (np.arange(1, size+1)+1)
+        a = 2 / (np.arange(1, size + 1) + 1)
         a = np.flipud(a)
         exp_val = value * a
         mean = np.sum(exp_val) / np.sum(a)
         return mean
+
     if len(data) >= k:
         if NP_ROLL:
             odata = rolling_apply(exp_data, k, data.values)
@@ -141,6 +145,7 @@ def variation(data: pd.Series, k: int) -> pd.Series:
     -------
     pd.Series
     """
+
     def var(values):
         max_prct = (values[1:].max() - values[0]) * 100 / values[0]
         min_prct = (values[1:].min() - values[0]) * 100 / values[0]
@@ -148,6 +153,7 @@ def variation(data: pd.Series, k: int) -> pd.Series:
             return max_prct
         else:
             return min_prct
+
     if len(data) >= k:
         if NP_ROLL:
             odata = rolling_apply(var, k, data.values)
@@ -173,6 +179,7 @@ def rsi(data: pd.Series, k: int) -> pd.Series:
     -------
     pd.Series
     """
+
     def func(values):
         shift = np.roll(values, 1)
         diff = values - shift
@@ -190,7 +197,8 @@ def rsi(data: pd.Series, k: int) -> pd.Series:
         if lower == higher:
             return 100
         else:
-            return 100*higher/(higher-lower)
+            return 100 * higher / (higher - lower)
+
     if len(data) >= k:
         if NP_ROLL:
             odata = rolling_apply(func, k, data.values)
@@ -243,4 +251,4 @@ def bollinger(value: pd.Series, mean: pd.Series, std: pd.Series, k: int) -> pd.S
     -------
     pd.Series
     """
-    return (value - mean) / (2*k*std)
+    return (value - mean) / (2 * k * std)

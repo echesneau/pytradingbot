@@ -1,6 +1,7 @@
 """
 Module containing API for crypto trading
 """
+
 # =================
 # Python IMPORTS
 # =================
@@ -26,6 +27,7 @@ class KrakenApi(BaseApi):
     """
     API for Kraken
     """
+
     def __int__(self, input_path: str = ""):
         super().__init__(input_path=input_path)
 
@@ -37,8 +39,9 @@ class KrakenApi(BaseApi):
         test = True
         while test:
             try:
-                self.session = krakenex.API(key=self.id['key'],
-                                            secret=self.id['private'])
+                self.session = krakenex.API(
+                    key=self.id["key"], secret=self.id["private"]
+                )
                 test = False
             except:
                 pass
@@ -57,12 +60,15 @@ class KrakenApi(BaseApi):
             dict: with market value
 
         """
-        query = self.session.query_public('Ticker', {'pair': self.pair}, timeout=timeout)
-        values = {"ask": float(query['result'][self.pair]['a'][0]),
-                  'bid': float(query['result'][self.pair]['b'][0]),
-                  'volume': float(query['result'][self.pair]['v'][0]),
-                  'time': datetime.now()
-                  }
+        query = self.session.query_public(
+            "Ticker", {"pair": self.pair}, timeout=timeout
+        )
+        values = {
+            "ask": float(query["result"][self.pair]["a"][0]),
+            "bid": float(query["result"][self.pair]["b"][0]),
+            "volume": float(query["result"][self.pair]["v"][0]),
+            "time": datetime.now(),
+        }
         return values
 
     def get_market(self) -> dict:
@@ -97,15 +103,20 @@ class KrakenApi(BaseApi):
                     logging.warning(f"HTTP error at {datetime.now()}")
                 failed += 1
         if failed > 0:
-            logging.warning(f"Problem solved at {datetime.now()} after {failed} test(s)")
+            logging.warning(
+                f"Problem solved at {datetime.now()} after {failed} test(s)"
+            )
         return values
 
 
 class KrakenApiDev(KrakenApi):
     """
-        API for Kraken in development mode (user defines in argument)
+    API for Kraken in development mode (user defines in argument)
     """
-    def __init__(self, input_path: str = "", imoney: float = 0, balance_path: str = None):
+
+    def __init__(
+        self, input_path: str = "", imoney: float = 0, balance_path: str = None
+    ):
         """
 
         Parameters
@@ -117,7 +128,7 @@ class KrakenApiDev(KrakenApi):
         self._set_id()
         self.balance_path = balance_path
         if balance_path is None:
-            self.balance_dict = {'EUR': imoney}
+            self.balance_dict = {"EUR": imoney}
         elif not os.path.isfile(balance_path):
             raise FileNotFoundError(f"Balance file {balance_path} is not a file")
 
@@ -125,48 +136,50 @@ class KrakenApiDev(KrakenApi):
         if self.balance_path is None:
             return self.balance_dict
         else:
-            balance = pd.read_csv(self.balance_path, sep=";", index_col='name').squeeze(axis=1)
+            balance = pd.read_csv(self.balance_path, sep=";", index_col="name").squeeze(
+                axis=1
+            )
             return balance.to_dict()
-
 
     def buy(self, quantity, price):
         tot_price = quantity * price
         if self.balance_path is None:
-            self.balance_dict['EUR'] -= tot_price
+            self.balance_dict["EUR"] -= tot_price
             if self.pair not in self.balance_dict.keys():
                 self.balance_dict[self.pair] = quantity
             else:
                 self.balance_dict[self.pair] += quantity
         else:
             balance = self.balance
-            balance['EUR'] -= tot_price
+            balance["EUR"] -= tot_price
             if self.pair in balance.keys():
                 balance[self.pair] += quantity
             else:
                 balance[self.pair] = quantity
             tmp = pd.Series(balance).to_frame().reset_index()
-            tmp.columns = ['name', 'quantity']
-            tmp.to_csv(self.balance_path, sep=';', index=False)
+            tmp.columns = ["name", "quantity"]
+            tmp.to_csv(self.balance_path, sep=";", index=False)
 
     def sell(self, quantity, price):
         if self.balance_path is None:
             if quantity > self.balance[self.pair]:
                 quantity = self.balance[self.pair]
-            self.balance_dict['EUR'] += quantity * price
+            self.balance_dict["EUR"] += quantity * price
             self.balance_dict[self.pair] -= quantity
         else:
             balance = self.balance
             if quantity > balance[self.pair]:
                 quantity = balance[self.pair]
-            balance['EUR'] += quantity * price
+            balance["EUR"] += quantity * price
             balance[self.pair] -= quantity
             tmp = pd.Series(balance).to_frame().reset_index()
-            tmp.columns = ['name', 'quantity']
-            tmp.to_csv(self.balance_path, sep=';', index=False)
+            tmp.columns = ["name", "quantity"]
+            tmp.to_csv(self.balance_path, sep=";", index=False)
 
 
 class CryptoEmptyLoad:
     """
     to be defined
     """
+
     pass

@@ -1,6 +1,7 @@
 """
 Module containing base of API for market connection
 """
+
 # =================
 # Python IMPORTS
 # =================
@@ -31,6 +32,7 @@ class ApiABC(ABC):
     """
     Abstract class of all API
     """
+
     id_config_path = ""
     id = {}
     session = None
@@ -43,7 +45,7 @@ class ApiABC(ABC):
         self.id = {}
         self.session = None
         self.odir = None
-        self.oformat = 'pandas'
+        self.oformat = "pandas"
         # if not id_config is None and user != "":
         #     self.user = user
         #     self.id = id_config.loc[id_config['user'] == user]
@@ -123,6 +125,7 @@ class BaseApi(ApiABC):
     """
     Base API class, without specific method
     """
+
     market = None
 
     def __init__(self, input_path: str = ""):
@@ -138,7 +141,6 @@ class BaseApi(ApiABC):
         self.inputs_config_path = input_path
         self.set_config(self.inputs_config_path)
 
-
     def _set_id(self):
         """
         method to set id for the connection
@@ -148,11 +150,10 @@ class BaseApi(ApiABC):
             username
         """
         id = {}
-        id['user'] = os.getenv('API_USER')
-        id['key'] = os.getenv('API_KEY')
-        id['private'] = os.getenv('API_PRIVATE')
+        id["user"] = os.getenv("API_USER")
+        id["key"] = os.getenv("API_KEY")
+        id["private"] = os.getenv("API_PRIVATE")
         self.id = id
-
 
     def set_config(self, path: str):
         """
@@ -173,15 +174,17 @@ class BaseApi(ApiABC):
 
         # Output directory
         self.odir = None
-        self.oformat = 'pandas'
+        self.oformat = "pandas"
         for node in main.xpath("/pytradingbot/market/odir"):
             self.odir = node.text
-            if "format" in node.attrib and node.attrib['format'] in ['pandas']:
-                self.oformat = node.attrib['format']
+            if "format" in node.attrib and node.attrib["format"] in ["pandas"]:
+                self.oformat = node.attrib["format"]
             else:
-                logging.warning(f"{node.attrib['format']} is not a good value: "
-                                f"set by default to pandas")
-                self.oformat = 'pandas'
+                logging.warning(
+                    f"{node.attrib['format']} is not a good value: "
+                    f"set by default to pandas"
+                )
+                self.oformat = "pandas"
         # Symbol
         for node in main.xpath("/pytradingbot/trading/symbol"):
             self.symbol = node.text
@@ -195,8 +198,10 @@ class BaseApi(ApiABC):
             try:
                 self.refresh = float(node.text)
             except ValueError:
-                logging.warning(f"Refresh time read {node.text} is not a float. "
-                                f"Set to default value {self.refresh}")
+                logging.warning(
+                    f"Refresh time read {node.text} is not a float. "
+                    f"Set to default value {self.refresh}"
+                )
 
     def connect(self):
         """
@@ -223,8 +228,11 @@ class BaseApi(ApiABC):
             number of iterations
         """
         # Init Market
-        self.set_market(markets.Market(parent=self, odir=f"{self.odir}/{self.pair}",
-                                       oformat=self.oformat))
+        self.set_market(
+            markets.Market(
+                parent=self, odir=f"{self.odir}/{self.pair}", oformat=self.oformat
+            )
+        )
         self.market.generate_property_from_xml_config(self.inputs_config_path)
         self.market.generate_order_from_xml_config(self.inputs_config_path)
 
@@ -245,7 +253,10 @@ class BaseApi(ApiABC):
             self.market.save()
             self.market.clean()
             final_time = datetime.now()
-            print(f"count={count}: {final_time-init_time}s, (mean={(final_time-tstart)/count})", end="\r")
+            print(
+                f"count={count}: {final_time-init_time}s, (mean={(final_time-tstart)/count})",
+                end="\r",
+            )
             wait = self.refresh - (final_time - init_time).total_seconds()
             if wait > 0:
                 time.sleep(self.refresh)
@@ -273,7 +284,7 @@ class BaseApi(ApiABC):
         """Method to calculate quantity to buy in function of a price"""
         precision = 5
         money = self.mymoney
-        qtt = math.floor(money/price, precision=precision)
+        qtt = math.floor(money / price, precision=precision)
         return qtt
 
     def buy(self, quantity, price):
@@ -294,15 +305,16 @@ class BaseApi(ApiABC):
         """
         Method to get your balance
         """
-        return self.balance['EUR']
+        return self.balance["EUR"]
 
 
 class APILoadData(BaseApi):
     """
     API Class to load data
     """
-    def __init__(self, data_file: str = None, fmt: str = 'csv'):
+
+    def __init__(self, data_file: str = None, fmt: str = "csv"):
         super().__init__()
         self.market = market_from_file(data_file, fmt=fmt)
         for market in self.market:
-            market.add_parent('api', self)
+            market.add_parent("api", self)

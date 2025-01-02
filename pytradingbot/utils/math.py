@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def floor(value: float, precision: int = 0) -> float:
     """Function to floor a value with a decimal precision
 
@@ -14,7 +15,7 @@ def floor(value: float, precision: int = 0) -> float:
     -------
     floor value
     """
-    return np.floor(value*10**precision) / 10**precision
+    return np.floor(value * 10**precision) / 10**precision
 
 
 def ceil(value: float, precision: int = 0) -> float:
@@ -31,4 +32,4 @@ def ceil(value: float, precision: int = 0) -> float:
     -------
     ceil value
     """
-    return np.ceil(value*10**precision) / 10**precision
+    return np.ceil(value * 10**precision) / 10**precision

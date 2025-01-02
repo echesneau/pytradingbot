@@ -1,6 +1,7 @@
 """
 Module containing all market objects
 """
+
 # =================
 # Python IMPORTS
 # =================
@@ -14,7 +15,10 @@ from alive_progress import alive_bar
 # Internal IMPORTS
 # =================
 from pytradingbot.cores import properties, orders
-from pytradingbot.utils.read_file import read_input_analysis_config, read_input_order_config
+from pytradingbot.utils.read_file import (
+    read_input_analysis_config,
+    read_input_order_config,
+)
 
 # =================
 # Variables
@@ -26,7 +30,7 @@ class Market:
     Class containing value of market
     """
 
-    def __init__(self, parent=None, odir: str = None, oformat: str = 'pandas'):
+    def __init__(self, parent=None, odir: str = None, oformat: str = "pandas"):
         """
         Initialisation
 
@@ -40,7 +44,7 @@ class Market:
         """
         self.parents = {}
         self.child = []
-        self.add_parent('api', parent)
+        self.add_parent("api", parent)
         self.ask = properties.Ask(market=self)
         self.bid = properties.Bid(market=self)
         self.volume = properties.Volume(market=self)
@@ -64,14 +68,16 @@ class Market:
         """
         method to update market values from the api
         """
-        if 'api' in self.parents.keys():
-            values = self.parents['api'].get_market()
-            self.ask.add_value(index=[values['time']], value=[values['ask']])
-            self.bid.add_value(index=[values['time']], value=[values['bid']])
-            self.volume.add_value(index=[values['time']], value=[values['volume']])
+        if "api" in self.parents.keys():
+            values = self.parents["api"].get_market()
+            self.ask.add_value(index=[values["time"]], value=[values["ask"]])
+            self.bid.add_value(index=[values["time"]], value=[values["bid"]])
+            self.volume.add_value(index=[values["time"]], value=[values["volume"]])
         else:
-            logging.warning("api is not defined in parents: available parents: "
-                            f"{self.parents.keys()}")
+            logging.warning(
+                "api is not defined in parents: available parents: "
+                f"{self.parents.keys()}"
+            )
 
     def analyse(self):
         """
@@ -116,7 +122,7 @@ class Market:
         df = pd.concat([prop.data for prop in self._get_all_child()], axis=1)
         if not isinstance(df.index, pd.DatetimeIndex):
             df.index = pd.to_datetime(df.index)
-            df.index = df.index.rename('time')
+            df.index = df.index.rename("time")
         return df
 
     def save(self):
@@ -134,8 +140,9 @@ class Market:
                 odata = pd.read_csv(ofile, index_col=0, sep=" ")
                 odata.index = pd.to_datetime(odata.index)
 
-                mask = np.logical_and(~np.isin(data.index, odata.index),
-                                      data.index.date == day.date())
+                mask = np.logical_and(
+                    ~np.isin(data.index, odata.index), data.index.date == day.date()
+                )
                 odata = pd.concat([odata, data[mask]], axis=0)
 
             odata.sort_index(inplace=True)
@@ -173,7 +180,7 @@ class Market:
         """Method to delete properties from childs"""
         obj.delete_link()
         del obj
-                
+
     def _get_all_child(self) -> list:
         """
         Method to return of child objects (properties)
@@ -284,8 +291,8 @@ class Market:
         """
         properties_list = read_input_analysis_config(path)
         for prop in properties_list:
-            if prop['format'] == "name":
-                properties.generate_property_by_name(prop['value'], self)
+            if prop["format"] == "name":
+                properties.generate_property_by_name(prop["value"], self)
 
     def generate_order_from_xml_config(self, path: str):
         """
@@ -306,6 +313,7 @@ class MarketLoad(Market):
     """
     Class Market where initial data is not empty
     """
+
     def __init__(self, ask: pd.Series, bid: pd.Series, volume: pd.Series):
         super().__init__()
         self.child = []
