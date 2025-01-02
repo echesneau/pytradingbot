@@ -63,16 +63,15 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
       - name: Code formatting analysis with Black
         run: |
-          black --diff . || true > black_warnings.txt
-        continue-on-error: true
-      - name: Save Black results
-        uses: actions/upload-artifact@v3
-        with:
-          name: black-warnings
-          path: black_warnings.txt
+          black --diff .
       - name: Detailed analysis with Pylint
         run: |
-          pylint pytradingbot || true
+          pylint pytradingbot || true > pylint_warnings.txt
+      - name: Save Pylint results
+        uses: actions/upload-artifact@v3
+        with:
+          name: pylint_warnings
+          path: pylint_warnings.txt
       - name: Security analysis with Bandit
         run: |
           bandit -r pytradingbot --exclude pytradingbot/tests/ || true
