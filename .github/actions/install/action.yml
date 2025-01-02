@@ -1,19 +1,19 @@
 name: "Installation"
-description: "Installation du package"
+description: "Package installation"
 runs:
   using: "composite"
   steps:
-    - name: Configuration de Python
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ inputs.python-version }}
-    - name: Installation des dépendances
+    - name: Install dependencies
       uses: ./.github/actions/configure
-    - name: Installation du package
+    - name: Install the package
       run: |
         pip install .
       shell: bash
 inputs:
   python-version:
-    description: "Version de Python"
+    description: "Python version"
     required: true
