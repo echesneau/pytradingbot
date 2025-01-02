@@ -1,15 +1,17 @@
 """
 Module containing all classes and functions for market Orders
 """
+
 from abc import ABC
+import logging
 import pandas as pd
 import numpy as np
-import logging
 from pytradingbot.cores.properties import PropertiesABC, generate_property_by_name
 
 
 class Condition(ABC):
     """Condition Class"""
+
     name = "abstract"
     type = "abstract"
 
@@ -31,6 +33,7 @@ class Condition(ABC):
 
 class Order(ABC):
     """Market Order class"""
+
     type = "abstract"  # should be buy or sell
 
     def __init__(self, market=None):
@@ -99,7 +102,9 @@ class Order(ABC):
 
         if force:
             update = True
-        elif "market" in self.parents and len(self.data) < len(self.parents["market"].dataframe()):
+        elif "market" in self.parents and len(self.data) < len(
+            self.parents["market"].dataframe()
+        ):
             update = True
         elif len(self.child) > 0 and len(self.data) < len(self.child[0].data):
             update = True
@@ -109,16 +114,22 @@ class Order(ABC):
         if update:
             buy_child = self.find_actions_by_type("buy")
             if len(buy_child) > 0:
-                buy_data = pd.concat(self.get_all_data_by_type("buy"), axis=1).any(axis=1)
+                buy_data = pd.concat(self.get_all_data_by_type("buy"), axis=1).any(
+                    axis=1
+                )
             elif "market" in self.parents:
-                buy_data = pd.Series(data=[0] * len(self.parents["market"].ask.data),
-                                     index=self.parents["market"].ask.data.index)
+                buy_data = pd.Series(
+                    data=[0] * len(self.parents["market"].ask.data),
+                    index=self.parents["market"].ask.data.index,
+                )
             else:
                 buy_data = pd.Series(data=[0])
 
             sell_child = self.find_actions_by_type("sell")
             if len(sell_child) > 0:
-                sell_data = pd.concat(self.get_all_data_by_type("sell"), axis=1).any(axis=1)
+                sell_data = pd.concat(self.get_all_data_by_type("sell"), axis=1).any(
+                    axis=1
+                )
             else:
                 sell_data = pd.Series(data=[0] * len(buy_data), index=buy_data.index)
 
@@ -141,13 +152,20 @@ class Order(ABC):
         """
         # check if update
         self.update()
-
-        return self.data.values[-1]
+        if len(self.data) > 0:
+            return self.data.values[-1]
+        else:
+            return 0
         # return action to do
 
-    def simulate_trading(self, imoney: float = 100, fees: float = 0.1,
-                         cost_no_action: float = 100, min_order_per_day=0,
-                         verbose=1):
+    def simulate_trading(
+        self,
+        imoney: float = 100,
+        fees: float = 0.1,
+        cost_no_action: float = 100,
+        min_order_per_day=0,
+        verbose=1,
+    ):
         """
         Method to simulate a trading for the Order.
         Use with MarketLoad
@@ -181,15 +199,15 @@ class Order(ABC):
         action: int = 1  # buy: 1, sell: -1
         counter: int = 0  # last position in array
         if "market" in self.parents:
-            market = self.parents['market']
+            market = self.parents["market"]
         else:
             logging.warning("No market specify in Order, cannot simulate trading")
             return None, None, None
 
         # Number of days in market
         market_time = market.ask.data.index
-        market_duration = market_time[-1]-market_time[0]
-        ndays = market_duration.total_seconds()/3600/24
+        market_duration = market_time[-1] - market_time[0]
+        ndays = market_duration.total_seconds() / 3600 / 24
 
         # simulate
         while True:
@@ -211,7 +229,9 @@ class Order(ABC):
                 money -= list_buy[-1][0] * list_buy[-1][1]
                 money -= fee
                 if verbose == 1:
-                    print(f"{market.ask.data.index[i]} : BUY : {list_buy[-1][0]} @ {list_buy[-1][1]}")
+                    print(
+                        f"{market.ask.data.index[i]} : BUY : {list_buy[-1][0]} @ {list_buy[-1][1]}"
+                    )
                     print(f"{market.ask.data.index[i]} : MONEY = {money}")
                 action = -1
                 counter = i
@@ -223,7 +243,10 @@ class Order(ABC):
                 money -= fee
                 list_fees_sell.append(fee)
                 if verbose == 1:
-                    print(f"{market.bid.data.index[i]} : SELL : {list_sell[-1][0]} @ {list_sell[-1][1]}")
+                    print(
+                        f"{market.bid.data.index[i]} : SELL : "
+                        f"{list_sell[-1][0]} @ {list_sell[-1][1]}"
+                    )
                     print(f"{market.bid.data.index[i]} : MONEY = {money}")
                 action = 1
                 counter = i
@@ -235,7 +258,9 @@ class Order(ABC):
             array_sell = np.array(list_sell)
             tmp = np.zeros(array_buy.shape)
             tmp[:, 0] = array_buy[:, 0] * array_buy[:, 1]  # buy list
-            tmp[:, 1] = array_sell[:, 0] * array_sell[:, 1]  # - np.array(list_cost)  # sell list
+            tmp[:, 1] = (
+                array_sell[:, 0] * array_sell[:, 1]
+            )  # - np.array(list_cost)  # sell list
             win = np.count_nonzero(np.any(np.diff(tmp, axis=1) > 0, axis=1))
             loose = np.count_nonzero(np.any(np.diff(tmp, axis=1) < 0, axis=1))
         else:
@@ -244,7 +269,7 @@ class Order(ABC):
         if win + loose > min_order_per_day * ndays:
             return money, win, loose
         else:
-            penalty = (win+loose) - (min_order_per_day * ndays)
+            penalty = (win + loose) - (min_order_per_day * ndays)
             return money + penalty, win, loose
 
 
@@ -253,6 +278,7 @@ class Action(ABC):
     Action class
     Compile Conditions for a type of Action
     """
+
     type = "abstract"
 
     def __init__(self, market=None):
@@ -306,6 +332,7 @@ class ActionBuy(Action):
     Action class to buy
     Compile Conditions for action "buy"
     """
+
     type = "buy"
 
 
@@ -314,16 +341,15 @@ class ActionSell(Action):
     Action class to sell
     Compile Conditions for action "sell"
     """
+
     type = "sell"
 
 
 class ConditionUpper(Condition):
     """Condition Class with greater than function"""
+
     name = "greater_than"
     type = ">"
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return greater_than(self.parent.data, self.value)
@@ -331,11 +357,9 @@ class ConditionUpper(Condition):
 
 class ConditionLower(Condition):
     """Condition Class with lower than function"""
+
     name = "lower_than"
     type = "<"
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return lower_than(self.parent.data, self.value)
@@ -343,11 +367,9 @@ class ConditionLower(Condition):
 
 class ConditionCrossUp(Condition):
     """Condition Class with cross up function"""
+
     name = "cross_up"
     type = "+="
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return cross_up(self.parent.data, self.value)
@@ -355,11 +377,9 @@ class ConditionCrossUp(Condition):
 
 class ConditionCrossUp5(Condition):
     """Condition Class with cross up last ten function"""
+
     name = "cross_up_last_five"
     type = "+=5"
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return cross_up_last_n(self.parent.data, self.value, n=5)
@@ -367,11 +387,9 @@ class ConditionCrossUp5(Condition):
 
 class ConditionCrossUp10(Condition):
     """Condition Class with cross up last ten function"""
+
     name = "cross_up_last_ten"
     type = "+=10"
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return cross_up_last_n(self.parent.data, self.value, n=10)
@@ -379,11 +397,9 @@ class ConditionCrossUp10(Condition):
 
 class ConditionCrossDown(Condition):
     """Condition Class with cross down function"""
+
     name = "cross_down"
     type = "-="
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return cross_down(self.parent.data, self.value)
@@ -391,11 +407,9 @@ class ConditionCrossDown(Condition):
 
 class ConditionCrossDown5(Condition):
     """Condition Class with cross down last 5 steps function"""
+
     name = "cross_down_last_five"
     type = "-=5"
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return cross_down_last_n(self.parent.data, self.value, n=5)
@@ -403,11 +417,9 @@ class ConditionCrossDown5(Condition):
 
 class ConditionCrossDown10(Condition):
     """Condition Class with cross down last 10 steps function"""
+
     name = "cross_down_last_ten"
     type = "-=10"
-
-    def __init__(self, parent: PropertiesABC, value: float):
-        super().__init__(parent, value)
 
     def _function(self) -> pd.Series:
         return cross_down_last_n(self.parent.data, self.value, n=10)
@@ -492,7 +504,12 @@ def cross_up_last_n(data: pd.Series, value: float, n: int = 5) -> pd.Series:
     index = list(data.index)
     idx_cross_up = list(cross_up_data[cross_up_data == True].index)
     i_cross_up = [index.index(i) for i in idx_cross_up]
-    idx_new = [index[i] for j in i_cross_up for i in range(j, j+n+1) if i < len(cross_up_data)]
+    idx_new = [
+        index[i]
+        for j in i_cross_up
+        for i in range(j, j + n + 1)
+        if i < len(cross_up_data)
+    ]
     cross_up_data[cross_up_data.index.isin(idx_new)] = True
     # cross_up_data.iloc[idx_new] = True
     return cross_up_data
@@ -541,7 +558,12 @@ def cross_down_last_n(data: pd.Series, value: float, n: int = 5) -> pd.Series:
     index = list(data.index)
     idx_cross_down = list(cross_down_data[cross_down_data == True].index)
     i_cross_down = [index.index(i) for i in idx_cross_down]
-    idx_new = [index[i] for j in i_cross_down for i in range(j, j+n+1) if i < len(cross_down_data)]
+    idx_new = [
+        index[i]
+        for j in i_cross_down
+        for i in range(j, j + n + 1)
+        if i < len(cross_down_data)
+    ]
     # cross_down_data.iloc[idx_new] = True
     cross_down_data[cross_down_data.index.isin(idx_new)] = True
     return cross_down_data
@@ -562,35 +584,58 @@ def generate_condition_from_dict(cond_dict: dict, market=None) -> [None, Conditi
     -------
     Condition if succeed, else None
     """
-    if "function" in cond_dict and \
-            "value" in cond_dict and \
-            "property" in cond_dict.keys():
-        if cond_dict['function'] == "<":
-            return ConditionLower(generate_property_by_name(cond_dict['property'], market=market), cond_dict['value'])
-        elif cond_dict['function'] == ">":
-            return ConditionUpper(generate_property_by_name(cond_dict['property'], market=market), cond_dict['value'])
-        elif cond_dict['function'] == "-=":
-            return ConditionCrossDown(generate_property_by_name(cond_dict['property'], market=market),
-                                      cond_dict['value'])
-        elif cond_dict['function'] == "+=":
-            return ConditionCrossUp(generate_property_by_name(cond_dict['property'], market=market), cond_dict['value'])
-        elif cond_dict['function'] == "+=5":
-            return ConditionCrossUp5(generate_property_by_name(cond_dict['property'], market=market),
-                                     cond_dict['value'])
-        elif cond_dict['function'] == "+=10":
-            return ConditionCrossUp10(generate_property_by_name(cond_dict['property'], market=market),
-                                      cond_dict['value'])
-        elif cond_dict['function'] == "-=5":
-            return ConditionCrossDown5(generate_property_by_name(cond_dict['property'], market=market),
-                                       cond_dict['value'])
-        elif cond_dict['function'] == "-=10":
-            return ConditionCrossDown10(generate_property_by_name(cond_dict['property'], market=market),
-                                        cond_dict['value'])
+    if (
+        "function" in cond_dict
+        and "value" in cond_dict
+        and "property" in cond_dict.keys()
+    ):
+        if cond_dict["function"] == "<":
+            return ConditionLower(
+                generate_property_by_name(cond_dict["property"], market=market),
+                cond_dict["value"],
+            )
+        elif cond_dict["function"] == ">":
+            return ConditionUpper(
+                generate_property_by_name(cond_dict["property"], market=market),
+                cond_dict["value"],
+            )
+        elif cond_dict["function"] == "-=":
+            return ConditionCrossDown(
+                generate_property_by_name(cond_dict["property"], market=market),
+                cond_dict["value"],
+            )
+        elif cond_dict["function"] == "+=":
+            return ConditionCrossUp(
+                generate_property_by_name(cond_dict["property"], market=market),
+                cond_dict["value"],
+            )
+        elif cond_dict["function"] == "+=5":
+            return ConditionCrossUp5(
+                generate_property_by_name(cond_dict["property"], market=market),
+                cond_dict["value"],
+            )
+        elif cond_dict["function"] == "+=10":
+            return ConditionCrossUp10(
+                generate_property_by_name(cond_dict["property"], market=market),
+                cond_dict["value"],
+            )
+        elif cond_dict["function"] == "-=5":
+            return ConditionCrossDown5(
+                generate_property_by_name(cond_dict["property"], market=market),
+                cond_dict["value"],
+            )
+        elif cond_dict["function"] == "-=10":
+            return ConditionCrossDown10(
+                generate_property_by_name(cond_dict["property"], market=market),
+                cond_dict["value"],
+            )
         else:
             logging.warning(f"Unknown function: {cond_dict['function']}")
             return None
     else:
-        logging.warning("Invalid dictionary keys: should contain function, value and property keys")
+        logging.warning(
+            "Invalid dictionary keys: should contain function, value and property keys"
+        )
         return None
 
 
@@ -610,15 +655,15 @@ def generate_action_from_dict(action_dict: dict, market) -> [Action, None]:
     Action if succeed, else None
     """
     if "type" in action_dict.keys() and "conditions" in action_dict.keys():
-        if action_dict['type'] == "buy":
+        if action_dict["type"] == "buy":
             action = ActionBuy(market=market)
-        elif action_dict['type'] == "sell":
+        elif action_dict["type"] == "sell":
             action = ActionSell(market=market)
         else:
             logging.warning(f"Unknown action type {action_dict['type']}")
             return None
-        if isinstance(action_dict['conditions'], list):
-            for condition in action_dict['conditions']:
+        if isinstance(action_dict["conditions"], list):
+            for condition in action_dict["conditions"]:
                 condition_tmp = generate_condition_from_dict(condition, market=market)
                 if condition_tmp is not None:
                     action.add_child(condition_tmp)
@@ -626,8 +671,12 @@ def generate_action_from_dict(action_dict: dict, market) -> [Action, None]:
                     logging.warning(f"Cannot generate condition : {condition}")
             return action
         else:
-            logging.warning(f"Conditions of action should be a list, {type(action_dict['conditions'])} found")
+            logging.warning(
+                f"Conditions of action should be a list, {type(action_dict['conditions'])} found"
+            )
             return None
     else:
-        logging.warning("Invalid dictionary keys to generate action: should contain type and condition keys")
+        logging.warning(
+            "Invalid dictionary keys to generate action: should contain type and condition keys"
+        )
         return None

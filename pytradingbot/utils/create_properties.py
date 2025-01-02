@@ -1,13 +1,12 @@
+"""module to generate properties"""
+
 # =================
 # Python IMPORTS
 # =================
-import logging
-import pandas as pd
 
 # =================
 # Internal IMPORTS
 # =================
-from pytradingbot.cores import properties
 
 # =================
 # Variables
@@ -15,4 +14,5 @@ from pytradingbot.cores import properties
 
 
 def create_properties_from_str(name: str):
+    """function to generate property from the name"""
     pass

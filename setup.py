@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from version import __version__
 
 setup(
-    name='pytradingbot',
+    name="pytradingbot",
     version=__version__,
     packages=find_packages(),
     include_package_data=True,
@@ -14,11 +14,16 @@ setup(
         "numpy",
         "numpy_ext",
         "pytest",
+        "pytest-ordering",
+        "pytest-cov",
         "krakenex",
         "lxml",
         "requests",
         "sphynx",
         "alive_progress",
-        ]
+        "flake8",
+        "black",
+        "pylint",
+        "bandit",
+    ],
 )
-        

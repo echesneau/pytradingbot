@@ -1,6 +1,7 @@
 """
 Module containing usefull function for market
 """
+
 # =================
 # Python IMPORTS
 # =================
@@ -13,6 +14,7 @@ import pandas as pd
 # =================
 from pytradingbot.utils.read_file import read_csv_market, read_list_market
 from pytradingbot.cores.markets import MarketLoad
+
 # =================
 # Variables
 # =================
@@ -36,7 +38,7 @@ def split_time_df(data, delta=60):
     # create timestep between two rows
     data["delta"] = data.index.to_series().diff().dt.total_seconds().fillna(0)
     # where timestep is higher than user defined limit
-    idx = data.index[data['delta'] > delta]
+    idx = data.index[data["delta"] > delta]
     # create output list
     odata = []
     last_value = 0
@@ -69,11 +71,11 @@ def df2market(data_df: pd.DataFrame):
 
     """
     test = True
-    for prop in ['bid', 'ask', 'volume']:
+    for prop in ["bid", "ask", "volume"]:
         if prop not in data_df.columns:
             test = False
     if test:
-        return MarketLoad(data_df['ask'], data_df['bid'], data_df['volume'])
+        return MarketLoad(data_df["ask"], data_df["bid"], data_df["volume"])
     else:
         return None
 
@@ -101,12 +103,16 @@ def market_from_file(ifile: str, fmt="csv"):
     elif fmt == "list":
         data_df = read_list_market(ifile)
     else:
-        logging.warning(f"{fmt} is not an accepted format, market is not loaded. "
-                        f"Possible choices: {fmt_choices}")
+        logging.warning(
+            f"{fmt} is not an accepted format, market is not loaded. "
+            f"Possible choices: {fmt_choices}"
+        )
         return None
 
     # split dataframe if timedelta is too high
-    list_df = split_time_df(data_df, delta=120)  # Todo: auto defined the delta time from the data
+    list_df = split_time_df(
+        data_df, delta=120
+    )  # Todo: auto defined the delta time from the data
 
     # Create market class
     list_market = []
@@ -115,7 +121,9 @@ def market_from_file(ifile: str, fmt="csv"):
         if df_tmp is not None:
             list_market.append(df_tmp)
         else:
-            logging.warning(f"ask and/or bid property missing in dataframe {i}, skipped")
+            logging.warning(
+                f"ask and/or bid property missing in dataframe {i}, skipped"
+            )
 
     # Create all properties
     # TODO: add option to add other properties than bid / ask in the market

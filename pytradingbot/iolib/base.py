@@ -1,6 +1,7 @@
 """
 Module containing base of API for market connection
 """
+
 # =================
 # Python IMPORTS
 # =================
@@ -16,9 +17,9 @@ from lxml import etree
 # =================
 # Internal IMPORTS
 # =================
-from pytradingbot.utils import read_file
 from pytradingbot.cores import markets
 from pytradingbot.utils.market_tools import market_from_file
+from pytradingbot.utils import math
 
 
 # =================
@@ -30,6 +31,7 @@ class ApiABC(ABC):
     """
     Abstract class of all API
     """
+
     id_config_path = ""
     id = {}
     session = None
@@ -38,23 +40,10 @@ class ApiABC(ABC):
     refresh = 60
 
     def __init__(self):
-        root_dir = os.path.dirname(__file__)
-        self.id_config_path = f"{root_dir}/../id.config"
         self.id = {}
         self.session = None
         self.odir = None
-        self.oformat = 'pandas'
-        # if not id_config is None and user != "":
-        #     self.user = user
-        #     self.id = id_config.loc[id_config['user'] == user]
-        # print(id_config)
-
-        # else:
-        #     self.id = read_file.read_idconfig(id_config)
-        # self.parent = []
-        # self.child = []
-        # self.money = 0
-        # self.session = None
+        self.oformat = "pandas"
 
     @abstractmethod
     def _set_id(self, user: str):
@@ -124,6 +113,7 @@ class BaseApi(ApiABC):
     """
     Base API class, without specific method
     """
+
     market = None
 
     def __init__(self, input_path: str = ""):
@@ -139,18 +129,7 @@ class BaseApi(ApiABC):
         self.inputs_config_path = input_path
         self.set_config(self.inputs_config_path)
 
-    def _get_user_list(self):
-        """
-        method to get available user name
-        Returns
-            list: list of users
-        -------
-
-        """
-        id_config = read_file.read_idconfig(self.id_config_path)
-        return id_config['user'].values
-
-    def _set_id(self, user: str):
+    def _set_id(self):
         """
         method to set id for the connection
         Parameters
@@ -158,19 +137,11 @@ class BaseApi(ApiABC):
         user: str
             username
         """
-        id_config = read_file.read_idconfig(self.id_config_path)
-        if id_config is None:
-            self.id = {}
-        else:
-            ids = id_config.loc[id_config['user'] == user]
-            if len(ids) == 0:
-                logging.warning(f"No user found with name {user}")
-                self.id = {}
-            else:
-                ids = ids.to_dict('records')
-                if len(ids) > 1:
-                    logging.warning(f"More than one user found with name {user}. First is selected")
-                self.id = ids[0]
+        api_id = {}
+        api_id["user"] = os.getenv("API_USER")
+        api_id["key"] = os.getenv("API_KEY")
+        api_id["private"] = os.getenv("API_PRIVATE")
+        self.id = api_id
 
     def set_config(self, path: str):
         """
@@ -191,15 +162,17 @@ class BaseApi(ApiABC):
 
         # Output directory
         self.odir = None
-        self.oformat = 'pandas'
+        self.oformat = "pandas"
         for node in main.xpath("/pytradingbot/market/odir"):
             self.odir = node.text
-            if "format" in node.attrib and node.attrib['format'] in ['pandas']:
-                self.oformat = node.attrib['format']
+            if "format" in node.attrib and node.attrib["format"] in ["pandas"]:
+                self.oformat = node.attrib["format"]
             else:
-                logging.warning(f"{node.attrib['format']} is not a good value: "
-                                f"set by default to pandas")
-                self.oformat = 'pandas'
+                logging.warning(
+                    f"{node.attrib['format']} is not a good value: "
+                    f"set by default to pandas"
+                )
+                self.oformat = "pandas"
         # Symbol
         for node in main.xpath("/pytradingbot/trading/symbol"):
             self.symbol = node.text
@@ -213,8 +186,10 @@ class BaseApi(ApiABC):
             try:
                 self.refresh = float(node.text)
             except ValueError:
-                logging.warning(f"Refresh time read {node.text} is not a float. "
-                                f"Set to default value {self.refresh}")
+                logging.warning(
+                    f"Refresh time read {node.text} is not a float. "
+                    f"Set to default value {self.refresh}"
+                )
 
     def connect(self):
         """
@@ -241,8 +216,11 @@ class BaseApi(ApiABC):
             number of iterations
         """
         # Init Market
-        self.set_market(markets.Market(parent=self, odir=f"{self.odir}/{self.pair}",
-                                       oformat=self.oformat))
+        self.set_market(
+            markets.Market(
+                parent=self, odir=f"{self.odir}/{self.pair}", oformat=self.oformat
+            )
+        )
         self.market.generate_property_from_xml_config(self.inputs_config_path)
         self.market.generate_order_from_xml_config(self.inputs_config_path)
 
@@ -255,10 +233,18 @@ class BaseApi(ApiABC):
             init_time = datetime.now()
             self.update_market()
             self.analyse()
+            action = self.market.action
+            if action == 1:
+                self.buy()
+            elif action == -1:
+                self.sell()
             self.market.save()
             self.market.clean()
             final_time = datetime.now()
-            print(f"count={count}: {final_time-init_time}s, (mean={(final_time-tstart)/count})", end="\r")
+            print(
+                f"count={count}: {final_time-init_time}s, (mean={(final_time-tstart)/count})",
+                end="\r",
+            )
             wait = self.refresh - (final_time - init_time).total_seconds()
             if wait > 0:
                 time.sleep(self.refresh)
@@ -282,28 +268,41 @@ class BaseApi(ApiABC):
         """Method to analyse the market"""
         self.market.analyse()
 
-    def buy(self):
+    def calculate_quantity_buy(self, price: float):
+        """Method to calculate quantity to buy in function of a price"""
+        precision = 5
+        money = self.mymoney
+        qtt = math.floor(money / price, precision=precision)
+        return qtt
+
+    def buy(self, quantity, price):
         pass
 
-    def sell(self):
+    def sell(self, quantity, price):
         pass
 
     def _get_balance(self):
         pass
 
-    def mymoney(self):
+    @property
+    def balance(self) -> dict:
+        return self._get_balance()
+
+    @property
+    def mymoney(self) -> float:
         """
         Method to get your balance
         """
-        return self._get_balance()
+        return self.balance["EUR"]
 
 
 class APILoadData(BaseApi):
     """
     API Class to load data
     """
-    def __init__(self, data_file: str = None, fmt: str = 'csv'):
+
+    def __init__(self, data_file: str = None, fmt: str = "csv"):
         super().__init__()
         self.market = market_from_file(data_file, fmt=fmt)
         for market in self.market:
-            market.add_parent('api', self)
+            market.add_parent("api", self)

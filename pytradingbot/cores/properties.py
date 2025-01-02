@@ -1,6 +1,7 @@
 """
 Module containing all properties
 """
+
 # =================
 # Python IMPORTS
 # =================
@@ -23,11 +24,12 @@ class PropertiesABC(ABC):
     """
     Abstract class for properties
     """
+
     type = ""
 
-    def __init__(self, parent=None,
-                 market=None,
-                 param: [Dict[str, Any], object] = None):
+    def __init__(
+        self, parent=None, market=None, param: [Dict[str, Any], object] = None
+    ):
 
         self.child = []
         self.data = pd.Series(dtype=float)
@@ -35,14 +37,13 @@ class PropertiesABC(ABC):
         self.parents: Dict[str, object] = {}
         if isinstance(parent, dict):
             self.parents = parent
-        # elif parent is not None and type(type(parent)) == type:  # Check is parent is an object created from a class
         elif parent is not None:
-            self.add_parent('data', parent)
-        # elif parent is not None:
-        #     logging.warning(f"type of {parent} is unexpected, skipped")
+            self.add_parent("data", parent)
 
-        if market is not None:  # TODO: check is market is an object with upper class Market
-            self.add_parent('market', market)
+        if (
+            market is not None
+        ):  # TODO: check is market is an object with upper class Market
+            self.add_parent("market", market)
 
         self.param: Dict[str, Any] = {}
         if isinstance(param, dict):
@@ -111,7 +112,7 @@ class PropertiesABC(ABC):
             maximum number of rows in the pd.Series
         """
         if len(self.data) > nrows:
-            self.data = self.data.iloc[-nrows-1:]
+            self.data = self.data.iloc[-nrows - 1 :]
 
     def delete_link(self):
         """Method to remove link of object in all parents childs"""
@@ -127,6 +128,7 @@ class Ask(PropertiesABC):
     """
     Ask value of the market
     """
+
     type = "market"
 
     def __init__(self, market=None):
@@ -136,7 +138,7 @@ class Ask(PropertiesABC):
         market: parent Market object
         """
         super().__init__(market=market)
-        self.add_parent('market', market)
+        self.add_parent("market", market)
         self.name = "ask"
         self.data = self.data.rename(self.name)
 
@@ -158,6 +160,7 @@ class Bid(Ask):
     """
     Bid value of the market
     """
+
     def __init__(self, market=None):
         """
 
@@ -174,6 +177,7 @@ class Volume(Ask):
     """
     volume value of the market
     """
+
     def __init__(self, market=None):
         """
         Parameters
@@ -189,6 +193,7 @@ class AskLoad(Ask):
     """
     Ask value loaded
     """
+
     def __init__(self, market=None, data: pd.Series = pd.Series(dtype=float)):
         super().__init__(market=market)
         self.data = data
@@ -198,6 +203,7 @@ class BidLoad(Bid):
     """
     Bid value loaded
     """
+
     def __init__(self, market=None, data: pd.Series = pd.Series(dtype=float)):
         super().__init__(market=market)
         self.data = data
@@ -207,6 +213,7 @@ class VolumeLoad(Volume):
     """
     volume value of the market
     """
+
     def __init__(self, market=None, data: pd.Series = pd.Series(dtype=float)):
         super().__init__(market=market)
         self.data = data
@@ -216,168 +223,214 @@ class Derivative(PropertiesABC):
     """
     Derivative
     """
-    type = 'deriv'
+
+    type = "deriv"
 
     def __init__(self, market=None, parent: [dict, PropertiesABC] = None):
         super().__init__(market=market, parent=parent)
-        if 'data' in self.parents.keys():
+        if "data" in self.parents.keys():
             self.name = f"{self.type}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
 
     def _function(self) -> pd.Series:
         """Derivative function"""
-        return functions.derivative(self.parents['data'].data)
+        return functions.derivative(self.parents["data"].data)
 
 
 class MovingAverage(PropertiesABC):
     """
     Moving average
     """
-    type = 'MA'
 
-    def __init__(self, market=None, parent: [dict, PropertiesABC, None] = None, param: dict = None):
+    type = "MA"
+
+    def __init__(
+        self,
+        market=None,
+        parent: [dict, PropertiesABC, None] = None,
+        param: dict = None,
+    ):
         super().__init__(market=market, parent=parent, param=param)
-        if 'data' in self.parents.keys():
+        if "data" in self.parents.keys():
             self.name = f"{self.type}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
-        if 'k' not in self.param:
+        if "k" not in self.param:
             logging.warning(f"k is not defined in parameters: {param}")
-            if 'data' in self.parents.keys():
+            if "data" in self.parents.keys():
                 self.name = f"{self.type}_{self.parents['data'].name}"
         else:
-            if 'data' in self.parents.keys():
+            if "data" in self.parents.keys():
                 self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
 
     def _function(self) -> pd.Series:
         """Mooving average function"""
-        return functions.moving_average(self.parents['data'].data, k=self.param["k"])
+        return functions.moving_average(self.parents["data"].data, k=self.param["k"])
 
 
 class ExponentialMovingAverage(PropertiesABC):
     """
     Exponential moving average
     """
+
     type = "EMA"
 
-    def __init__(self, market=None, parent: [dict, PropertiesABC, None] = None, param: dict = None):
+    def __init__(
+        self,
+        market=None,
+        parent: [dict, PropertiesABC, None] = None,
+        param: dict = None,
+    ):
         super().__init__(market=market, parent=parent, param=param)
-        if 'data' in self.parents.keys():
+        if "data" in self.parents.keys():
             self.name = f"{self.type}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
-        if 'k' not in self.param:
+        if "k" not in self.param:
             logging.warning(f"k is not defined in parameters: {param}")
-            if 'data' in self.parents.keys():
+            if "data" in self.parents.keys():
                 self.name = f"{self.type}_{self.parents['data'].name}"
         else:
-            if 'data' in self.parents.keys():
+            if "data" in self.parents.keys():
                 self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
 
     def _function(self) -> pd.Series:
         """Exponential moving avergae"""
-        return functions.exponential_moving_average(self.parents['data'].data, k=self.param['k'])
+        return functions.exponential_moving_average(
+            self.parents["data"].data, k=self.param["k"]
+        )
 
 
 class StandardDeviation(PropertiesABC):
     """
     Standard deviation
     """
+
     type = "std"
 
-    def __init__(self, market=None, parent: [dict, PropertiesABC, None] = None, param: dict = None):
+    def __init__(
+        self,
+        market=None,
+        parent: [dict, PropertiesABC, None] = None,
+        param: dict = None,
+    ):
         super().__init__(market=market, parent=parent, param=param)
-        if 'data' in self.parents.keys():
+        if "data" in self.parents.keys():
             self.name = f"{self.type}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
-        if 'k' not in self.param:
+        if "k" not in self.param:
             logging.warning(f"k is not defined in parameters: {param}")
-            if 'data' in self.parents.keys():
+            if "data" in self.parents.keys():
                 self.name = f"{self.type}_{self.parents['data'].name}"
         else:
-            if 'data' in self.parents.keys():
+            if "data" in self.parents.keys():
                 self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
 
     def _function(self) -> pd.Series:
         """Standard deviation function"""
-        return functions.standard_deviation(self.parents['data'].data, k=self.param['k'])
+        return functions.standard_deviation(
+            self.parents["data"].data, k=self.param["k"]
+        )
 
 
 class Variation(PropertiesABC):
     """
     Variation
     """
+
     type = "variation"
 
-    def __init__(self, market=None, parent: [dict, PropertiesABC, None] = None, param: dict = None):
+    def __init__(
+        self,
+        market=None,
+        parent: [dict, PropertiesABC, None] = None,
+        param: dict = None,
+    ):
         super().__init__(market=market, parent=parent, param=param)
-        if 'data' in self.parents.keys():
+        if "data" in self.parents.keys():
             self.name = f"{self.type}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
-        if 'k' not in self.param:
+        if "k" not in self.param:
             logging.warning(f"k is not defined in parameters: {param}")
-            if 'data' in self.parents.keys():
+            if "data" in self.parents.keys():
                 self.name = f"{self.type}_{self.parents['data'].name}"
         else:
-            if 'data' in self.parents.keys():
+            if "data" in self.parents.keys():
                 self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
 
     def _function(self) -> pd.Series:
         """Variation function"""
-        return functions.variation(self.parents['data'].data, k=self.param['k'])
+        return functions.variation(self.parents["data"].data, k=self.param["k"])
 
 
 class RSI(PropertiesABC):
     """
     RSI
     """
-    type = 'rsi'
 
-    def __init__(self, market=None, parent: [dict, PropertiesABC, None] = None, param: dict = None):
+    type = "rsi"
+
+    def __init__(
+        self,
+        market=None,
+        parent: [dict, PropertiesABC, None] = None,
+        param: dict = None,
+    ):
         super().__init__(market=market, parent=parent, param=param)
-        if 'data' in self.parents.keys():
+        if "data" in self.parents.keys():
             self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
-        if 'k' not in self.param:
+        if "k" not in self.param:
             logging.warning(f"k is not defined in parameters: {param}")
-            if 'data' in self.parents.keys():
+            if "data" in self.parents.keys():
                 self.name = f"{self.type}_{self.parents['data'].name}"
         else:
-            if 'data' in self.parents.keys():
+            if "data" in self.parents.keys():
                 self.name = f"{self.type}_k-{param['k']}_{self.parents['data'].name}"
         self.data = self.data.rename(self.name)
 
     def _function(self) -> pd.Series:
         """RSI function"""
-        return functions.rsi(self.parents['data'].data, k=self.param['k'])
+        return functions.rsi(self.parents["data"].data, k=self.param["k"])
 
 
 class MACD(PropertiesABC):
     """
     MACD
     """
-    type = 'macd'
 
-    def __init__(self, market=None, parent: [dict, PropertiesABC] = None, param: dict = None):
+    type = "macd"
+
+    def __init__(
+        self, market=None, parent: [dict, PropertiesABC] = None, param: dict = None
+    ):
         super().__init__(market=market, parent=parent, param=param)
-        if 'short' in self.parents.keys() and 'long' in self.parents.keys():
-            if 'k' in self.param:
-                self.name = f"{self.type}_k-{param['k']}_long_{self.parents['long'].name}_" \
-                            f"short_{self.parents['short'].name}"
-        if 'k' not in self.param:
+        if "short" in self.parents.keys() and "long" in self.parents.keys():
+            if "k" in self.param:
+                self.name = (
+                    f"{self.type}_k-{param['k']}_long_{self.parents['long'].name}_"
+                    f"short_{self.parents['short'].name}"
+                )
+        if "k" not in self.param:
             logging.warning(f"k is not defined in parameters: {param}")
         self.data = self.data.rename(self.name)
 
     def _function(self) -> pd.Series:
         """MACD function"""
-        return functions.macd(self.parents['short'].data, self.parents['long'].data,
-                              k=self.param['k'])
+        return functions.macd(
+            self.parents["short"].data, self.parents["long"].data, k=self.param["k"]
+        )
 
     def update(self):
         """Update function for MACD"""
         update = False
         if len(self.parents) > 0:
-            if 'short' in self.parents and 'long' in self.parents and \
-                    len(self.parents['short'].data) > len(self.data):
+            if (
+                "short" in self.parents
+                and "long" in self.parents
+                and len(self.parents["short"].data) > len(self.data)
+            ):
                 update = True
-            elif 'market' in self.parents and len(self.parents['market'].ask.data) > len(self.data):
+            elif "market" in self.parents and len(
+                self.parents["market"].ask.data
+            ) > len(self.data):
                 update = True
 
         # update data
@@ -390,17 +443,25 @@ class Bollinger(PropertiesABC):
     """
     Bollinger
     """
-    type = 'bollinger'
 
-    def __init__(self, market=None, parent: [dict, PropertiesABC] = None, param: dict = None):
+    type = "bollinger"
+
+    def __init__(
+        self, market=None, parent: [dict, PropertiesABC] = None, param: dict = None
+    ):
         super().__init__(market=market, parent=parent, param=param)
-        if 'data' in self.parents.keys() and 'mean' in self.parents.keys() and \
-                'std' in self.parents.keys():
-            if 'k' not in param:
+        if (
+            "data" in self.parents.keys()
+            and "mean" in self.parents.keys()
+            and "std" in self.parents.keys()
+        ):
+            if "k" not in param:
                 logging.warning("k is not defined in param, set to 2")
-                param['k'] = 2
-            self.name = f"{self.type}_k-{param['k']}_data_{self.parents['data'].name}_" \
-                        f"mean_{self.parents['mean'].name}_std_{self.parents['std'].name}"
+                param["k"] = 2
+            self.name = (
+                f"{self.type}_k-{param['k']}_data_{self.parents['data'].name}_"
+                f"mean_{self.parents['mean'].name}_std_{self.parents['std'].name}"
+            )
         else:
             logging.warning("Missing parent values")
             self.name = self.type
@@ -408,8 +469,12 @@ class Bollinger(PropertiesABC):
 
     def _function(self) -> pd.Series:
         """Bollinger function"""
-        return functions.bollinger(self.parents['data'].data, self.parents['mean'].data,
-                                   self.parents['std'].data, self.param['k'])
+        return functions.bollinger(
+            self.parents["data"].data,
+            self.parents["mean"].data,
+            self.parents["std"].data,
+            self.param["k"],
+        )
 
 
 def generate_derivative_by_name(name: str, market) -> Derivative:
@@ -451,7 +516,9 @@ def generate_moving_average_by_name(name: str, market) -> MovingAverage:
     return MovingAverage(market=market, parent=parent_prop, param=param)
 
 
-def generate_exponential_moving_average_by_name(name: str, market) -> ExponentialMovingAverage:
+def generate_exponential_moving_average_by_name(
+    name: str, market
+) -> ExponentialMovingAverage:
     """
     Function to generate exponential moving average properties from a name
     Parameters
@@ -553,11 +620,13 @@ def generate_macd_by_name(name: str, market) -> MACD:
         param["k"] = int(words[1].split("-")[-1])
     ishort = words.index("short")
     ilong = words.index("long")
-    parent_long_str = "_".join(words[ilong + 1:ishort])
-    parent_short_str = "_".join(words[ishort + 1:])
+    parent_long_str = "_".join(words[ilong + 1 : ishort])
+    parent_short_str = "_".join(words[ishort + 1 :])
     parent_long = generate_property_by_name(parent_long_str, market)
     parent_short = generate_property_by_name(parent_short_str, market)
-    return MACD(market=market, param=param, parent={"short": parent_short, "long": parent_long})
+    return MACD(
+        market=market, param=param, parent={"short": parent_short, "long": parent_long}
+    )
 
 
 def generate_bollinger_by_name(name: str, market) -> Bollinger:
@@ -579,14 +648,17 @@ def generate_bollinger_by_name(name: str, market) -> Bollinger:
     idata = words.index("data")
     imean = words.index("mean")
     istd = words.index("std")
-    parent_data_str = "_".join(words[idata + 1:imean])
-    parent_mean_str = '_'.join(words[imean + 1:istd])
-    parent_std_str = "_".join(words[istd + 1:])
+    parent_data_str = "_".join(words[idata + 1 : imean])
+    parent_mean_str = "_".join(words[imean + 1 : istd])
+    parent_std_str = "_".join(words[istd + 1 :])
     parent_data = generate_property_by_name(parent_data_str, market)
     parent_mean = generate_property_by_name(parent_mean_str, market)
     parent_std = generate_property_by_name(parent_std_str, market)
-    return Bollinger(market=market, param=param,
-                     parent={'data': parent_data, "mean": parent_mean, "std": parent_std})
+    return Bollinger(
+        market=market,
+        param=param,
+        parent={"data": parent_data, "mean": parent_mean, "std": parent_std},
+    )
 
 
 def generate_property_by_name(name: str, market) -> [PropertiesABC, None]:

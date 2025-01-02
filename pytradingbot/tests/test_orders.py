@@ -1,4 +1,5 @@
 """Test all order classes and functions"""
+
 # =================
 # Python IMPORTS
 # =================
@@ -10,14 +11,26 @@ import pandas as pd
 # Internal IMPORTS
 # =================
 from pytradingbot.utils.market_tools import market_from_file
-from pytradingbot.cores.orders import ConditionUpper, ConditionLower, ConditionCrossUp, ConditionCrossUp10, \
-    ConditionCrossUp5, ConditionCrossDown, ConditionCrossDown5, ConditionCrossDown10, ActionBuy, \
-    ActionSell, Order, generate_condition_from_dict, generate_action_from_dict
+from pytradingbot.cores.orders import (
+    ConditionUpper,
+    ConditionLower,
+    ConditionCrossUp,
+    ConditionCrossUp10,
+    ConditionCrossUp5,
+    ConditionCrossDown,
+    ConditionCrossDown5,
+    ConditionCrossDown10,
+    ActionBuy,
+    ActionSell,
+    Order,
+    generate_condition_from_dict,
+    generate_action_from_dict,
+)
 
 
 @pytest.mark.run(order=39)
 def test_condition_greater_than(market_one_day_path):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     condition = ConditionUpper(market.ask, 0)
     assert isinstance(condition, ConditionUpper)
     condition.update()
@@ -27,12 +40,12 @@ def test_condition_greater_than(market_one_day_path):
     condition = ConditionUpper(market.ask, median)
     condition.update()
     data = condition.data
-    assert len(data[data]) == np.floor(len(market.ask.data)/2)
+    assert len(data[data]) == np.floor(len(market.ask.data) / 2)
 
 
 @pytest.mark.run(order=40)
 def test_condition_lower_than(market_one_day_path):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     condition = ConditionLower(market.ask, 0)
     assert isinstance(condition, ConditionLower)
     condition.update()
@@ -42,12 +55,12 @@ def test_condition_lower_than(market_one_day_path):
     condition = ConditionLower(market.ask, median)
     condition.update()
     data = condition.data
-    assert len(data[data == True]) == np.floor(len(market.ask.data)/2) - 1
+    assert len(data[data == True]) == np.floor(len(market.ask.data) / 2) - 1
 
 
 @pytest.mark.run(order=41)
 def test_condition_cross_up(market_one_day_path):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     index = market.ask.data.index
     size = market.ask.data
     market.ask.data = pd.Series(data=range(len(size)), index=index)
@@ -57,14 +70,14 @@ def test_condition_cross_up(market_one_day_path):
     data = condition.data
     assert len(data) == len(market.ask.data)
     assert data.sum() == 1
-    market.ask.data = pd.Series(data=np.arange(len(size)+1, 1, -1), index=index)
+    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 1, -1), index=index)
     condition.update(force=True)
     assert condition.data.sum() == 0
-    
-    
+
+
 @pytest.mark.run(order=42)
 def test_condition_cross_down(market_one_day_path):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     index = market.ask.data.index
     size = market.ask.data
     market.ask.data = pd.Series(data=range(len(size)), index=index)
@@ -74,14 +87,14 @@ def test_condition_cross_down(market_one_day_path):
     data = condition.data
     assert len(data) == len(market.ask.data)
     assert data.sum() == 0
-    market.ask.data = pd.Series(data=np.arange(len(size)+1, 1, -1), index=index)
+    market.ask.data = pd.Series(data=np.arange(len(size) + 1, 1, -1), index=index)
     condition.update(force=True)
     assert condition.data.sum() == 1
 
 
 @pytest.mark.run(order=42)
 def test_condition_cross_up_last_five(market_one_day_path):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     index = market.ask.data.index
     size = market.ask.data
     market.ask.data = pd.Series(data=range(len(size)), index=index)
@@ -98,7 +111,7 @@ def test_condition_cross_up_last_five(market_one_day_path):
 
 @pytest.mark.run(order=42)
 def test_condition_cross_down_last_five(market_one_day_path):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     index = market.ask.data.index
     size = market.ask.data
     market.ask.data = pd.Series(data=range(len(size)), index=index)
@@ -112,9 +125,10 @@ def test_condition_cross_down_last_five(market_one_day_path):
     condition.update(force=True)
     assert condition.data.sum() == 5 + 1
 
+
 @pytest.mark.run(order=42)
 def test_condition_cross_up_last_ten(market_one_day_path):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     index = market.ask.data.index
     size = market.ask.data
     market.ask.data = pd.Series(data=range(len(size)), index=index)
@@ -131,7 +145,7 @@ def test_condition_cross_up_last_ten(market_one_day_path):
 
 @pytest.mark.run(order=42)
 def test_condition_cross_down_last_ten(market_one_day_path):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     index = market.ask.data.index
     size = market.ask.data
     market.ask.data = pd.Series(data=range(len(size)), index=index)
@@ -143,12 +157,12 @@ def test_condition_cross_down_last_ten(market_one_day_path):
     assert data.sum() == 0
     market.ask.data = pd.Series(data=np.arange(len(size) + 1, 1, -1), index=index)
     condition.update(force=True)
-    assert condition.data.sum() == 10 -1
+    assert condition.data.sum() == 10 - 1
 
 
 @pytest.mark.run(order=43)
 def test_action_add_child(market_one_day_path, caplog):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     action = ActionBuy(market=market)
     condition = ConditionUpper(market.ask, 0)
     action.add_child(condition)
@@ -160,7 +174,7 @@ def test_action_add_child(market_one_day_path, caplog):
 
 @pytest.mark.run(order=44)
 def test_action_update(market_one_day_path):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     action = ActionBuy(market=market)
     condition1 = ConditionUpper(market.ask, 0)
     action.add_child(condition1)
@@ -173,17 +187,17 @@ def test_action_update(market_one_day_path):
     assert len(action.data) == len(market.ask.data)
     assert action.data.sum() == 0
 
-    
+
 @pytest.mark.run(order=45)
-def test_order(market_one_day_path):    
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+def test_order(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     order = Order(market=market)
     # test update empty order
     order.update()
     assert len(order.data) == len(market.ask.data)
     assert order.data.sum() == 0
     assert order.action == 0
-    
+
     # test with always buy
     order = Order(market=market)
     action_buy = ActionBuy(market=market)
@@ -194,7 +208,7 @@ def test_order(market_one_day_path):
     assert len(order.data) == len(market.ask.data)
     assert order.data.sum() == len(market.ask.data)
     assert order.action == 1
-    
+
     # test with never sell
     order = Order(market=market)
     action_buy = ActionBuy(market=market)
@@ -239,61 +253,61 @@ def test_order(market_one_day_path):
 
 @pytest.mark.run(order=46)
 def test_generate_condition(market_one_day_path, caplog):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     # Test wrong dict
     condition_dict = {"value": 0, "function": "<"}
     condition = generate_condition_from_dict(condition_dict, market=market)
     assert "Invalid dictionary keys" in caplog.text
     assert condition is None
     # test Wrong function
-    condition_dict = {"value": 0, "function": "toto", 'property': "EMA_k-12_ask"}
+    condition_dict = {"value": 0, "function": "toto", "property": "EMA_k-12_ask"}
     condition = generate_condition_from_dict(condition_dict, market=market)
     assert condition is None
     assert "Unknown function" in caplog.text
     # test ConditionLower
-    condition_dict = {"value": 0, "function": "<", 'property': "EMA_k-12_ask"}
+    condition_dict = {"value": 0, "function": "<", "property": "EMA_k-12_ask"}
     condition = generate_condition_from_dict(condition_dict, market=market)
     assert isinstance(condition, ConditionLower)
     assert condition.value == 0
     assert condition.parent.name == "EMA_k-12_ask"
     # test ConditionUpper
-    condition_dict = {"value": 0, "function": ">", 'property': "EMA_k-12_ask"}
+    condition_dict = {"value": 0, "function": ">", "property": "EMA_k-12_ask"}
     condition = generate_condition_from_dict(condition_dict, market=market)
     assert isinstance(condition, ConditionUpper)
     assert condition.value == 0
     assert condition.parent.name == "EMA_k-12_ask"
     # test ConditionCrossUp
-    condition_dict = {"value": 0, "function": "+=", 'property': "EMA_k-12_ask"}
+    condition_dict = {"value": 0, "function": "+=", "property": "EMA_k-12_ask"}
     condition = generate_condition_from_dict(condition_dict, market=market)
     assert isinstance(condition, ConditionCrossUp)
     assert condition.value == 0
     assert condition.parent.name == "EMA_k-12_ask"
     # test ConditionCrossUp10
-    condition_dict = {"value": 0, "function": "+=10", 'property': "EMA_k-12_ask"}
+    condition_dict = {"value": 0, "function": "+=10", "property": "EMA_k-12_ask"}
     condition = generate_condition_from_dict(condition_dict, market=market)
     assert isinstance(condition, ConditionCrossUp10)
     assert condition.value == 0
     assert condition.parent.name == "EMA_k-12_ask"
     # test ConditionCrossUp5
-    condition_dict = {"value": 0, "function": "+=5", 'property': "EMA_k-12_ask"}
+    condition_dict = {"value": 0, "function": "+=5", "property": "EMA_k-12_ask"}
     condition = generate_condition_from_dict(condition_dict, market=market)
     assert isinstance(condition, ConditionCrossUp5)
     assert condition.value == 0
     assert condition.parent.name == "EMA_k-12_ask"
     # test ConditionCrossDown
-    condition_dict = {"value": 0, "function": "-=", 'property': "EMA_k-12_ask"}
+    condition_dict = {"value": 0, "function": "-=", "property": "EMA_k-12_ask"}
     condition = generate_condition_from_dict(condition_dict, market=market)
     assert isinstance(condition, ConditionCrossDown)
     assert condition.value == 0
     assert condition.parent.name == "EMA_k-12_ask"
     # test ConditionCrossDown10
-    condition_dict = {"value": 0, "function": "-=10", 'property': "EMA_k-12_ask"}
+    condition_dict = {"value": 0, "function": "-=10", "property": "EMA_k-12_ask"}
     condition = generate_condition_from_dict(condition_dict, market=market)
     assert isinstance(condition, ConditionCrossDown10)
     assert condition.value == 0
     assert condition.parent.name == "EMA_k-12_ask"
     # test ConditionCrossUp5
-    condition_dict = {"value": 0, "function": "-=5", 'property': "EMA_k-12_ask"}
+    condition_dict = {"value": 0, "function": "-=5", "property": "EMA_k-12_ask"}
     condition = generate_condition_from_dict(condition_dict, market=market)
     assert isinstance(condition, ConditionCrossDown5)
     assert condition.value == 0
@@ -302,7 +316,7 @@ def test_generate_condition(market_one_day_path, caplog):
 
 @pytest.mark.run(order=47)
 def test_generate_action_from_dict(market_one_day_path, caplog):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     # Test wrong dict
     action_dict = {"type": "sell"}
     action = generate_action_from_dict(action_dict, market)
@@ -319,7 +333,10 @@ def test_generate_action_from_dict(market_one_day_path, caplog):
     assert "Conditions of action should be a list" in caplog.text
     assert action is None
     # Test good conditions
-    action_dict = {"type": "buy", "conditions": [{"value": 0, "function": "+=", 'property': "EMA_k-12_ask"}]}
+    action_dict = {
+        "type": "buy",
+        "conditions": [{"value": 0, "function": "+=", "property": "EMA_k-12_ask"}],
+    }
     action = generate_action_from_dict(action_dict, market)
     assert isinstance(action, ActionBuy)
     condition = action.child[0]
@@ -327,8 +344,8 @@ def test_generate_action_from_dict(market_one_day_path, caplog):
 
 
 @pytest.mark.run(order=49)
-def test_simulate_trading(market_one_day_path, caplog):
-    market = market_from_file(market_one_day_path, fmt='csv')[0]
+def test_simulate_trading(market_one_day_path):
+    market = market_from_file(market_one_day_path, fmt="csv")[0]
     market.analyse()
     # Do nothing
     result = market.order.simulate_trading(imoney=100, fees=0.1, cost_no_action=100)
@@ -345,4 +362,4 @@ def test_simulate_trading(market_one_day_path, caplog):
     result = market.order.simulate_trading(imoney=100, fees=0.1, cost_no_action=100)
     gain, win, loose = result
     assert gain != 0 and -100 < gain < 100
-    assert (win+loose) in range(int(len(index)/4)-1, int(len(index)/4)+2)
+    assert win + loose in range(int(len(index) / 4) - 1, int(len(index) / 4) + 2)

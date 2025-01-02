@@ -1,8 +1,15 @@
 pandas
 numpy==1.24.1
+numpy_ext
 pytest
+pytest-ordering
+pytest-cov
 krakenex
 lxml==4.9.2
 requests==2.28.2
 sphinx
 alive_progress
+flake8
+black
+pylint
+bandit

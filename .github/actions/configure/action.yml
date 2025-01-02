@@ -1,0 +1,20 @@
+name: "Configuration"
+description: "Set up Python and install dependencies"
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout the code
+      uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+      shell: bash
+inputs:
+  python-version:
+    description: "Python version"
+    required: true

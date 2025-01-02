@@ -2,7 +2,22 @@
 A Python Trading bot  
 This project is in development : not stable yet
 
+# Status and coverage
+| branche | CI status                                                                                                            | Coverage                                                                                                                                                      |  
+|---------|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------| 
+| main    | ![Statut CI](https://github.com/echesneau/pytradingbot/actions/workflows/ci.yml/badge.svg?branch=main)               | [![Couverture de code](https://codecov.io/gh/echesneau/pytradingbot/branch/main/graph/badge.svg)](https://codecov.io/gh/echesneau/pytradingbot)               |
+| dev     | ![Statut CI](https://github.com/echesneau/pytradingbot/actions/workflows/ci.yml/badge.svg?branch=dev)                | [![Couverture de code](https://codecov.io/gh/echesneau/pytradingbot/branch/dev/graph/badge.svg)](https://codecov.io/gh/echesneau/pytradingbot)                |
+
 # Versions
+## HEAD
+- Add a complete CI
+- Add badge in README
+This version does not use anymore the id_config file. Now secrets to connect to the api are store
+ as environment variables. 
+- API_USER
+- API_KEY
+- API_PRIVATE
+
 ## v0.3.2
 Fix bug on cross_up_last_n and cross_down_last_n function
 
@@ -59,11 +74,11 @@ in the configuration
 94% of lines for v0.3.0
 93% of lines for v0.2.0 
 
-# id.config
-This file contains users and password to use in order to connect to the trading service.
-The format of this file could be found in data/inputs/id.config.example.  
-It contains a username and the private key for kraken connection.  
-The username is then use in API classes to establish connection.  
+# Environment variables
+Users and password to use in order to connect to the trading service are stored in 3 environment variables:
+- API_USER: username (optional)
+- API_KEY: kraken public key
+- API_PRIVATE: kraken private key
 
 # config.xml
 This file contains all parameters used for the trading.  
