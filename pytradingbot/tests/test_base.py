@@ -24,8 +24,13 @@ def test_base_api(inputs_config_path):
     assert type(api.id) == dict
     for value in ['user', 'private', 'key']:
         assert value in api.id.keys()
-    for value in [os.getenv('API_USER'), os.getenv('API_KEY'), os.getenv('API_PRIVATE')]:
-        assert (value is not None) & (value != '')
+    variables = {
+        "API_USER": os.getenv('API_USER'),
+        "API_KEY": os.getenv('API_KEY'),
+        "API_PRIVATE": os.getenv('API_PRIVATE')
+    }
+    for name, value in variables.items():
+        assert (value is not None) and (value != ''), f"La variable {name} est manquante ou vide."
 
     # read inputs XML config
     api.set_config(inputs_config_path)

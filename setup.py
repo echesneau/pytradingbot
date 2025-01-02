@@ -14,11 +14,17 @@ setup(
         "numpy",
         "numpy_ext",
         "pytest",
+        "pytest-ordering",
+        "pytest-cov",
         "krakenex",
         "lxml",
         "requests",
         "sphynx",
         "alive_progress",
+        "flake8",
+        "black",
+        "pylint",
+        "bandit",
         ]
 )
         

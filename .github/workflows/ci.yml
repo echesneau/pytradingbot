@@ -1,0 +1,78 @@
+name: CI - Installation, Tests and Quality
+on:
+  push:
+    branches:
+      - dev
+      - main
+      - 5-create-gitlab-ci
+  pull_request:
+    branches:
+      - dev
+      - main
+      - 5-create-gitlab-ci
+env:
+  API_USER: ${{ secrets.API_USER }}
+  API_KEY: ${{ secrets.API_KEY }}
+  API_PRIVATE: ${{ secrets.API_PRIVATE }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+      - name: Configuration
+        uses: ./.github/actions/configure
+        with:
+          python-version: '3.9'
+      - name: Install package
+        run: |
+          pip install .
+
+  tests:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v3
+    - name: Installation
+      uses: ./.github/actions/install
+      with:
+        python-version: '3.9'
+    - name: Run tests
+      run: |
+        pytest --cov=pytradingbot --cov-fail-under=75 --cov-report=xml
+    - name: Upload results to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: echesneau/pytradingbot
+  quality:
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+      - name: Installation
+        uses: ./.github/actions/install
+        with:
+          python-version: '3.9'
+      - name: Code quality analysis with Flake8
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+      - name: Code formatting analysis with Black
+        run: |
+          black --diff . || true > black_warnings.txt
+        continue-on-error: true
+      - name: Save Black results
+        uses: actions/upload-artifact@v3
+        with:
+          name: black-warnings
+          path: black_warnings.txt
+      - name: Detailed analysis with Pylint
+        run: |
+          pylint pytradingbot || true
+      - name: Security analysis with Bandit
+        run: |
+          bandit -r pytradingbot --exclude pytradingbot/tests/ || true
