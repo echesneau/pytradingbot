@@ -4,12 +4,10 @@ on:
     branches:
       - dev
       - main
-      - 5-create-gitlab-ci
   pull_request:
     branches:
       - dev
       - main
-      - 5-create-gitlab-ci
 env:
   API_USER: ${{ secrets.API_USER }}
   API_KEY: ${{ secrets.API_KEY }}
