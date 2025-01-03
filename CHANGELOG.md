@@ -1,5 +1,5 @@
 # Versions
-## HEAD
+## 0.4.0
 - Add a complete CI
 - Add badge in README
 This version does not use anymore the id_config file. Now secrets to connect to the api are store
