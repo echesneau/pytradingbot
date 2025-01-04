@@ -108,6 +108,21 @@ class KrakenApi(BaseApi):
             )
         return values
 
+    def _get_balance(self) -> dict:
+        """
+
+        Returns
+        -------
+
+        """
+        result = self.session.query_private("Balance")
+        if len(result["error"]) > 0:
+            print(f"Warning: error getting balance. \n{';'.join(result['error'])}")
+            balance = {"ZEUR": 0}
+        else:
+            balance = result["result"]
+        return balance
+
 
 class KrakenApiDev(KrakenApi):
     """

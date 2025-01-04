@@ -41,6 +41,22 @@ def test_get_market(inputs_config_path):
 
 
 @pytest.mark.run(order=6)
+def test_balance(inputs_config_path, balance_path):
+    api = KrakenApi(inputs_config_path)
+    api.connect()
+    balance = api.balance
+    assert isinstance(balance, dict)
+    assert len(balance.keys()) > 0
+    assert "ZEUR" in balance
+    api = KrakenApiDev(input_path=inputs_config_path, balance_path=balance_path)
+    api.connect()
+    balance = api.balance
+    assert isinstance(balance, dict)
+    assert len(balance.keys()) > 0
+    assert "ZEUR" in balance
+
+
+@pytest.mark.run(order=6)
 def test_get_money(inputs_config_path, balance_path):
     api = KrakenApiDev(input_path=inputs_config_path, imoney=200)
     api.connect()
