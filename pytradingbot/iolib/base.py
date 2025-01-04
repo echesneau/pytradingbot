@@ -293,7 +293,7 @@ class BaseApi(ApiABC):
         """
         Method to get your balance
         """
-        return self.balance["EUR"]
+        return self.balance["ZEUR"]
 
 
 class APILoadData(BaseApi):

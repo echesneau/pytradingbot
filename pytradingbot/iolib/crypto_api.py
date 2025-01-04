@@ -128,7 +128,7 @@ class KrakenApiDev(KrakenApi):
         self._set_id()
         self.balance_path = balance_path
         if balance_path is None:
-            self.balance_dict = {"EUR": imoney}
+            self.balance_dict = {"ZEUR": imoney}
         elif not os.path.isfile(balance_path):
             raise FileNotFoundError(f"Balance file {balance_path} is not a file")
 
@@ -144,14 +144,14 @@ class KrakenApiDev(KrakenApi):
     def buy(self, quantity, price):
         tot_price = quantity * price
         if self.balance_path is None:
-            self.balance_dict["EUR"] -= tot_price
+            self.balance_dict["ZEUR"] -= tot_price
             if self.pair not in self.balance_dict:
                 self.balance_dict[self.pair] = quantity
             else:
                 self.balance_dict[self.pair] += quantity
         else:
             balance = self.balance
-            balance["EUR"] -= tot_price
+            balance["ZEUR"] -= tot_price
             if self.pair in balance.keys():
                 balance[self.pair] += quantity
             else:
@@ -163,14 +163,14 @@ class KrakenApiDev(KrakenApi):
     def sell(self, quantity, price):
         if self.balance_path is None:
             quantity = min(quantity, self.balance[self.pair])
-            self.balance_dict["EUR"] += quantity * price
+            self.balance_dict["ZEUR"] += quantity * price
             self.balance_dict[self.pair] -= quantity
         else:
             balance = self.balance
             quantity = min(quantity, balance[self.pair])
             if quantity > balance[self.pair]:
                 quantity = balance[self.pair]
-            balance["EUR"] += quantity * price
+            balance["ZEUR"] += quantity * price
             balance[self.pair] -= quantity
             tmp = pd.Series(balance).to_frame().reset_index()
             tmp.columns = ["name", "quantity"]
