@@ -110,10 +110,10 @@ class KrakenApi(BaseApi):
 
     def _get_balance(self) -> dict:
         """
-
+        Method to request balance of Kraken account
         Returns
         -------
-
+        dict: balance: keys: symbol, value: quantity
         """
         result = self.session.query_private("Balance")
         if len(result["error"]) > 0:
@@ -121,7 +121,75 @@ class KrakenApi(BaseApi):
             balance = {"ZEUR": 0}
         else:
             balance = result["result"]
+        balance = {key: float(value) for key, value in balance.items()}
         return balance
+
+    def buy(self, quantity: float, price: float):
+        pass
+
+    def sell(self, quantity: float, price: float):
+        pass
+
+    def cancel_order_by_id(self, order_id: str):
+        pass
+
+    def _get_open_orders(self) -> dict:
+        """
+        Method to get all opened orders and format results in JSON
+
+        Returns
+        -------
+        dict: JSON stucture: json[order_type][pair] = [list of id]
+        """
+        out = {"buy": {}, "sell": {}}
+        result = self.session.query_private("OpenOrders")
+        if len(result["error"]) > 0:
+            print(
+                f"Warning: error getting opened orders. \n{';'.join(result['error'])}"
+            )
+            opened_orders = {}
+        else:
+            opened_orders = result["result"]["open"]
+        for order_id, order_info in opened_orders.items():
+            order_descr = order_info["descr"]
+            order_type = order_descr["type"]
+            order_pair = order_descr["pair"]
+            if order_type not in out:
+                out[order_type] = {}
+            if order_pair not in out[order_type]:
+                out[order_type][order_pair] = []
+            out[order_type][order_pair] += [order_id]
+        return out
+
+    def open_orders(self, type: str = None, pair: str = None) -> list:
+        """
+        Method to return list of order's ids opened. Could be filtered by type (sell or buy) and by symbol.
+
+        Parameters
+        ----------
+        type: str
+            type of order: sell or buy. If None: return both
+        pair: str
+            pair in order. (XXBTZEUR for example). If None: return all pair
+
+        Returns
+        -------
+        list of id
+        """
+        ids = []
+        open_orders = self._get_open_orders()
+        # filtering on type
+        order_types = [type] if type is not None else list(open_orders.keys())
+        for o_type in order_types:
+            if o_type not in open_orders:
+                continue
+            # Filtering on pair
+            pairs = [pair] if pair is not None else list(open_orders[o_type].keys())
+            for p in pairs:
+                if p not in open_orders[o_type]:
+                    continue
+                ids += open_orders[o_type][p]
+        return ids
 
 
 class KrakenApiDev(KrakenApi):
@@ -149,12 +217,16 @@ class KrakenApiDev(KrakenApi):
 
     def _get_balance(self):
         if self.balance_path is None:
+            balance = self.balance_dict
             return self.balance_dict
         else:
             balance = pd.read_csv(self.balance_path, sep=";", index_col="name").squeeze(
                 axis=1
             )
-            return balance.to_dict()
+            balance = balance.to_dict()
+        balance = {key: float(value) for key, value in balance.items()}
+        return balance
+
 
     def buy(self, quantity, price):
         tot_price = quantity * price

@@ -32,12 +32,13 @@ def test_connect():
 
 @pytest.mark.run(order=6)
 def test_get_market(inputs_config_path):
-    api = KrakenApiDev(input_path=inputs_config_path)
+    api = KrakenApi(input_path=inputs_config_path)
     api.connect()
     values = api.get_market()
     for key in ["bid", "ask"]:
         assert key in values
         assert isinstance(values[key], float)
+
 
 
 @pytest.mark.run(order=6)
@@ -48,16 +49,25 @@ def test_balance(inputs_config_path, balance_path):
     assert isinstance(balance, dict)
     assert len(balance.keys()) > 0
     assert "ZEUR" in balance
+    for symbol, value in balance.items():
+        assert isinstance(symbol, str)
+        assert isinstance(value, float)
     api = KrakenApiDev(input_path=inputs_config_path, balance_path=balance_path)
     api.connect()
     balance = api.balance
     assert isinstance(balance, dict)
     assert len(balance.keys()) > 0
     assert "ZEUR" in balance
+    for symbol, value in balance.items():
+        assert isinstance(symbol, str)
+        assert isinstance(value, float)
 
 
 @pytest.mark.run(order=6)
 def test_get_money(inputs_config_path, balance_path):
+    api = KrakenApi(inputs_config_path)
+    api.connect()
+    assert api.mymoney >= 0
     api = KrakenApiDev(input_path=inputs_config_path, imoney=200)
     api.connect()
     assert api.mymoney == 200
@@ -131,6 +141,18 @@ def test_sell(inputs_config_path, balance_path):
     balance = balance.to_dict()
     assert balance[api.pair] == 0
 
+@pytest.mark.run(order=6)
+def test_open_orders(inputs_config_path):
+    # test structure
+    api = KrakenApi(inputs_config_path)
+    api.connect()
+    open_orders_dict = api._get_open_orders()
+    assert "sell" in open_orders_dict
+    assert "buy" in open_orders_dict
+    open_orders_list = api.open_orders()
+    assert isinstance(open_orders_list, list)
+    # test filtering type
+    # test filtering symbol
 
 @pytest.mark.run(order=-1)
 def test_run_api(inputs_config_path):
