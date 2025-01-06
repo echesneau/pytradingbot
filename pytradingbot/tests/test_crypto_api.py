@@ -1,5 +1,7 @@
 """module to test crypto api"""
 
+import time
+
 # =================
 # Python IMPORTS
 # =================
@@ -38,7 +40,6 @@ def test_get_market(inputs_config_path):
     for key in ["bid", "ask"]:
         assert key in values
         assert isinstance(values[key], float)
-
 
 
 @pytest.mark.run(order=6)
@@ -106,6 +107,14 @@ def test_buy(inputs_config_path, balance_path):
     )
     api.buy(3.5, 2)
     assert api.mymoney == 3
+    api = KrakenApi(inputs_config_path)
+    api.connect()
+    api.pair = "XXBTZEUR"
+    api.buy(0.5, 1)
+    time.sleep(1)
+    assert len(api.open_orders(type="buy", pair="XBTEUR")) == 1
+    for o_id in api.open_orders(type="buy", pair="XBTEUR"):
+        api.cancel_order_by_id(o_id)
 
 
 @pytest.mark.run(order=6)
@@ -140,6 +149,15 @@ def test_sell(inputs_config_path, balance_path):
     balance = pd.read_csv(balance_path, sep=";", index_col="name").squeeze(axis=1)
     balance = balance.to_dict()
     assert balance[api.pair] == 0
+    api = KrakenApi(inputs_config_path)
+    api.connect()
+    api.pair = "XETCZEUR"
+    api.sell(0.3, 100)
+    time.sleep(1)
+    assert len(api.open_orders(type="sell", pair="ETCEUR")) == 1
+    for o_id in api.open_orders(type="sell", pair="ETCEUR"):
+        api.cancel_order_by_id(o_id)
+
 
 @pytest.mark.run(order=6)
 def test_open_orders(inputs_config_path):
@@ -152,7 +170,16 @@ def test_open_orders(inputs_config_path):
     open_orders_list = api.open_orders()
     assert isinstance(open_orders_list, list)
     # test filtering type
-    # test filtering symbol
+    api.pair = "XETCZEUR"
+    api.buy(5, 0.1)
+    api.sell(0.3, 100)
+    time.sleep(1)
+    assert len(api.open_orders()) == 2
+    assert len(api.open_orders(type="sell")) == 1
+    assert len(api.open_orders(type="buy")) == 1
+    for o_id in api.open_orders(pair="ETCEUR"):
+        api.cancel_order_by_id(o_id)
+
 
 @pytest.mark.run(order=-1)
 def test_run_api(inputs_config_path):

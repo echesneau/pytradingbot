@@ -125,13 +125,64 @@ class KrakenApi(BaseApi):
         return balance
 
     def buy(self, quantity: float, price: float):
-        pass
+        """
+        send a order to buy on market
+
+        Parameters
+        ----------
+        quantity: float
+            quantity to buy
+        price: float
+            price
+        """
+        result = self.session.query_private(
+            "AddOrder",
+            {
+                "pair": self.pair,
+                "type": "buy",
+                "ordertype": "limit",
+                "price": price,
+                "volume": quantity,
+            },
+        )
+        if len(result["error"]) > 0:
+            print(f"Warning: error buying. \n{';'.join(result['error'])}")
+        else:
+            print(
+                f"Order id: {result['result']['txid']} : {result['result']['descr']['order']}"
+            )
 
     def sell(self, quantity: float, price: float):
-        pass
+        result = self.session.query_private(
+            "AddOrder",
+            {
+                "pair": self.pair,
+                "type": "sell",
+                "ordertype": "limit",
+                "price": price,
+                "volume": quantity,
+            },
+        )
+        if len(result["error"]) > 0:
+            print(f"Warning: error selling. \n{';'.join(result['error'])}")
+        else:
+            print(
+                f"Order id: {result['result']['txid']} : {result['result']['descr']['order']}"
+            )
 
     def cancel_order_by_id(self, order_id: str):
-        pass
+        """
+        Method to cancel an order identifying by its ID
+        Parameters
+        ----------
+        order_id: str
+            txid of order to close
+        """
+        result = self.session.query_private("CancelOrder", {"txid": order_id})
+        if len(result["error"]) > 0:
+            print(f"Warning: error closing order. \n{';'.join(result['error'])}")
+        else:
+            print(f"Order closed: count = {result['result']['count']}")
 
     def _get_open_orders(self) -> dict:
         """
@@ -226,7 +277,6 @@ class KrakenApiDev(KrakenApi):
             balance = balance.to_dict()
         balance = {key: float(value) for key, value in balance.items()}
         return balance
-
 
     def buy(self, quantity, price):
         tot_price = quantity * price
