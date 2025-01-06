@@ -206,6 +206,12 @@ class BaseApi(ApiABC):
         """
         self.market = obj
 
+    def open_orders(self, type: str = None, pair: str = None):
+        return []
+
+    def cancel_order_by_id(self, order_id: str):
+        pass
+
     def run(self, times: int = np.inf):
         """
         method to run the analysis of market in real time
@@ -235,9 +241,17 @@ class BaseApi(ApiABC):
             self.analyse()
             action = self.market.action
             if action == 1:
-                self.buy()
+                price = self.market.ask.data.iloc[-1]
+                quantity = self.calculate_quantity_buy(price)
+                self.buy(quantity, price)
             elif action == -1:
-                self.sell()
+                balance = self.balance
+                quantity = balance[self.symbol]
+                price = self.market.bid.data.iloc[-1]
+                self.sell(quantity, price)
+            else:
+                for o_id in self.open_orders(type='buy'):
+                    self.cancel_order_by_id(o_id)
             self.market.save()
             self.market.clean()
             final_time = datetime.now()
