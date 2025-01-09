@@ -1,5 +1,7 @@
 # Versions
 ## HEAD
+
+## 0.5.0
 Complete KrakenApi methods:
 - sell
 - buy
