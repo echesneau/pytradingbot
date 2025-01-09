@@ -1,4 +1,14 @@
 # Versions
+## HEAD
+Complete KrakenApi methods:
+- sell
+- buy
+- open_orders
+- cancel_order_by_id
+- _get_balance  
+
+update and debug run method
+
 ## 0.4.0
 - Add a complete CI
 - Add badge in README
